@@ -1,10 +1,12 @@
 package com.refinedmods.refinedstorage.api.network.impl.node.relay;
 
+import com.refinedmods.refinedstorage.api.autocrafting.Pattern;
 import com.refinedmods.refinedstorage.api.autocrafting.status.TaskStatus;
-import com.refinedmods.refinedstorage.api.autocrafting.task.ExternalPatternSink;
+import com.refinedmods.refinedstorage.api.autocrafting.task.StepBehavior;
 import com.refinedmods.refinedstorage.api.autocrafting.task.Task;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
 import com.refinedmods.refinedstorage.api.core.Action;
+import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
 import com.refinedmods.refinedstorage.api.network.autocrafting.ParentContainer;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternProvider;
@@ -34,7 +36,7 @@ public class RelayOutputNetworkNode extends AbstractNetworkNode
     implements EnergyProvider, SecurityDecisionProvider, StorageProvider, PatternProvider {
     private final long energyUsage;
     private final RelayOutputStorage storage = new RelayOutputStorage();
-    private final RelayOutputPatternProvider patternProvider = new RelayOutputPatternProvider();
+    private final RelayOutputPatternProvider patternProvider = new RelayOutputPatternProvider(this);
 
     @Nullable
     private EnergyNetworkComponent energyDelegate;
@@ -106,6 +108,16 @@ public class RelayOutputNetworkNode extends AbstractNetworkNode
     }
 
     @Override
+    public void doWork() {
+        super.doWork();
+        patternProvider.doWork();
+    }
+
+    public void setStepBehavior(final StepBehavior stepBehavior) {
+        patternProvider.setStepBehavior(stepBehavior);
+    }
+
+    @Override
     public long getStored() {
         return energyDelegate == null || energyDelegate.contains(energyDelegate) ? 0 : energyDelegate.getStored();
     }
@@ -137,24 +149,28 @@ public class RelayOutputNetworkNode extends AbstractNetworkNode
         return patternProvider.contains(component);
     }
 
+    public List<Task> getTasks() {
+        return patternProvider.getTasks();
+    }
+
     @Override
     public void addTask(final Task task) {
-        // TODO(feat): relay support
+        patternProvider.addTask(task);
     }
 
     @Override
     public void cancelTask(final TaskId taskId) {
-        // TODO(feat): relay support
+        patternProvider.cancelTask(taskId);
     }
 
     @Override
     public List<TaskStatus> getTaskStatuses() {
-        return List.of(); // TODO(feat): relay support
+        return patternProvider.getTaskStatuses();
     }
 
     @Override
     public void receivedExternalIteration() {
-        // TODO(feat): relay support
+        patternProvider.receivedExternalIteration();
     }
 
     @Override
@@ -186,7 +202,18 @@ public class RelayOutputNetworkNode extends AbstractNetworkNode
     }
 
     @Override
-    public ExternalPatternSink.Result accept(final Collection<ResourceAmount> resources, final Action action) {
-        return ExternalPatternSink.Result.SKIPPED; // TODO(feat): relay support
+    public Result accept(final Pattern pattern, final Collection<ResourceAmount> resources, final Action action) {
+        return patternProvider.accept(pattern, resources, action);
+    }
+
+    @Override
+    public void setNetwork(@Nullable final Network network) {
+        if (this.network != null) {
+            patternProvider.detachAll(this.network);
+        }
+        super.setNetwork(network);
+        if (network != null) {
+            patternProvider.attachAll(network);
+        }
     }
 }

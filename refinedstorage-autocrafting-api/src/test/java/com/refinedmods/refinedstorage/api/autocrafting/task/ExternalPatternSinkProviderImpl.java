@@ -72,7 +72,9 @@ class ExternalPatternSinkProviderImpl implements ExternalPatternSinkProvider {
         }
 
         @Override
-        public Result accept(final Collection<ResourceAmount> resources, final Action action) {
+        public Result accept(final Pattern p,
+                             final Collection<ResourceAmount> resources,
+                             final Action action) {
             if (fixedResult != null) {
                 return fixedResult;
             }
