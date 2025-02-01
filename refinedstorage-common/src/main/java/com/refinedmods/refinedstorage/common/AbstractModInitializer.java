@@ -499,6 +499,11 @@ public abstract class AbstractModInitializer {
             ContentIds.CREATIVE_RANGE_UPGRADE,
             () -> new RangeUpgradeItem(RefinedStorageApi.INSTANCE.getUpgradeRegistry(), true)
         ));
+        final Supplier<AbstractUpgradeItem> autocraftingUpgrade = callback.register(
+            ContentIds.AUTOCRAFTING_UPGRADE,
+            SimpleUpgradeItem::autocraftingUpgrade
+        );
+        Items.INSTANCE.setAutocraftingUpgrade(autocraftingUpgrade);
     }
 
     protected final void registerUpgradeMappings() {
@@ -510,7 +515,8 @@ public abstract class AbstractModInitializer {
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.EXPORTER)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
             .add(Items.INSTANCE.getStackUpgrade())
-            .add(Items.INSTANCE.getRegulatorUpgrade());
+            .add(Items.INSTANCE.getRegulatorUpgrade())
+            .add(Items.INSTANCE.getAutocraftingUpgrade());
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.DESTRUCTOR)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)

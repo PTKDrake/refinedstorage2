@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+-   Autocrafting Upgrade
+
 ## [2.0.0-milestone.4.13] - 2025-02-01
 
 ### Added

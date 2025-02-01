@@ -51,6 +51,7 @@ public final class DefaultEnergyUsage {
     public static final long RANGE_UPGRADE = 8;
     public static final long CREATIVE_RANGE_UPGRADE = 0;
     public static final int RANGE_UPGRADE_RANGE = 8;
+    public static final int AUTOCRAFTING_UPGRADE = 8;
     public static final long SECURITY_CARD = 2;
     public static final long FALLBACK_SECURITY_CARD = 4;
 

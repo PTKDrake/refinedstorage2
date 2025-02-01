@@ -138,6 +138,7 @@ public final class CreativeModeTabItems {
         itemConsumer.accept(Items.INSTANCE.getRegulatorUpgrade());
         itemConsumer.accept(Items.INSTANCE.getRangeUpgrade());
         itemConsumer.accept(Items.INSTANCE.getCreativeRangeUpgrade());
+        itemConsumer.accept(Items.INSTANCE.getAutocraftingUpgrade());
         itemConsumer.accept(Items.INSTANCE.getWirelessGrid());
         consumer.accept(Items.INSTANCE.getWirelessGrid().createAtEnergyCapacity());
         itemConsumer.accept(Items.INSTANCE.getCreativeWirelessGrid());

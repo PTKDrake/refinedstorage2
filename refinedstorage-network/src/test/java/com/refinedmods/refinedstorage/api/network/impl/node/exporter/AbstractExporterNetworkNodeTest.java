@@ -6,7 +6,6 @@ import com.refinedmods.refinedstorage.api.network.node.SchedulingMode;
 import com.refinedmods.refinedstorage.api.network.node.exporter.ExporterTransferStrategy;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
-import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.InsertableStorage;
 import com.refinedmods.refinedstorage.api.storage.Storage;
@@ -50,75 +49,6 @@ abstract class AbstractExporterNetworkNodeTest {
     void testInitialState() {
         // Assert
         assertThat(sut.getEnergyUsage()).isEqualTo(5);
-    }
-
-    @Test
-    void shouldUseFirstSuccessfulStrategy(
-        @InjectNetworkStorageComponent final StorageNetworkComponent storage
-    ) {
-        // Arrange
-        storage.addSource(new StorageImpl());
-        storage.insert(A, 100, Action.EXECUTE, Actor.EMPTY);
-        storage.insert(B, 100, Action.EXECUTE, Actor.EMPTY);
-
-        final Storage failingDestination = new LimitedStorageImpl(0);
-        final Storage destination = new LimitedStorageImpl(100);
-
-        sut.setTransferStrategy(new CompositeExporterTransferStrategy(List.of(
-            createTransferStrategy(failingDestination, 10),
-            createTransferStrategy(destination, 10),
-            createTransferStrategy(destination, 10)
-        )));
-        sut.setFilters(List.of(A, B));
-
-        // Act
-        sut.doWork();
-
-        // Assert
-        assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 90),
-            new ResourceAmount(B, 100)
-        );
-        assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 10)
-        );
-    }
-
-    @Test
-    void shouldUseFirstSuccessfulResourceInTheStrategy(
-        @InjectNetworkStorageComponent final StorageNetworkComponent storage
-    ) {
-        // Arrange
-        storage.addSource(new StorageImpl());
-        storage.insert(A, 100, Action.EXECUTE, Actor.EMPTY);
-        storage.insert(B, 100, Action.EXECUTE, Actor.EMPTY);
-
-        final Storage destination = new LimitedStorageImpl(100) {
-            @Override
-            public long insert(final ResourceKey resource, final long amount, final Action action, final Actor actor) {
-                if (resource != A) {
-                    return 0;
-                }
-                return super.insert(resource, amount, action, actor);
-            }
-        };
-
-        sut.setTransferStrategy(new CompositeExporterTransferStrategy(List.of(
-            createTransferStrategy(destination, 10)
-        )));
-        sut.setFilters(List.of(B, A));
-
-        // Act
-        sut.doWork();
-
-        // Assert
-        assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 90),
-            new ResourceAmount(B, 100)
-        );
-        assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 10)
-        );
     }
 
     @Test
@@ -357,10 +287,8 @@ abstract class AbstractExporterNetworkNodeTest {
         );
     }
 
-    protected static ExporterTransferStrategy createTransferStrategy(
-        final InsertableStorage destination,
-        final long transferQuota
-    ) {
+    protected static ExporterTransferStrategy createTransferStrategy(final InsertableStorage destination,
+                                                                     final long transferQuota) {
         return new ExporterTransferStrategyImpl(destination, transferQuota);
     }
 }

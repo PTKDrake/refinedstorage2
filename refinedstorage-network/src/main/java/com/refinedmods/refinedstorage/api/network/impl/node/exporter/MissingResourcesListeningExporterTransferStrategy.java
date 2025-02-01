@@ -1,0 +1,46 @@
+package com.refinedmods.refinedstorage.api.network.impl.node.exporter;
+
+import com.refinedmods.refinedstorage.api.network.Network;
+import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
+import com.refinedmods.refinedstorage.api.network.node.exporter.ExporterTransferStrategy;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.storage.Actor;
+
+import java.util.function.ToLongFunction;
+
+public class MissingResourcesListeningExporterTransferStrategy implements ExporterTransferStrategy {
+    private final ExporterTransferStrategy delegate;
+    private final OnMissingResources onMissingResources;
+
+    public MissingResourcesListeningExporterTransferStrategy(final ExporterTransferStrategy delegate,
+                                                             final OnMissingResources onMissingResources) {
+        this.delegate = delegate;
+        this.onMissingResources = onMissingResources;
+    }
+
+    @Override
+    public Result transfer(final ResourceKey resource, final Actor actor, final Network network) {
+        final Result result = delegate.transfer(resource, actor, network);
+        if (result == Result.RESOURCE_MISSING) {
+            onMissingResources.onMissingResources(resource, actor, network);
+        }
+        return result;
+    }
+
+    @FunctionalInterface
+    public interface OnMissingResources {
+        void onMissingResources(ResourceKey resource, Actor actor, Network network);
+
+        static OnMissingResources scheduleAutocrafting(final ToLongFunction<ResourceKey> taskAmountProvider) {
+            return (resource, actor, network) -> {
+                final long amount = taskAmountProvider.applyAsLong(resource);
+                final AutocraftingNetworkComponent autocrafting = network.getComponent(
+                    AutocraftingNetworkComponent.class
+                );
+                if (!autocrafting.getPatternsByOutput(resource).isEmpty()) {
+                    autocrafting.ensureTask(resource, amount, actor);
+                }
+            };
+        }
+    }
+}

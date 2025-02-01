@@ -623,6 +623,8 @@ public class ConfigImpl implements ConfigData, com.refinedmods.refinedstorage.co
 
         private int rangeUpgradeRange = DefaultEnergyUsage.RANGE_UPGRADE_RANGE;
 
+        private int autocraftingUpgradeRange = DefaultEnergyUsage.AUTOCRAFTING_UPGRADE;
+
         @Override
         public long getSpeedUpgradeEnergyUsage() {
             return speedUpgradeEnergyUsage;
@@ -671,6 +673,11 @@ public class ConfigImpl implements ConfigData, com.refinedmods.refinedstorage.co
         @Override
         public int getRangeUpgradeRange() {
             return rangeUpgradeRange;
+        }
+
+        @Override
+        public long getAutocraftingUpgradeEnergyUsage() {
+            return autocraftingUpgradeRange;
         }
     }
 

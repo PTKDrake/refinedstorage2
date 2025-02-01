@@ -1,6 +1,5 @@
 package com.refinedmods.refinedstorage.common.exporter;
 
-import com.refinedmods.refinedstorage.api.network.impl.node.exporter.CompositeExporterTransferStrategy;
 import com.refinedmods.refinedstorage.api.network.impl.node.exporter.ExporterNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.SchedulingMode;
 import com.refinedmods.refinedstorage.api.network.node.exporter.ExporterTransferStrategy;
@@ -26,7 +25,9 @@ import com.refinedmods.refinedstorage.common.upgrade.UpgradeDestinations;
 import com.refinedmods.refinedstorage.common.util.ContainerUtil;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.LongSupplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -108,17 +109,18 @@ public abstract class AbstractExporterBlockEntity
         final BlockPos sourcePosition = worldPosition.relative(direction);
         final List<ExporterTransferStrategyFactory> factories =
             RefinedStorageApi.INSTANCE.getExporterTransferStrategyRegistry().getAll();
-        final List<ExporterTransferStrategy> strategies = factories
-            .stream()
-            .map(factory -> factory.create(
-                serverLevel,
-                sourcePosition,
-                incomingDirection,
-                upgradeContainer,
-                this,
-                filter.isFuzzyMode()
-            ))
-            .toList();
+        final Map<Class<? extends ResourceKey>, ExporterTransferStrategy> strategies =
+            factories.stream().collect(Collectors.toMap(
+                ExporterTransferStrategyFactory::getResourceType,
+                factory -> factory.create(
+                    serverLevel,
+                    sourcePosition,
+                    incomingDirection,
+                    upgradeContainer,
+                    this,
+                    filter.isFuzzyMode()
+                )
+            ));
         return new CompositeExporterTransferStrategy(strategies);
     }
 

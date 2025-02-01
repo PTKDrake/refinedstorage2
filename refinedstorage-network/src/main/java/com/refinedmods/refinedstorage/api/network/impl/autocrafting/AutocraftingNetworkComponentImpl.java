@@ -112,11 +112,13 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
 
     @Override
     public CompletableFuture<Long> getMaxAmount(final ResourceKey resource) {
-        return CompletableFuture.supplyAsync(() -> {
-            final RootStorage rootStorage = rootStorageProvider.get();
-            final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
-            return calculator.getMaxAmount(resource);
-        }, executorService);
+        return CompletableFuture.supplyAsync(() -> getMaxAmountSync(resource), executorService);
+    }
+
+    private long getMaxAmountSync(final ResourceKey resource) {
+        final RootStorage rootStorage = rootStorageProvider.get();
+        final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
+        return calculator.getMaxAmount(resource);
     }
 
     @Override
@@ -124,12 +126,7 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
                                                          final long amount,
                                                          final Actor actor,
                                                          final boolean notify) {
-        return CompletableFuture.supplyAsync(() -> {
-            final RootStorage rootStorage = rootStorageProvider.get();
-            final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
-            return calculatePlan(calculator, resource, amount)
-                .map(plan -> startTask(resource, amount, actor, plan, notify));
-        }, executorService);
+        return CompletableFuture.supplyAsync(() -> startTaskSync(resource, amount, actor, notify), executorService);
     }
 
     private TaskId startTask(final ResourceKey resource,
@@ -145,6 +142,39 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
         );
         provider.addTask(task);
         return task.getId();
+    }
+
+    private Optional<TaskId> startTaskSync(final ResourceKey resource,
+                                           final long amount,
+                                           final Actor actor,
+                                           final boolean notify) {
+        final RootStorage rootStorage = rootStorageProvider.get();
+        final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
+        return calculatePlan(calculator, resource, amount)
+            .map(plan -> startTask(resource, amount, actor, plan, notify));
+    }
+
+    @Override
+    public Optional<TaskId> ensureTask(final ResourceKey resource,
+                                       final long amount,
+                                       final Actor actor) {
+        final long correctedAmount = correctEnsuredAmount(resource, amount);
+        if (correctedAmount <= 0) {
+            return Optional.empty();
+        }
+        return startTaskSync(resource, correctedAmount, actor, false);
+    }
+
+    private long correctEnsuredAmount(final ResourceKey resource, final long amount) {
+        final long currentlyRunning = providers.stream()
+            .mapToLong(provider -> provider.getAmount(resource))
+            .sum();
+        final long stillNeeded = amount - currentlyRunning;
+        if (stillNeeded <= 0) {
+            return 0;
+        }
+        final long maxAmount = getMaxAmountSync(resource);
+        return Math.min(maxAmount, stillNeeded);
     }
 
     @Override

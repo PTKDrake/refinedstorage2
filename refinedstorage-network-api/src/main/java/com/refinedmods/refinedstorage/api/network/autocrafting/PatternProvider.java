@@ -5,6 +5,7 @@ import com.refinedmods.refinedstorage.api.autocrafting.task.ExternalPatternSink;
 import com.refinedmods.refinedstorage.api.autocrafting.task.StepBehavior;
 import com.refinedmods.refinedstorage.api.autocrafting.task.Task;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ public interface PatternProvider extends ExternalPatternSink, StepBehavior {
     void cancelTask(TaskId taskId);
 
     List<TaskStatus> getTaskStatuses();
+
+    long getAmount(ResourceKey resource);
 
     void receivedExternalIteration();
 }

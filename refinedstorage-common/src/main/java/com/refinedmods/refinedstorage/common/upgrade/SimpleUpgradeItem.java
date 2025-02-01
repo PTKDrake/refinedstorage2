@@ -62,4 +62,16 @@ public final class SimpleUpgradeItem extends AbstractUpgradeItem {
             createTranslation("item", "silk_touch_upgrade.help")
         );
     }
+
+    // TODO: craft-only option
+    // TODO: interface & constructor support
+    // TODO: indicator in GUI when something cannot be crafted
+    public static SimpleUpgradeItem autocraftingUpgrade() {
+        return new SimpleUpgradeItem(
+            RefinedStorageApi.INSTANCE.getUpgradeRegistry(),
+            Platform.INSTANCE.getConfig().getUpgrade()::getAutocraftingUpgradeEnergyUsage,
+            false,
+            createTranslation("item", "autocrafting_upgrade.help")
+        );
+    }
 }

@@ -189,6 +189,80 @@ class AutocraftingNetworkComponentImplTest {
     }
 
     @Test
+    void shouldEnsureTask() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act & assert
+        assertThat(sut.startTask(B, 1, Actor.EMPTY, false).join()).isPresent();
+        final var ensuredId = sut.ensureTask(B, 10, Actor.EMPTY);
+        assertThat(ensuredId).isPresent();
+        final var ensuredId2 = sut.ensureTask(B, 10, Actor.EMPTY);
+        assertThat(ensuredId2).isEmpty();
+        final var ensuredId3 = sut.ensureTask(B, 9, Actor.EMPTY);
+        assertThat(ensuredId3).isEmpty();
+        assertThat(provider.getTasks()).hasSize(2)
+            .anyMatch(t -> t.getId().equals(ensuredId.get()) && t.getAmount() == 9)
+            .anyMatch(t -> t.getAmount() == 1);
+    }
+
+    @Test
+    void shouldNotEnsureTaskWhenWeDontHaveEnoughResources() {
+        // Arrange
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act
+        final Optional<TaskId> taskId = sut.ensureTask(B, 1, Actor.EMPTY);
+
+        // Assert
+        assertThat(taskId).isNotPresent();
+        assertThat(provider.getTasks()).isEmpty();
+    }
+
+    @Test
+    void shouldEnsureTaskEvenIfWeDontHaveEnoughResourcesForTheRequestedAmount() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act
+        final Optional<TaskId> taskId = sut.ensureTask(B, 11, Actor.EMPTY);
+
+        // Assert
+        assertThat(taskId).isPresent();
+        assertThat(provider.getTasks()).hasSize(1).allMatch(t -> t.getAmount() == 10);
+    }
+
+    @Test
+    void shouldEnsureTaskEvenIfWeCouldTheoreticallyRequestMore() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 20, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act
+        final Optional<TaskId> taskId = sut.ensureTask(B, 11, Actor.EMPTY);
+
+        // Assert
+        assertThat(taskId).isPresent();
+        assertThat(provider.getTasks()).hasSize(1).allMatch(t -> t.getAmount() == 11);
+    }
+
+    @Test
     void shouldCancelTask() {
         // Arrange
         rootStorage.addSource(new StorageImpl());

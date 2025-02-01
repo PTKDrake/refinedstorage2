@@ -64,10 +64,10 @@ public final class TransferHelper {
         return inserted;
     }
 
-    private static void handleLeftover(final ResourceKey resource,
-                                       final Actor actor,
-                                       final InsertableStorage fallback,
-                                       final long leftover) {
+    public static void handleLeftover(final ResourceKey resource,
+                                      final Actor actor,
+                                      final InsertableStorage fallback,
+                                      final long leftover) {
         final long leftoverInserted = fallback.insert(resource, leftover, Action.EXECUTE, actor);
         final long leftoverNotInserted = leftover - leftoverInserted;
         if (leftoverNotInserted > 0) {

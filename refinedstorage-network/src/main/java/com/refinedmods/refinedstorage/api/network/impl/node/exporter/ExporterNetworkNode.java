@@ -24,7 +24,7 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
         this.energyUsage = energyUsage;
     }
 
-    public void setTransferStrategy(@Nullable final ExporterTransferStrategy transferStrategy) {
+    public void setTransferStrategy(final ExporterTransferStrategy transferStrategy) {
         this.transferStrategy = transferStrategy;
     }
 
@@ -67,7 +67,7 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
             if (transferStrategy == null || network == null) {
                 return false;
             }
-            return transferStrategy.transfer(filter, actor, network);
+            return transferStrategy.transfer(filter, actor, network) == ExporterTransferStrategy.Result.EXPORTED;
         }
     }
 }

@@ -262,6 +262,7 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
         RefinedStorageApi.INSTANCE.getExporterTransferStrategyRegistry().register(
             createIdentifier("item"),
             new FabricStorageExporterTransferStrategyFactory<>(
+                ItemResource.class,
                 ItemStorage.SIDED,
                 resource -> resource instanceof ItemResource itemResource
                     ? toItemVariant(itemResource) : null,
@@ -271,6 +272,7 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
         RefinedStorageApi.INSTANCE.getExporterTransferStrategyRegistry().register(
             createIdentifier("fluid"),
             new FabricStorageExporterTransferStrategyFactory<>(
+                FluidResource.class,
                 FluidStorage.SIDED,
                 resource -> resource instanceof FluidResource fluidResource
                     ? toFluidVariant(fluidResource) : null,
