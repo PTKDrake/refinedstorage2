@@ -7,7 +7,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-###  Added
+## [2.0.0-milestone.4.13] - 2025-02-01
+
+### Added
 
 -   Colored variants are now moved to a separate creative mode tab.
 -   You can now start autocrafting tasks in the Relay's output network, using patterns and autocrafters from the input network.
@@ -862,7 +864,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   The Grid can now use smooth scrolling.
 -   The Grid now has syntax highlighting for the search query.
 
-[Unreleased]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.12...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.13...HEAD
+
+[2.0.0-milestone.4.13]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.12...v2.0.0-milestone.4.13
 
 [2.0.0-milestone.4.12]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.11...v2.0.0-milestone.4.12
 
