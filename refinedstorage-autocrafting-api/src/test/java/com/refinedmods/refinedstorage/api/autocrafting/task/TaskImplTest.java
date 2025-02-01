@@ -765,7 +765,7 @@ class TaskImplTest {
         );
         final PatternRepository patterns = patterns(IRON_INGOT_PATTERN, IRON_PICKAXE_PATTERN);
         final ExternalPatternSinkProviderImpl sinkProvider = new ExternalPatternSinkProviderImpl();
-        sinkProvider.put(IRON_INGOT_PATTERN, (resources, action) -> action == Action.EXECUTE
+        sinkProvider.put(IRON_INGOT_PATTERN, (pattern, resources, action) -> action == Action.EXECUTE
             ? ExternalPatternSink.Result.REJECTED
             : ExternalPatternSink.Result.ACCEPTED);
         final Task task = getRunningTask(storage, patterns, sinkProvider, IRON_PICKAXE, 1);

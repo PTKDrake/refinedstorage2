@@ -3,13 +3,17 @@ package com.refinedmods.refinedstorage.api.network.impl.node.relay;
 import com.refinedmods.refinedstorage.api.autocrafting.Pattern;
 import com.refinedmods.refinedstorage.api.autocrafting.status.TaskStatus;
 import com.refinedmods.refinedstorage.api.autocrafting.task.ExternalPatternSink;
+import com.refinedmods.refinedstorage.api.autocrafting.task.StepBehavior;
 import com.refinedmods.refinedstorage.api.autocrafting.task.Task;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
+import com.refinedmods.refinedstorage.api.autocrafting.task.TaskListener;
 import com.refinedmods.refinedstorage.api.core.Action;
+import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
 import com.refinedmods.refinedstorage.api.network.autocrafting.ParentContainer;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternListener;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternProvider;
+import com.refinedmods.refinedstorage.api.network.impl.autocrafting.TaskContainer;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.filter.Filter;
@@ -24,11 +28,22 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-class RelayOutputPatternProvider implements PatternProvider, PatternListener {
+class RelayOutputPatternProvider implements PatternProvider, PatternListener, TaskListener {
+    private final RelayOutputNetworkNode outputNode;
     private final Filter filter = new Filter();
     private final Set<ParentContainer> parents = new HashSet<>();
+    private final TaskContainer tasks = new TaskContainer(this);
     @Nullable
     private AutocraftingNetworkComponent delegate;
+    private StepBehavior stepBehavior = StepBehavior.DEFAULT;
+
+    RelayOutputPatternProvider(final RelayOutputNetworkNode outputNode) {
+        this.outputNode = outputNode;
+    }
+
+    List<Task> getTasks() {
+        return tasks.getAll();
+    }
 
     void setFilters(final Set<ResourceKey> filters) {
         reset(() -> filter.setFilters(filters));
@@ -99,22 +114,46 @@ class RelayOutputPatternProvider implements PatternProvider, PatternListener {
 
     @Override
     public void addTask(final Task task) {
-        // TODO(feat): relay support
+        tasks.add(task, outputNode.getNetwork());
+        parents.forEach(parent -> parent.taskAdded(this, task));
+    }
+
+    void doWork() {
+        if (outputNode.getNetwork() == null) {
+            return;
+        }
+        tasks.step(outputNode.getNetwork(), stepBehavior, this);
+    }
+
+    void setStepBehavior(final StepBehavior stepBehavior) {
+        this.stepBehavior = stepBehavior;
     }
 
     @Override
     public void cancelTask(final TaskId taskId) {
-        // TODO(feat): relay support
+        tasks.cancel(taskId);
     }
 
     @Override
     public List<TaskStatus> getTaskStatuses() {
-        return List.of(); // TODO(feat): relay support
+        return tasks.getStatuses();
     }
 
     @Override
     public void receivedExternalIteration() {
-        // TODO(feat): relay support
+        // no op
+    }
+
+    @Override
+    public void receivedExternalIteration(final Pattern pattern) {
+        if (delegate == null) {
+            return;
+        }
+        final PatternProvider patternProvider = delegate.getProviderByPattern(pattern);
+        if (patternProvider == null) {
+            return;
+        }
+        patternProvider.receivedExternalIteration();
     }
 
     @Override
@@ -122,6 +161,7 @@ class RelayOutputPatternProvider implements PatternProvider, PatternListener {
         if (delegate != null) {
             delegate.getPatterns().forEach(pattern -> parentContainer.add(this, pattern, 0));
         }
+        tasks.onAddedIntoContainer(parentContainer);
         parents.add(parentContainer);
     }
 
@@ -130,11 +170,29 @@ class RelayOutputPatternProvider implements PatternProvider, PatternListener {
         if (delegate != null) {
             delegate.getPatterns().forEach(pattern -> parentContainer.remove(this, pattern));
         }
+        tasks.onRemovedFromContainer(parentContainer);
         parents.remove(parentContainer);
     }
 
     @Override
-    public ExternalPatternSink.Result accept(final Collection<ResourceAmount> resources, final Action action) {
-        return ExternalPatternSink.Result.SKIPPED; // TODO(feat): relay support
+    public ExternalPatternSink.Result accept(final Pattern pattern,
+                                             final Collection<ResourceAmount> resources,
+                                             final Action action) {
+        if (delegate == null) {
+            return ExternalPatternSink.Result.SKIPPED;
+        }
+        final PatternProvider patternProvider = delegate.getProviderByPattern(pattern);
+        if (patternProvider == null) {
+            return ExternalPatternSink.Result.SKIPPED;
+        }
+        return patternProvider.accept(pattern, resources, action);
+    }
+
+    void detachAll(final Network network) {
+        tasks.detachAll(network);
+    }
+
+    void attachAll(final Network network) {
+        tasks.attachAll(network);
     }
 }

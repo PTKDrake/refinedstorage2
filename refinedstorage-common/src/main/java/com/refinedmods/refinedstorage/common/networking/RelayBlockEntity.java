@@ -83,6 +83,12 @@ public class RelayBlockEntity extends AbstractBaseNetworkNodeContainerBlockEntit
         setRedstoneMode(RedstoneMode.LOW);
     }
 
+    @Override
+    public void doWork() {
+        super.doWork();
+        ticker.tick(outputNode);
+    }
+
     boolean isFuzzyMode() {
         return filter.isFuzzyMode();
     }

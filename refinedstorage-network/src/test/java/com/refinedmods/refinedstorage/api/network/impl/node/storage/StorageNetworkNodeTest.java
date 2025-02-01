@@ -77,6 +77,8 @@ class StorageNetworkNodeTest {
 
         // Assert
         assertThat(sut.getEnergyUsage()).isEqualTo(BASE_USAGE + USAGE_PER_STORAGE);
+        assertThat(sut.getStored()).isEqualTo(5);
+        assertThat(sut.getCapacity()).isEqualTo(10);
         assertThat(networkStorage.getAll()).isEmpty();
         assertThat(networkStorage.getStored()).isZero();
     }
@@ -96,6 +98,8 @@ class StorageNetworkNodeTest {
         sut.setActive(true);
 
         // Assert
+        assertThat(sut.getStored()).isEqualTo(100);
+        assertThat(sut.getCapacity()).isEqualTo(100);
         assertThat(networkStorage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(A, 50),
             new ResourceAmount(B, 50)
@@ -134,6 +138,8 @@ class StorageNetworkNodeTest {
         assertThat(sut.getStorageConfiguration().getFilterMode()).isEqualTo(FilterMode.BLOCK);
         assertThat(networkStorage.getAll()).isEmpty();
         assertThat(networkStorage.getStored()).isZero();
+        assertThat(sut.getStored()).isZero();
+        assertThat(sut.getCapacity()).isZero();
         assertThat(sut.getSize()).isEqualTo(9);
         for (int i = 0; i < 9; ++i) {
             assertThat(sut.getState(i)).isEqualTo(StorageState.NONE);
@@ -623,6 +629,8 @@ class StorageNetworkNodeTest {
         // Assert
         assertThat(preInactiveness).isNotEmpty();
         assertThat(postInactiveness).isEmpty();
+        assertThat(sut.getStored()).isEqualTo(100);
+        assertThat(sut.getCapacity()).isEqualTo(100);
     }
 
     @Test

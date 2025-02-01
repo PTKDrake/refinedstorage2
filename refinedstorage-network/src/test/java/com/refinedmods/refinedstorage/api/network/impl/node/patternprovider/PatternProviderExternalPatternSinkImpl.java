@@ -10,7 +10,7 @@ import com.refinedmods.refinedstorage.api.storage.StorageImpl;
 
 import java.util.Collection;
 
-class PatternProviderExternalPatternSinkImpl implements PatternProviderExternalPatternSink {
+public class PatternProviderExternalPatternSinkImpl implements PatternProviderExternalPatternSink {
     private final Storage storage = new StorageImpl();
 
     @Override
@@ -22,7 +22,7 @@ class PatternProviderExternalPatternSinkImpl implements PatternProviderExternalP
         return ExternalPatternSink.Result.ACCEPTED;
     }
 
-    Collection<ResourceAmount> getAll() {
+    public Collection<ResourceAmount> getAll() {
         return storage.getAll();
     }
 }

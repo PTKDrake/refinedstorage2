@@ -194,7 +194,7 @@ class ExternalTaskPattern extends AbstractTaskPattern {
         // across the sink and the internal storage.
         // The end result is that we lie, do as if the insertion was successful,
         // and potentially void the extracted resources from the internal storage.
-        if (sink.accept(iterationInputs.copyState(), Action.EXECUTE) != ExternalPatternSink.Result.ACCEPTED) {
+        if (sink.accept(pattern, iterationInputs.copyState(), Action.EXECUTE) != ExternalPatternSink.Result.ACCEPTED) {
             LOGGER.warn("Sink {} did not accept all inputs for pattern {}", sink, pattern);
         }
         return true;
@@ -209,6 +209,7 @@ class ExternalTaskPattern extends AbstractTaskPattern {
         while (currentSinkIndex < sinks.size()) {
             final ExternalPatternSink sink = sinks.get(currentSinkIndex);
             final ExternalPatternSink.Result simulatedResult = sink.accept(
+                pattern,
                 iterationInputsSimulated.copyState(),
                 Action.SIMULATE
             );
