@@ -18,6 +18,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed pattern input slot in the Pattern Grid not being accessible as an external inventory.
 -   Fixed duplication bug with the Crafting Grid matrix and insert-only storages.
 -   Fixed not being able to deselect the Grid search box.
+-   Fixed Storage Block not showing the amount and capacity when inactive.
 
 ## [2.0.0-milestone.4.12] - 2025-01-27
 

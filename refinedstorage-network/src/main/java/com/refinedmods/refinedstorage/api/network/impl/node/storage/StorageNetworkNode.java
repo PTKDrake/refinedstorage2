@@ -65,11 +65,23 @@ public class StorageNetworkNode extends AbstractStorageContainerNetworkNode impl
     }
 
     public long getStored() {
-        return storage.getStored();
+        long stored = 0;
+        for (final StateTrackedStorage internalStorage : storages) {
+            if (internalStorage != null) {
+                stored += internalStorage.getStored();
+            }
+        }
+        return stored;
     }
 
     public long getCapacity() {
-        return storage.getCapacity();
+        long capacity = 0;
+        for (final StateTrackedStorage internalStorage : storages) {
+            if (internalStorage != null) {
+                capacity += internalStorage.getCapacity();
+            }
+        }
+        return capacity;
     }
 
     @Override
