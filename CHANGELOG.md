@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ###  Added
 
 -   Colored variants are now moved to a separate creative mode tab.
+-   You can now start autocrafting tasks in the Relay's output network, using patterns and autocrafters from the input network.
 
 ### Fixed
 

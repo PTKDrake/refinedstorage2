@@ -21,11 +21,12 @@ public interface ExternalPatternSink {
      * If the sink is locked, it must return {@link Result#LOCKED}.
      * If the resources are not applicable for this sink, it must return {@link Result#SKIPPED}.
      *
+     * @param pattern   the pattern
      * @param resources the resources
      * @param action    the action
      * @return the result
      */
-    Result accept(Collection<ResourceAmount> resources, Action action);
+    Result accept(Pattern pattern, Collection<ResourceAmount> resources, Action action);
 
     /**
      * @return the key for this sink
