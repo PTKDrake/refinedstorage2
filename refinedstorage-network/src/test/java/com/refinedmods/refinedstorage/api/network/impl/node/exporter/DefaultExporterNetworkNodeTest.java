@@ -63,6 +63,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         sut.doWork();
 
         // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
         assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(A, 99),
             new ResourceAmount(B, 100)
@@ -95,6 +96,8 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         sut.doWork();
 
         // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.RESOURCE_MISSING);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
         assertThat(storage.getAll()).isEmpty();
         assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(B, 7)
@@ -386,6 +389,8 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         sut.doWork();
 
         // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.RESOURCE_MISSING);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
         assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
             new ResourceAmount(B, 90)
         );
@@ -422,6 +427,8 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         sut.doWork();
 
         // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.AUTOCRAFTING_MISSING_RESOURCES);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
         assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
             new ResourceAmount(B, 90)
         );
@@ -460,6 +467,8 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         sut.doWork();
 
         // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.DESTINATION_DOES_NOT_ACCEPT);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.DESTINATION_DOES_NOT_ACCEPT);
         assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(A, 100),
             new ResourceAmount(B, 100),
@@ -501,6 +510,8 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
 
         // Act & assert
         sut.doWork();
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
+        assertThat(sut.getLastResult(1)).isNull();
         assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(B, 100),
             new ResourceAmount(C, 100)
@@ -511,6 +522,8 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         assertThat(autocrafting.getStatuses()).isEmpty();
 
         sut.doWork();
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.AUTOCRAFTING_STARTED);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
         assertThat(storage.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(B, 90),
             new ResourceAmount(C, 100)

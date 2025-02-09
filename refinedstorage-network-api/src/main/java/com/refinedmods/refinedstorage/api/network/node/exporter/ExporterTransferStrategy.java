@@ -17,6 +17,8 @@ public interface ExporterTransferStrategy {
     enum Result {
         DESTINATION_DOES_NOT_ACCEPT,
         EXPORTED,
-        RESOURCE_MISSING
+        RESOURCE_MISSING,
+        AUTOCRAFTING_STARTED,
+        AUTOCRAFTING_MISSING_RESOURCES
     }
 }

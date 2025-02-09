@@ -64,6 +64,7 @@ import com.refinedmods.refinedstorage.common.controller.ControllerType;
 import com.refinedmods.refinedstorage.common.detector.DetectorBlockEntity;
 import com.refinedmods.refinedstorage.common.detector.DetectorContainerMenu;
 import com.refinedmods.refinedstorage.common.exporter.ExporterContainerMenu;
+import com.refinedmods.refinedstorage.common.exporter.ExporterData;
 import com.refinedmods.refinedstorage.common.grid.CraftingGridBlockEntity;
 import com.refinedmods.refinedstorage.common.grid.CraftingGridContainerMenu;
 import com.refinedmods.refinedstorage.common.grid.GridBlockEntity;
@@ -746,7 +747,7 @@ public abstract class AbstractModInitializer {
         ));
         Menus.INSTANCE.setExporter(callback.register(
             ContentIds.EXPORTER,
-            () -> extendedMenuTypeFactory.create(ExporterContainerMenu::new, ResourceContainerData.STREAM_CODEC)
+            () -> extendedMenuTypeFactory.create(ExporterContainerMenu::new, ExporterData.STREAM_CODEC)
         ));
         Menus.INSTANCE.setInterface(callback.register(
             ContentIds.INTERFACE,

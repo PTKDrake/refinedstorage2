@@ -10,6 +10,7 @@ public final class Sprites {
     public static final int LIGHT_ARROW_WIDTH = 22;
     public static final int LIGHT_ARROW_HEIGHT = 15;
     public static final ResourceLocation WARNING = createIdentifier("warning");
+    public static final ResourceLocation AUTOCRAFTING_INDICATOR = createIdentifier("autocrafting_indicator");
     public static final int WARNING_SIZE = 10;
     public static final int ICON_SIZE = 12;
     public static final ResourceLocation ERROR = createIdentifier("error");

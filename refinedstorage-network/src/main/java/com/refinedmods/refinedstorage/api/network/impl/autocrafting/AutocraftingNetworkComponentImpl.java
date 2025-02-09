@@ -155,26 +155,25 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
     }
 
     @Override
-    public Optional<TaskId> ensureTask(final ResourceKey resource,
-                                       final long amount,
-                                       final Actor actor) {
-        final long correctedAmount = correctEnsuredAmount(resource, amount);
-        if (correctedAmount <= 0) {
-            return Optional.empty();
-        }
-        return startTaskSync(resource, correctedAmount, actor, false);
-    }
-
-    private long correctEnsuredAmount(final ResourceKey resource, final long amount) {
-        final long currentlyRunning = providers.stream()
-            .mapToLong(provider -> provider.getAmount(resource))
-            .sum();
-        final long stillNeeded = amount - currentlyRunning;
-        if (stillNeeded <= 0) {
-            return 0;
+    public EnsureResult ensureTask(final ResourceKey resource,
+                                   final long amount,
+                                   final Actor actor) {
+        long stillNeeded = amount;
+        for (final PatternProvider provider : providers) {
+            final long amountInProvider = provider.getAmount(resource);
+            stillNeeded -= amountInProvider;
+            if (stillNeeded <= 0) {
+                return EnsureResult.TASK_ALREADY_RUNNING;
+            }
         }
         final long maxAmount = getMaxAmountSync(resource);
-        return Math.min(maxAmount, stillNeeded);
+        final long correctedAmount = Math.min(maxAmount, stillNeeded);
+        if (correctedAmount <= 0) {
+            return EnsureResult.MISSING_RESOURCES;
+        }
+        return startTaskSync(resource, correctedAmount, actor, false)
+            .map(taskId -> EnsureResult.TASK_CREATED)
+            .orElse(EnsureResult.MISSING_RESOURCES);
     }
 
     @Override

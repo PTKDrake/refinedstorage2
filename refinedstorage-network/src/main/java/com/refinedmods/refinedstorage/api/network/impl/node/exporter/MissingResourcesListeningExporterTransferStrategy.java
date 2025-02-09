@@ -22,14 +22,14 @@ public class MissingResourcesListeningExporterTransferStrategy implements Export
     public Result transfer(final ResourceKey resource, final Actor actor, final Network network) {
         final Result result = delegate.transfer(resource, actor, network);
         if (result == Result.RESOURCE_MISSING) {
-            onMissingResources.onMissingResources(resource, actor, network);
+            return onMissingResources.onMissingResources(resource, actor, network);
         }
         return result;
     }
 
     @FunctionalInterface
     public interface OnMissingResources {
-        void onMissingResources(ResourceKey resource, Actor actor, Network network);
+        Result onMissingResources(ResourceKey resource, Actor actor, Network network);
 
         static OnMissingResources scheduleAutocrafting(final ToLongFunction<ResourceKey> taskAmountProvider) {
             return (resource, actor, network) -> {
@@ -38,8 +38,12 @@ public class MissingResourcesListeningExporterTransferStrategy implements Export
                     AutocraftingNetworkComponent.class
                 );
                 if (!autocrafting.getPatternsByOutput(resource).isEmpty()) {
-                    autocrafting.ensureTask(resource, amount, actor);
+                    final var ensureResult = autocrafting.ensureTask(resource, amount, actor);
+                    final boolean success = ensureResult == AutocraftingNetworkComponent.EnsureResult.TASK_CREATED
+                        || ensureResult == AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING;
+                    return success ? Result.AUTOCRAFTING_STARTED : Result.AUTOCRAFTING_MISSING_RESOURCES;
                 }
+                return Result.RESOURCE_MISSING;
             };
         }
     }

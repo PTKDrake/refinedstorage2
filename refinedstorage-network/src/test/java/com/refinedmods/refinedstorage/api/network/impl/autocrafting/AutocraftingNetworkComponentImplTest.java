@@ -10,6 +10,7 @@ import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskState;
 import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.Network;
+import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
 import com.refinedmods.refinedstorage.api.network.impl.NetworkImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.patternprovider.PatternProviderNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.container.NetworkNodeContainer;
@@ -200,14 +201,14 @@ class AutocraftingNetworkComponentImplTest {
 
         // Act & assert
         assertThat(sut.startTask(B, 1, Actor.EMPTY, false).join()).isPresent();
-        final var ensuredId = sut.ensureTask(B, 10, Actor.EMPTY);
-        assertThat(ensuredId).isPresent();
-        final var ensuredId2 = sut.ensureTask(B, 10, Actor.EMPTY);
-        assertThat(ensuredId2).isEmpty();
-        final var ensuredId3 = sut.ensureTask(B, 9, Actor.EMPTY);
-        assertThat(ensuredId3).isEmpty();
+        final var result = sut.ensureTask(B, 10, Actor.EMPTY);
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_CREATED);
+        final var result2 = sut.ensureTask(B, 10, Actor.EMPTY);
+        assertThat(result2).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING);
+        final var result3 = sut.ensureTask(B, 9, Actor.EMPTY);
+        assertThat(result3).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING);
         assertThat(provider.getTasks()).hasSize(2)
-            .anyMatch(t -> t.getId().equals(ensuredId.get()) && t.getAmount() == 9)
+            .anyMatch(t -> t.getAmount() == 9)
             .anyMatch(t -> t.getAmount() == 1);
     }
 
@@ -219,10 +220,10 @@ class AutocraftingNetworkComponentImplTest {
         sut.onContainerAdded(() -> provider);
 
         // Act
-        final Optional<TaskId> taskId = sut.ensureTask(B, 1, Actor.EMPTY);
+        final var result = sut.ensureTask(B, 1, Actor.EMPTY);
 
         // Assert
-        assertThat(taskId).isNotPresent();
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.MISSING_RESOURCES);
         assertThat(provider.getTasks()).isEmpty();
     }
 
@@ -237,10 +238,10 @@ class AutocraftingNetworkComponentImplTest {
         sut.onContainerAdded(() -> provider);
 
         // Act
-        final Optional<TaskId> taskId = sut.ensureTask(B, 11, Actor.EMPTY);
+        final var result = sut.ensureTask(B, 11, Actor.EMPTY);
 
         // Assert
-        assertThat(taskId).isPresent();
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_CREATED);
         assertThat(provider.getTasks()).hasSize(1).allMatch(t -> t.getAmount() == 10);
     }
 
@@ -255,11 +256,31 @@ class AutocraftingNetworkComponentImplTest {
         sut.onContainerAdded(() -> provider);
 
         // Act
-        final Optional<TaskId> taskId = sut.ensureTask(B, 11, Actor.EMPTY);
+        final var result = sut.ensureTask(B, 11, Actor.EMPTY);
 
         // Assert
-        assertThat(taskId).isPresent();
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_CREATED);
         assertThat(provider.getTasks()).hasSize(1).allMatch(t -> t.getAmount() == 11);
+    }
+
+    @Test
+    void shouldEnsureTaskWhenATaskIsAlreadyRunning() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 3).output(B, 1).build());
+        final NetworkNodeContainer container = () -> provider;
+        sut.onContainerAdded(container);
+
+        sut.startTask(B, 1, Actor.EMPTY, false).join();
+
+        // Act
+        final var result = sut.ensureTask(B, 1, Actor.EMPTY);
+
+        // Assert
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING);
     }
 
     @Test
