@@ -33,11 +33,14 @@ public class MissingResourcesListeningExporterTransferStrategy implements Export
 
         static OnMissingResources scheduleAutocrafting(final ToLongFunction<ResourceKey> taskAmountProvider) {
             return (resource, actor, network) -> {
-                final long amount = taskAmountProvider.applyAsLong(resource);
                 final AutocraftingNetworkComponent autocrafting = network.getComponent(
                     AutocraftingNetworkComponent.class
                 );
                 if (!autocrafting.getPatternsByOutput(resource).isEmpty()) {
+                    final long amount = taskAmountProvider.applyAsLong(resource);
+                    if (amount <= 0) {
+                        return Result.DESTINATION_DOES_NOT_ACCEPT;
+                    }
                     final var ensureResult = autocrafting.ensureTask(resource, amount, actor);
                     final boolean success = ensureResult == AutocraftingNetworkComponent.EnsureResult.TASK_CREATED
                         || ensureResult == AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING;

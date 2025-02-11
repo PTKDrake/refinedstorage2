@@ -21,7 +21,7 @@ class FluidHandlerImporterSource implements ImporterSource {
     FluidHandlerImporterSource(final CapabilityCache capabilityCache,
                                final AmountOverride amountOverride) {
         this.capabilityCache = capabilityCache;
-        this.insertTarget = new FluidHandlerInsertableStorage(capabilityCache, AmountOverride.NONE);
+        this.insertTarget = new FluidHandlerInsertableStorage(capabilityCache);
         this.extractTarget = new FluidHandlerExtractableStorage(capabilityCache, amountOverride);
     }
 

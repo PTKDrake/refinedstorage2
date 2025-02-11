@@ -21,6 +21,7 @@ import com.refinedmods.refinedstorage.api.network.autocrafting.ParentContainer;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternListener;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternProvider;
 import com.refinedmods.refinedstorage.api.network.node.container.NetworkNodeContainer;
+import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
@@ -102,6 +103,7 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
 
     @Override
     public CompletableFuture<Optional<Preview>> getPreview(final ResourceKey resource, final long amount) {
+        ResourceAmount.validate(resource, amount);
         return CompletableFuture.supplyAsync(() -> {
             final RootStorage rootStorage = rootStorageProvider.get();
             final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
@@ -112,6 +114,7 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
 
     @Override
     public CompletableFuture<Long> getMaxAmount(final ResourceKey resource) {
+        CoreValidations.validateNotNull(resource, "Resource cannot be null");
         return CompletableFuture.supplyAsync(() -> getMaxAmountSync(resource), executorService);
     }
 
@@ -126,6 +129,7 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
                                                          final long amount,
                                                          final Actor actor,
                                                          final boolean notify) {
+        ResourceAmount.validate(resource, amount);
         return CompletableFuture.supplyAsync(() -> startTaskSync(resource, amount, actor, notify), executorService);
     }
 
@@ -155,19 +159,15 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
     }
 
     @Override
-    public EnsureResult ensureTask(final ResourceKey resource,
-                                   final long amount,
-                                   final Actor actor) {
-        long stillNeeded = amount;
-        for (final PatternProvider provider : providers) {
-            final long amountInProvider = provider.getAmount(resource);
-            stillNeeded -= amountInProvider;
-            if (stillNeeded <= 0) {
-                return EnsureResult.TASK_ALREADY_RUNNING;
-            }
+    public EnsureResult ensureTask(final ResourceKey resource, final long amount, final Actor actor) {
+        ResourceAmount.validate(resource, amount);
+        final long currentlyCrafting = providers.stream()
+            .mapToLong(provider -> provider.getAmount(resource))
+            .sum();
+        if (currentlyCrafting >= amount) {
+            return EnsureResult.TASK_ALREADY_RUNNING;
         }
-        final long maxAmount = getMaxAmountSync(resource);
-        final long correctedAmount = Math.min(maxAmount, stillNeeded);
+        final long correctedAmount = Math.min(getMaxAmountSync(resource), amount - currentlyCrafting);
         if (correctedAmount <= 0) {
             return EnsureResult.MISSING_RESOURCES;
         }

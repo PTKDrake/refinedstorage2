@@ -21,7 +21,7 @@ class ItemHandlerImporterSource implements ImporterSource {
     ItemHandlerImporterSource(final CapabilityCache capabilityCache,
                               final AmountOverride amountOverride) {
         this.capabilityCache = capabilityCache;
-        this.insertTarget = new ItemHandlerInsertableStorage(capabilityCache, AmountOverride.NONE);
+        this.insertTarget = new ItemHandlerInsertableStorage(capabilityCache);
         this.extractTarget = new ItemHandlerExtractableStorage(capabilityCache, amountOverride);
     }
 

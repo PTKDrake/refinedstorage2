@@ -68,10 +68,7 @@ public class ItemGridScrollingStrategy implements GridScrollingStrategy {
         gridOperations.extract(
             itemResource,
             GridExtractMode.SINGLE_RESOURCE,
-            new ItemHandlerInsertableStorage(
-                CapabilityCache.ofItemHandler(destinationStorage),
-                AmountOverride.NONE
-            )
+            new ItemHandlerInsertableStorage(CapabilityCache.ofItemHandler(destinationStorage))
         );
     }
 }

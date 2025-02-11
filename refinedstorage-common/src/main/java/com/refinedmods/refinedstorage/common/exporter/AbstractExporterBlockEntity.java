@@ -7,11 +7,9 @@ import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.exporter.ExporterTransferStrategyFactory;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceContainer;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.ContentNames;
-import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.support.AbstractCableLikeBlockEntity;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
 import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
@@ -29,7 +27,6 @@ import com.refinedmods.refinedstorage.common.util.ContainerUtil;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
@@ -52,7 +49,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractExporterBlockEntity
     extends AbstractCableLikeBlockEntity<ExporterNetworkNode>
-    implements AmountOverride, BlockEntityWithDrops, NetworkNodeExtendedMenuProvider<ExporterData> {
+    implements BlockEntityWithDrops, NetworkNodeExtendedMenuProvider<ExporterData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExporterBlockEntity.class);
     private static final String TAG_UPGRADES = "upgr";
 
@@ -120,7 +117,6 @@ public abstract class AbstractExporterBlockEntity
                     sourcePosition,
                     incomingDirection,
                     upgradeContainer,
-                    this,
                     filter.isFuzzyMode()
                 )
             ));
@@ -209,7 +205,7 @@ public abstract class AbstractExporterBlockEntity
         return switch (result) {
             case DESTINATION_DOES_NOT_ACCEPT -> ExportingIndicator.DESTINATION_DOES_NOT_ACCEPT_RESOURCE;
             case RESOURCE_MISSING -> ExportingIndicator.RESOURCE_MISSING;
-            case AUTOCRAFTING_STARTED -> ExportingIndicator.AUTOCRAFTING_STARTED;
+            case AUTOCRAFTING_STARTED -> ExportingIndicator.AUTOCRAFTING_WAS_STARTED;
             case AUTOCRAFTING_MISSING_RESOURCES -> ExportingIndicator.AUTOCRAFTING_MISSING_RESOURCES;
             case null, default -> ExportingIndicator.NONE;
         };
@@ -222,28 +218,6 @@ public abstract class AbstractExporterBlockEntity
 
     void setFilters(final List<ResourceKey> filters) {
         mainNetworkNode.setFilters(filters);
-    }
-
-    @Override
-    public long overrideAmount(final ResourceKey resource,
-                               final long amount,
-                               final LongSupplier currentAmountSupplier) {
-        if (!upgradeContainer.has(Items.INSTANCE.getRegulatorUpgrade())) {
-            return amount;
-        }
-        return upgradeContainer.getRegulatedAmount(resource)
-            .stream()
-            .map(desiredAmount -> getAmountStillNeeded(amount, currentAmountSupplier.getAsLong(), desiredAmount))
-            .findFirst()
-            .orElse(amount);
-    }
-
-    private long getAmountStillNeeded(final long amount, final long currentAmount, final long desiredAmount) {
-        final long stillNeeding = desiredAmount - currentAmount;
-        if (stillNeeding <= 0) {
-            return 0;
-        }
-        return Math.min(stillNeeding, amount);
     }
 
     @Override

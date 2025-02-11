@@ -289,6 +289,6 @@ abstract class AbstractExporterNetworkNodeTest {
 
     protected static ExporterTransferStrategy createTransferStrategy(final InsertableStorage destination,
                                                                      final long transferQuota) {
-        return new ExporterTransferStrategyImpl(destination, transferQuota);
+        return new ExporterTransferStrategyImpl(destination, resource -> transferQuota);
     }
 }

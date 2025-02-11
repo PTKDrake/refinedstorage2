@@ -21,7 +21,7 @@ class FluidHandlerExternalStorageProvider implements ExternalStorageProvider {
 
     FluidHandlerExternalStorageProvider(final CapabilityCache capabilityCache) {
         this.capabilityCache = capabilityCache;
-        this.insertTarget = new FluidHandlerInsertableStorage(capabilityCache, AmountOverride.NONE);
+        this.insertTarget = new FluidHandlerInsertableStorage(capabilityCache);
         this.extractTarget = new FluidHandlerExtractableStorage(capabilityCache, AmountOverride.NONE);
     }
 

@@ -192,15 +192,11 @@ public abstract class AbstractImporterBlockEntity
         if (!upgradeContainer.has(Items.INSTANCE.getRegulatorUpgrade())) {
             return amount;
         }
-        return upgradeContainer.getRegulatedAmount(resource)
-            .stream()
-            .map(desiredAmount -> getAmountStillAvailableForImport(
-                amount,
-                currentAmountSupplier.getAsLong(),
-                desiredAmount
-            ))
-            .findFirst()
-            .orElse(amount);
+        final long desiredAmount = upgradeContainer.getRegulatedAmount(resource);
+        if (desiredAmount > 0) {
+            return getAmountStillAvailableForImport(amount, currentAmountSupplier.getAsLong(), desiredAmount);
+        }
+        return amount;
     }
 
     private long getAmountStillAvailableForImport(final long amount,

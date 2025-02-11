@@ -26,6 +26,8 @@ import com.refinedmods.refinedstorage.network.test.InjectNetworkStorageComponent
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static com.refinedmods.refinedstorage.api.autocrafting.PatternBuilder.pattern;
 import static com.refinedmods.refinedstorage.api.network.impl.node.exporter.MissingResourcesListeningExporterTransferStrategy.OnMissingResources.scheduleAutocrafting;
@@ -76,6 +78,22 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
             .usingRecursiveComparison()
             .isEqualTo(new TrackedResource(ExporterNetworkNode.class.getName(), 1));
         assertThat(storage.findTrackedResourceByActorType(B, NetworkNodeActor.class)).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotTransferIfTheAmountRequestedIsLessThanZero(final long amount) {
+        // Arrange
+        final ExporterTransferStrategy strategy = createTransferStrategy(new StorageImpl(), amount);
+
+        sut.setTransferStrategy(strategy);
+        sut.setFilters(List.of(A));
+
+        // Act
+        sut.doWork();
+
+        // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
     }
 
     @Test
@@ -173,7 +191,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         final Storage destination = new StorageImpl();
         final ExporterTransferStrategy strategy = new ExporterTransferStrategyImpl(
             destination,
-            5,
+            resource -> 5,
             (rootStorage, resource) -> resource.equals(A)
                 ? List.of(A, A_ALTERNATIVE)
                 : List.of(resource)
@@ -217,7 +235,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         final Storage destination = new StorageImpl();
         final ExporterTransferStrategy strategy = new ExporterTransferStrategyImpl(
             destination,
-            5,
+            resource -> 5,
             (rootStorage, resource) -> resource.equals(A)
                 ? List.of(A, A_ALTERNATIVE)
                 : List.of(resource)
@@ -261,7 +279,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         };
         final ExporterTransferStrategy strategy = new ExporterTransferStrategyImpl(
             destination,
-            10,
+            resource -> 10,
             (rootStorage, resource) -> resource.equals(A)
                 ? List.of(A, A_ALTERNATIVE)
                 : List.of(resource)
@@ -305,7 +323,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         };
         final ExporterTransferStrategy strategy = new ExporterTransferStrategyImpl(
             destination,
-            5,
+            resource -> 5,
             (rootStorage, resource) -> resource.equals(A)
                 ? List.of(A, A_ALTERNATIVE, A_ALTERNATIVE2)
                 : List.of(resource)
@@ -375,10 +393,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
 
         final Storage destination = new LimitedStorageImpl(100);
         final ExporterTransferStrategy strategy = new MissingResourcesListeningExporterTransferStrategy(
-            new ExporterTransferStrategyImpl(
-                destination,
-                10
-            ),
+            new ExporterTransferStrategyImpl(destination, resource -> 10),
             scheduleAutocrafting(resource -> 1)
         );
 
@@ -413,10 +428,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
 
         final Storage destination = new LimitedStorageImpl(100);
         final ExporterTransferStrategy strategy = new MissingResourcesListeningExporterTransferStrategy(
-            new ExporterTransferStrategyImpl(
-                destination,
-                10
-            ),
+            new ExporterTransferStrategyImpl(destination, resource -> 10),
             scheduleAutocrafting(resource -> 1)
         );
 
@@ -453,10 +465,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
 
         final InsertableStorage destination = (resource, amount, action, actor) -> 0;
         final ExporterTransferStrategy strategy = new MissingResourcesListeningExporterTransferStrategy(
-            new ExporterTransferStrategyImpl(
-                destination,
-                10
-            ),
+            new ExporterTransferStrategyImpl(destination, resource -> 10),
             scheduleAutocrafting(resource -> 1)
         );
 
@@ -474,6 +483,32 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
             new ResourceAmount(B, 100),
             new ResourceAmount(C, 100)
         );
+        assertThat(autocrafting.getStatuses()).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotStartAutocraftingTaskIfAmountIsLessThanZero(
+        final long amount,
+        @InjectNetworkAutocraftingComponent final AutocraftingNetworkComponent autocrafting
+    ) {
+        // Arrange
+        patternProvider.setPattern(1, pattern().output(B, 1).ingredient(A, 1).build());
+
+        final Storage destination = new LimitedStorageImpl(100);
+        final ExporterTransferStrategy strategy = new MissingResourcesListeningExporterTransferStrategy(
+            new ExporterTransferStrategyImpl(destination, resource -> 10),
+            scheduleAutocrafting(resource -> amount)
+        );
+
+        sut.setTransferStrategy(strategy);
+        sut.setFilters(List.of(B));
+
+        // Act
+        sut.doWork();
+
+        // Assert
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.DESTINATION_DOES_NOT_ACCEPT);
         assertThat(autocrafting.getStatuses()).isEmpty();
     }
 
@@ -498,10 +533,7 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
 
         final Storage destination = new LimitedStorageImpl(100);
         final ExporterTransferStrategy strategy = new MissingResourcesListeningExporterTransferStrategy(
-            new ExporterTransferStrategyImpl(
-                destination,
-                10
-            ),
+            new ExporterTransferStrategyImpl(destination, resource -> 10),
             scheduleAutocrafting(resource -> 1)
         );
 

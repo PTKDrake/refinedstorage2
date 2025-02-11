@@ -4,7 +4,6 @@ import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
 import com.refinedmods.refinedstorage.common.api.grid.Grid;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
@@ -38,7 +37,7 @@ public class ItemGridExtractionStrategy implements GridExtractionStrategy {
             gridOperations.extract(
                 itemResource,
                 extractMode,
-                new ItemHandlerInsertableStorage(CapabilityCache.ofItemHandler(handler), AmountOverride.NONE)
+                new ItemHandlerInsertableStorage(CapabilityCache.ofItemHandler(handler))
             );
             return true;
         }

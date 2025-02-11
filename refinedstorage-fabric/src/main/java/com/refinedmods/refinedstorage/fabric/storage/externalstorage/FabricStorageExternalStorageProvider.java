@@ -53,8 +53,7 @@ class FabricStorageExternalStorageProvider<P> implements ExternalStorageProvider
             toPlatformMapper,
             serverLevel,
             pos,
-            direction,
-            AmountOverride.NONE
+            direction
         );
         this.direction = direction;
     }

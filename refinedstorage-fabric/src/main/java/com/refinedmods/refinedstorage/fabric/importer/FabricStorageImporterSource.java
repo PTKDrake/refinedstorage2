@@ -45,8 +45,7 @@ class FabricStorageImporterSource<T> implements ImporterSource {
             toPlatformMapper,
             serverLevel,
             pos,
-            direction,
-            AmountOverride.NONE
+            direction
         );
         this.extractTarget = new FabricStorageExtractableStorage<>(
             lookup,

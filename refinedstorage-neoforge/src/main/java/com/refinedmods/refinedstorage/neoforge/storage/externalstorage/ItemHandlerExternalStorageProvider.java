@@ -21,7 +21,7 @@ class ItemHandlerExternalStorageProvider implements ExternalStorageProvider {
 
     ItemHandlerExternalStorageProvider(final CapabilityCache capabilityCache) {
         this.capabilityCache = capabilityCache;
-        this.insertTarget = new ItemHandlerInsertableStorage(capabilityCache, AmountOverride.NONE);
+        this.insertTarget = new ItemHandlerInsertableStorage(capabilityCache);
         this.extractTarget = new ItemHandlerExtractableStorage(capabilityCache, AmountOverride.NONE);
     }
 

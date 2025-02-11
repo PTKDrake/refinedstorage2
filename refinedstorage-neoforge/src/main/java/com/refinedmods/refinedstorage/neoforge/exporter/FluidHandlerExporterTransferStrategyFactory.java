@@ -7,13 +7,15 @@ import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.exporter.ExporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.storage.root.FuzzyRootStorage;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.api.upgrade.UpgradeState;
 import com.refinedmods.refinedstorage.common.content.Items;
+import com.refinedmods.refinedstorage.common.exporter.ExporterTransferQuotaProvider;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
 import com.refinedmods.refinedstorage.neoforge.storage.CapabilityCache;
 import com.refinedmods.refinedstorage.neoforge.storage.CapabilityCacheImpl;
 import com.refinedmods.refinedstorage.neoforge.storage.FluidHandlerInsertableStorage;
+
+import java.util.function.ToLongFunction;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,29 +34,28 @@ public class FluidHandlerExporterTransferStrategyFactory implements ExporterTran
                                            final BlockPos pos,
                                            final Direction direction,
                                            final UpgradeState upgradeState,
-                                           final AmountOverride amountOverride,
                                            final boolean fuzzyMode) {
         final CapabilityCache coordinates = new CapabilityCacheImpl(level, pos, direction);
-        final FluidHandlerInsertableStorage destination = new FluidHandlerInsertableStorage(
-            coordinates,
-            amountOverride
+        final FluidHandlerInsertableStorage destination = new FluidHandlerInsertableStorage(coordinates);
+        final long singleAmount = Platform.INSTANCE.getBucketAmount();
+        final ExporterTransferStrategy strategy = create(
+            fuzzyMode,
+            destination,
+            new ExporterTransferQuotaProvider(singleAmount, upgradeState, destination::getAmount, true)
         );
-        final long transferQuota = (upgradeState.has(Items.INSTANCE.getStackUpgrade()) ? 64 : 1)
-            * Platform.INSTANCE.getBucketAmount();
-        final ExporterTransferStrategy strategy = create(fuzzyMode, destination, transferQuota);
         if (upgradeState.has(Items.INSTANCE.getAutocraftingUpgrade())) {
-            return new MissingResourcesListeningExporterTransferStrategy(strategy,
-                scheduleAutocrafting(resource -> transferQuota));
+            return new MissingResourcesListeningExporterTransferStrategy(strategy, scheduleAutocrafting(
+                new ExporterTransferQuotaProvider(singleAmount, upgradeState, destination::getAmount, false)));
         }
         return strategy;
     }
 
     private ExporterTransferStrategy create(final boolean fuzzyMode,
                                             final FluidHandlerInsertableStorage destination,
-                                            final long transferQuota) {
+                                            final ToLongFunction<ResourceKey> transferQuotaProvider) {
         if (fuzzyMode) {
-            return new ExporterTransferStrategyImpl(destination, transferQuota, FuzzyRootStorage.expander());
+            return new ExporterTransferStrategyImpl(destination, transferQuotaProvider, FuzzyRootStorage.expander());
         }
-        return new ExporterTransferStrategyImpl(destination, transferQuota);
+        return new ExporterTransferStrategyImpl(destination, transferQuotaProvider);
     }
 }

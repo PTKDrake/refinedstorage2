@@ -13,30 +13,35 @@ import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiFunction;
+import java.util.function.ToLongFunction;
 
 public class ExporterTransferStrategyImpl implements ExporterTransferStrategy {
     private final InsertableStorage destination;
-    private final long transferQuota;
+    private final ToLongFunction<ResourceKey> transferQuotaProvider;
     private final BiFunction<RootStorage, ResourceKey, Collection<ResourceKey>> expander;
 
-    public ExporterTransferStrategyImpl(final InsertableStorage destination, final long transferQuota) {
-        this(destination, transferQuota, (rootStorage, resource) -> Collections.singletonList(resource));
+    public ExporterTransferStrategyImpl(final InsertableStorage destination,
+                                        final ToLongFunction<ResourceKey> transferQuotaProvider) {
+        this(destination, transferQuotaProvider, (rootStorage, resource) -> Collections.singletonList(resource));
     }
 
     public ExporterTransferStrategyImpl(final InsertableStorage destination,
-                                        final long transferQuota,
+                                        final ToLongFunction<ResourceKey> transferQuotaProvider,
                                         final BiFunction<RootStorage, ResourceKey, Collection<ResourceKey>> expander) {
         this.destination = destination;
-        this.transferQuota = transferQuota;
+        this.transferQuotaProvider = transferQuotaProvider;
         this.expander = expander;
     }
 
     @Override
     public Result transfer(final ResourceKey resource, final Actor actor, final Network network) {
         final RootStorage rootStorage = network.getComponent(StorageNetworkComponent.class);
+        final long amount = transferQuotaProvider.applyAsLong(resource);
+        if (amount <= 0) {
+            return Result.EXPORTED;
+        }
         for (final ResourceKey expandedResource : expander.apply(rootStorage, resource)) {
-            final long extractedSimulated = rootStorage
-                .extract(expandedResource, transferQuota, Action.SIMULATE, actor);
+            final long extractedSimulated = rootStorage.extract(expandedResource, amount, Action.SIMULATE, actor);
             if (extractedSimulated == 0) {
                 continue;
             }

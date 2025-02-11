@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static com.refinedmods.refinedstorage.api.autocrafting.PatternBuilder.pattern;
 import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.A;
@@ -35,6 +38,7 @@ import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtu
 import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.C;
 import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.D;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AutocraftingNetworkComponentImplTest {
     private Network network;
@@ -153,6 +157,26 @@ class AutocraftingNetworkComponentImplTest {
     }
 
     @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotGetPreviewForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.getPreview(null, 1);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotGetPreviewForInvalidAmount(final long amount) {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.getPreview(B, amount);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void shouldGetMaxAmount() {
         // Arrange
         rootStorage.addSource(new StorageImpl());
@@ -168,6 +192,16 @@ class AutocraftingNetworkComponentImplTest {
 
         // Assert
         assertThat(maxAmount).isEqualTo(16);
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotGetMaxAmountForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.getMaxAmount(null);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -187,6 +221,26 @@ class AutocraftingNetworkComponentImplTest {
         // Assert
         assertThat(taskId).isPresent();
         assertThat(provider.getTasks()).hasSize(1);
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotStartTaskForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.startTask(null, 1, Actor.EMPTY, false);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotStartTaskForInvalidAmount(final long amount) {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.startTask(B, amount, Actor.EMPTY, false);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -210,6 +264,26 @@ class AutocraftingNetworkComponentImplTest {
         assertThat(provider.getTasks()).hasSize(2)
             .anyMatch(t -> t.getAmount() == 9)
             .anyMatch(t -> t.getAmount() == 1);
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotEnsureTaskForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.ensureTask(null, 1, Actor.EMPTY);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotEnsureTaskForInvalidAmount(final long amount) {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.ensureTask(B, amount, Actor.EMPTY);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

@@ -2,7 +2,6 @@ package com.refinedmods.refinedstorage.common.api.exporter;
 
 import com.refinedmods.refinedstorage.api.network.node.exporter.ExporterTransferStrategy;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.api.upgrade.UpgradeState;
 
 import net.minecraft.core.BlockPos;
@@ -14,12 +13,9 @@ import org.apiguardian.api.API;
 public interface ExporterTransferStrategyFactory {
     Class<? extends ResourceKey> getResourceType();
 
-    ExporterTransferStrategy create(
-        ServerLevel level,
-        BlockPos pos,
-        Direction direction,
-        UpgradeState upgradeState,
-        AmountOverride amountOverride,
-        boolean fuzzyMode
-    );
+    ExporterTransferStrategy create(ServerLevel level,
+                                    BlockPos pos,
+                                    Direction direction,
+                                    UpgradeState upgradeState,
+                                    boolean fuzzyMode);
 }
