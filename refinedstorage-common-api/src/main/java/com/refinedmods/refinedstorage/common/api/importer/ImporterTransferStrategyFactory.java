@@ -1,7 +1,6 @@
 package com.refinedmods.refinedstorage.common.api.importer;
 
 import com.refinedmods.refinedstorage.api.network.node.importer.ImporterTransferStrategy;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.api.upgrade.UpgradeState;
 
 import net.minecraft.core.BlockPos;
@@ -12,11 +11,5 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.1")
 @FunctionalInterface
 public interface ImporterTransferStrategyFactory {
-    ImporterTransferStrategy create(
-        ServerLevel level,
-        BlockPos pos,
-        Direction direction,
-        UpgradeState upgradeState,
-        AmountOverride amountOverride
-    );
+    ImporterTransferStrategy create(ServerLevel level, BlockPos pos, Direction direction, UpgradeState upgradeState);
 }

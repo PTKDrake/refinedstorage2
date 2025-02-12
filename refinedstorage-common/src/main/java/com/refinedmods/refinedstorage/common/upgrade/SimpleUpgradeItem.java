@@ -63,9 +63,8 @@ public final class SimpleUpgradeItem extends AbstractUpgradeItem {
         );
     }
 
-    // TODO: craft-only option
     // TODO: interface & constructor support
-    // TODO: indicator in GUI when something cannot be crafted
+    // TODO: more than 1 regulator in exporter and importer?
     public static SimpleUpgradeItem autocraftingUpgrade() {
         return new SimpleUpgradeItem(
             RefinedStorageApi.INSTANCE.getUpgradeRegistry(),

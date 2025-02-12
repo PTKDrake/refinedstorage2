@@ -4,9 +4,6 @@ import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.impl.node.importer.ImporterSource;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
-import com.refinedmods.refinedstorage.api.storage.ExtractableStorage;
-import com.refinedmods.refinedstorage.api.storage.InsertableStorage;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.neoforge.storage.CapabilityCache;
 import com.refinedmods.refinedstorage.neoforge.storage.FluidHandlerExtractableStorage;
 import com.refinedmods.refinedstorage.neoforge.storage.FluidHandlerInsertableStorage;
@@ -15,14 +12,17 @@ import java.util.Iterator;
 
 class FluidHandlerImporterSource implements ImporterSource {
     private final CapabilityCache capabilityCache;
-    private final InsertableStorage insertTarget;
-    private final ExtractableStorage extractTarget;
+    private final FluidHandlerInsertableStorage insertTarget;
+    private final FluidHandlerExtractableStorage extractTarget;
 
-    FluidHandlerImporterSource(final CapabilityCache capabilityCache,
-                               final AmountOverride amountOverride) {
+    FluidHandlerImporterSource(final CapabilityCache capabilityCache) {
         this.capabilityCache = capabilityCache;
         this.insertTarget = new FluidHandlerInsertableStorage(capabilityCache);
-        this.extractTarget = new FluidHandlerExtractableStorage(capabilityCache, amountOverride);
+        this.extractTarget = new FluidHandlerExtractableStorage(capabilityCache);
+    }
+
+    public long getAmount(final ResourceKey resource) {
+        return extractTarget.getAmount(resource);
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.ExtractableStorage;
 import com.refinedmods.refinedstorage.api.storage.InsertableStorage;
 import com.refinedmods.refinedstorage.api.storage.external.ExternalStorageProvider;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.neoforge.storage.CapabilityCache;
 import com.refinedmods.refinedstorage.neoforge.storage.FluidHandlerExtractableStorage;
 import com.refinedmods.refinedstorage.neoforge.storage.FluidHandlerInsertableStorage;
@@ -22,7 +21,7 @@ class FluidHandlerExternalStorageProvider implements ExternalStorageProvider {
     FluidHandlerExternalStorageProvider(final CapabilityCache capabilityCache) {
         this.capabilityCache = capabilityCache;
         this.insertTarget = new FluidHandlerInsertableStorage(capabilityCache);
-        this.extractTarget = new FluidHandlerExtractableStorage(capabilityCache, AmountOverride.NONE);
+        this.extractTarget = new FluidHandlerExtractableStorage(capabilityCache);
     }
 
     @Override

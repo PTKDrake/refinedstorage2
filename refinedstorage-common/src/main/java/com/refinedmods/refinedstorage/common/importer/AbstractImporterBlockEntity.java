@@ -1,5 +1,6 @@
 package com.refinedmods.refinedstorage.common.importer;
 
+import com.refinedmods.refinedstorage.api.network.impl.node.importer.CompositeImporterTransferStrategy;
 import com.refinedmods.refinedstorage.api.network.impl.node.importer.ImporterNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.importer.ImporterTransferStrategy;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
@@ -7,10 +8,8 @@ import com.refinedmods.refinedstorage.api.resource.filter.FilterMode;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.importer.ImporterTransferStrategyFactory;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.ContentNames;
-import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.support.AbstractCableLikeBlockEntity;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
 import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
@@ -25,7 +24,6 @@ import com.refinedmods.refinedstorage.common.util.ContainerUtil;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.LongSupplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -47,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractImporterBlockEntity
     extends AbstractCableLikeBlockEntity<ImporterNetworkNode>
-    implements AmountOverride, NetworkNodeExtendedMenuProvider<ResourceContainerData>, BlockEntityWithDrops {
+    implements NetworkNodeExtendedMenuProvider<ResourceContainerData>, BlockEntityWithDrops {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractImporterBlockEntity.class);
     private static final String TAG_FILTER_MODE = "fim";
     private static final String TAG_UPGRADES = "upgr";
@@ -92,20 +90,20 @@ public abstract class AbstractImporterBlockEntity
     @Override
     protected void initialize(final ServerLevel level, final Direction direction) {
         super.initialize(level, direction);
-        final List<ImporterTransferStrategy> strategies = createStrategies(level, direction);
-        LOGGER.debug("Initialized importer at {} with strategies {}", worldPosition, strategies);
-        mainNetworkNode.setTransferStrategies(strategies);
+        final ImporterTransferStrategy strategy = createStrategy(level, direction);
+        LOGGER.debug("Initialized importer at {} with strategy {}", worldPosition, strategy);
+        mainNetworkNode.setTransferStrategy(strategy);
     }
 
-    private List<ImporterTransferStrategy> createStrategies(final ServerLevel serverLevel, final Direction direction) {
+    private ImporterTransferStrategy createStrategy(final ServerLevel serverLevel, final Direction direction) {
         final Direction incomingDirection = direction.getOpposite();
         final BlockPos sourcePosition = worldPosition.relative(direction);
         final List<ImporterTransferStrategyFactory> factories =
             RefinedStorageApi.INSTANCE.getImporterTransferStrategyRegistry().getAll();
-        return factories
+        return new CompositeImporterTransferStrategy(factories
             .stream()
-            .map(factory -> factory.create(serverLevel, sourcePosition, incomingDirection, upgradeContainer, this))
-            .toList();
+            .map(factory -> factory.create(serverLevel, sourcePosition, incomingDirection, upgradeContainer))
+            .toList());
     }
 
     @Override
@@ -183,30 +181,6 @@ public abstract class AbstractImporterBlockEntity
     @Override
     public AbstractContainerMenu createMenu(final int syncId, final Inventory inventory, final Player player) {
         return new ImporterContainerMenu(syncId, player, this, filter.getFilterContainer(), upgradeContainer);
-    }
-
-    @Override
-    public long overrideAmount(final ResourceKey resource,
-                               final long amount,
-                               final LongSupplier currentAmountSupplier) {
-        if (!upgradeContainer.has(Items.INSTANCE.getRegulatorUpgrade())) {
-            return amount;
-        }
-        final long desiredAmount = upgradeContainer.getRegulatedAmount(resource);
-        if (desiredAmount > 0) {
-            return getAmountStillAvailableForImport(amount, currentAmountSupplier.getAsLong(), desiredAmount);
-        }
-        return amount;
-    }
-
-    private long getAmountStillAvailableForImport(final long amount,
-                                                  final long currentAmount,
-                                                  final long desiredAmount) {
-        final long stillAvailableToImport = currentAmount - desiredAmount;
-        if (stillAvailableToImport <= 0) {
-            return 0;
-        }
-        return Math.min(stillAvailableToImport, amount);
     }
 
     @Override

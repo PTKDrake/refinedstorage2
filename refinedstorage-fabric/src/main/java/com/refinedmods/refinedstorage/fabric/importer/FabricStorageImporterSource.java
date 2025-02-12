@@ -5,7 +5,6 @@ import com.refinedmods.refinedstorage.api.core.NullableType;
 import com.refinedmods.refinedstorage.api.network.impl.node.importer.ImporterSource;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.fabric.storage.FabricStorageExtractableStorage;
 import com.refinedmods.refinedstorage.fabric.storage.FabricStorageInsertableStorage;
 
@@ -36,8 +35,7 @@ class FabricStorageImporterSource<T> implements ImporterSource {
                                 final Function<ResourceKey, @NullableType T> toPlatformMapper,
                                 final ServerLevel serverLevel,
                                 final BlockPos pos,
-                                final Direction direction,
-                                final AmountOverride amountOverride) {
+                                final Direction direction) {
         this.cache = BlockApiCache.create(lookup, serverLevel, pos);
         this.fromPlatformMapper = fromPlatformMapper;
         this.insertTarget = new FabricStorageInsertableStorage<>(
@@ -52,10 +50,13 @@ class FabricStorageImporterSource<T> implements ImporterSource {
             toPlatformMapper,
             serverLevel,
             pos,
-            direction,
-            amountOverride
+            direction
         );
         this.direction = direction;
+    }
+
+    public long getAmount(final ResourceKey resource) {
+        return extractTarget.getAmount(resource);
     }
 
     @Override
