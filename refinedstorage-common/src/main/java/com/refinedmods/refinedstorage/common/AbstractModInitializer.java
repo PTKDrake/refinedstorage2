@@ -64,6 +64,7 @@ import com.refinedmods.refinedstorage.common.controller.ControllerType;
 import com.refinedmods.refinedstorage.common.detector.DetectorBlockEntity;
 import com.refinedmods.refinedstorage.common.detector.DetectorContainerMenu;
 import com.refinedmods.refinedstorage.common.exporter.ExporterContainerMenu;
+import com.refinedmods.refinedstorage.common.exporter.ExporterData;
 import com.refinedmods.refinedstorage.common.grid.CraftingGridBlockEntity;
 import com.refinedmods.refinedstorage.common.grid.CraftingGridContainerMenu;
 import com.refinedmods.refinedstorage.common.grid.GridBlockEntity;
@@ -499,6 +500,11 @@ public abstract class AbstractModInitializer {
             ContentIds.CREATIVE_RANGE_UPGRADE,
             () -> new RangeUpgradeItem(RefinedStorageApi.INSTANCE.getUpgradeRegistry(), true)
         ));
+        final Supplier<AbstractUpgradeItem> autocraftingUpgrade = callback.register(
+            ContentIds.AUTOCRAFTING_UPGRADE,
+            SimpleUpgradeItem::autocraftingUpgrade
+        );
+        Items.INSTANCE.setAutocraftingUpgrade(autocraftingUpgrade);
     }
 
     protected final void registerUpgradeMappings() {
@@ -510,7 +516,8 @@ public abstract class AbstractModInitializer {
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.EXPORTER)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
             .add(Items.INSTANCE.getStackUpgrade())
-            .add(Items.INSTANCE.getRegulatorUpgrade());
+            .add(Items.INSTANCE.getRegulatorUpgrade())
+            .add(Items.INSTANCE.getAutocraftingUpgrade());
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.DESTRUCTOR)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
@@ -740,7 +747,7 @@ public abstract class AbstractModInitializer {
         ));
         Menus.INSTANCE.setExporter(callback.register(
             ContentIds.EXPORTER,
-            () -> extendedMenuTypeFactory.create(ExporterContainerMenu::new, ResourceContainerData.STREAM_CODEC)
+            () -> extendedMenuTypeFactory.create(ExporterContainerMenu::new, ExporterData.STREAM_CODEC)
         ));
         Menus.INSTANCE.setInterface(callback.register(
             ContentIds.INTERFACE,

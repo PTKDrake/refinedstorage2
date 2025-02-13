@@ -18,7 +18,6 @@ import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerD
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerImpl;
 
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -119,22 +118,20 @@ public class RegulatorUpgradeItem extends AbstractUpgradeItem {
         }).orElse(null);
     }
 
-    public OptionalLong getDesiredAmount(final ItemStack stack, final ResourceKey resource) {
+    public long getDesiredAmount(final ItemStack stack, final ResourceKey resource) {
         final RegulatorUpgradeState state = stack.getOrDefault(
             DataComponents.INSTANCE.getRegulatorUpgradeState(),
             RegulatorUpgradeState.EMPTY
         );
-        return state.resource().flatMap(configuredResource -> {
-            final boolean same = configuredResource.equals(resource);
-            if (!same) {
-                return Optional.empty();
-            }
-            return Optional.of(configuredResource.getResourceType());
-        }).map(type -> {
-            final double amount = state.amount();
-            final long normalizedAmount = type.normalizeAmount(amount);
-            return OptionalLong.of(normalizedAmount);
-        }).orElse(OptionalLong.empty());
+        if (state.resource().isEmpty()) {
+            return 0;
+        }
+        final PlatformResourceKey configuredResource = state.resource().get();
+        if (!configuredResource.equals(resource)) {
+            return 0;
+        }
+        final double amount = state.amount();
+        return configuredResource.getResourceType().normalizeAmount(amount);
     }
 
     public record RegulatorTooltipComponent(Set<UpgradeMapping> destinations,

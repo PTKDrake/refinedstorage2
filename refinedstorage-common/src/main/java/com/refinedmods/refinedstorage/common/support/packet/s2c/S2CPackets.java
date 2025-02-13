@@ -10,6 +10,7 @@ import com.refinedmods.refinedstorage.common.api.storage.StorageInfo;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.networking.NetworkTransmitterData;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -128,5 +129,12 @@ public final class S2CPackets {
 
     public static void sendAutocraftingMonitorActive(final ServerPlayer player, final boolean active) {
         Platform.INSTANCE.sendPacketToClient(player, new AutocraftingMonitorActivePacket(active));
+    }
+
+    public static void sendExportingIndicatorUpdate(
+        final ServerPlayer player,
+        final List<ExportingIndicatorUpdatePacket.UpdatedIndicator> indicators
+    ) {
+        Platform.INSTANCE.sendPacketToClient(player, new ExportingIndicatorUpdatePacket(indicators));
     }
 }

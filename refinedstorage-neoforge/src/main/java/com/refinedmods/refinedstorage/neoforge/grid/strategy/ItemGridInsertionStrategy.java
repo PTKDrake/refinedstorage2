@@ -4,7 +4,6 @@ import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
 import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
 import com.refinedmods.refinedstorage.common.api.grid.Grid;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategy;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
 import com.refinedmods.refinedstorage.neoforge.storage.CapabilityCache;
@@ -42,10 +41,7 @@ public class ItemGridInsertionStrategy implements GridInsertionStrategy {
         gridOperations.insert(
             itemResource,
             insertMode,
-            new ItemHandlerExtractableStorage(
-                CapabilityCache.ofItemHandler(playerCursorItemHandler),
-                AmountOverride.NONE
-            )
+            new ItemHandlerExtractableStorage(CapabilityCache.ofItemHandler(playerCursorItemHandler))
         );
         return true;
     }
@@ -66,10 +62,7 @@ public class ItemGridInsertionStrategy implements GridInsertionStrategy {
         gridOperations.insert(
             itemResource,
             GridInsertMode.ENTIRE_RESOURCE,
-            new ItemHandlerExtractableStorage(
-                CapabilityCache.ofItemHandler(storage),
-                AmountOverride.NONE
-            )
+            new ItemHandlerExtractableStorage(CapabilityCache.ofItemHandler(storage))
         );
         return true;
     }

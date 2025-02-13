@@ -189,6 +189,8 @@ public interface Config {
         long getCreativeRangeUpgradeEnergyUsage();
 
         int getRangeUpgradeRange();
+
+        long getAutocraftingUpgradeEnergyUsage();
     }
 
     interface WirelessGridEntry {

@@ -6,7 +6,6 @@ import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.external.ExternalStorageProvider;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.fabric.storage.FabricStorageExtractableStorage;
 import com.refinedmods.refinedstorage.fabric.storage.FabricStorageInsertableStorage;
 
@@ -45,16 +44,14 @@ class FabricStorageExternalStorageProvider<P> implements ExternalStorageProvider
             toPlatformMapper,
             serverLevel,
             pos,
-            direction,
-            AmountOverride.NONE
+            direction
         );
         this.insertTarget = new FabricStorageInsertableStorage<>(
             lookup,
             toPlatformMapper,
             serverLevel,
             pos,
-            direction,
-            AmountOverride.NONE
+            direction
         );
         this.direction = direction;
     }

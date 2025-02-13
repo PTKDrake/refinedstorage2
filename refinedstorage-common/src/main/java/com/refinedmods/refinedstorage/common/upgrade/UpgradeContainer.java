@@ -13,9 +13,7 @@ import com.refinedmods.refinedstorage.common.support.network.NetworkNodeTicker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalLong;
 import java.util.Set;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -90,12 +88,18 @@ public class UpgradeContainer extends SimpleContainer implements UpgradeState {
         return registry.getByDestination(destination);
     }
 
-    public OptionalLong getRegulatedAmount(final ResourceKey resource) {
-        return IntStream.range(0, getContainerSize())
-            .mapToObj(this::getItem)
-            .filter(stack -> stack.getItem() instanceof RegulatorUpgradeItem)
-            .flatMapToLong(stack -> ((RegulatorUpgradeItem) stack.getItem()).getDesiredAmount(stack, resource).stream())
-            .findFirst();
+    @Override
+    public long getRegulatedAmount(final ResourceKey resource) {
+        for (int i = 0; i < getContainerSize(); ++i) {
+            final ItemStack stack = getItem(i);
+            if (stack.getItem() instanceof RegulatorUpgradeItem item) {
+                final long regulatedAmount = item.getDesiredAmount(stack, resource);
+                if (regulatedAmount > 0) {
+                    return regulatedAmount;
+                }
+            }
+        }
+        return 0;
     }
 
     private void updateIndex() {

@@ -4,7 +4,6 @@ import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.ExtractableStorage;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
 import net.minecraft.world.item.ItemStack;
@@ -12,12 +11,18 @@ import net.neoforged.neoforge.items.IItemHandler;
 
 public class ItemHandlerExtractableStorage implements ExtractableStorage {
     private final CapabilityCache capabilityCache;
-    private final AmountOverride amountOverride;
 
-    public ItemHandlerExtractableStorage(final CapabilityCache capabilityCache,
-                                         final AmountOverride amountOverride) {
+    public ItemHandlerExtractableStorage(final CapabilityCache capabilityCache) {
         this.capabilityCache = capabilityCache;
-        this.amountOverride = amountOverride;
+    }
+
+    public long getAmount(final ResourceKey resource) {
+        if (!(resource instanceof ItemResource itemResource)) {
+            return 0;
+        }
+        return capabilityCache.getItemHandler()
+            .map(itemHandler -> ForgeHandlerUtil.getCurrentAmount(itemHandler, itemResource.toItemStack()))
+            .orElse(0L);
     }
 
     @Override
@@ -25,29 +30,20 @@ public class ItemHandlerExtractableStorage implements ExtractableStorage {
         if (!(resource instanceof ItemResource itemResource)) {
             return 0L;
         }
-        return capabilityCache.getItemHandler().map(itemHandler -> {
-            final ItemStack toExtractStack = itemResource.toItemStack(amount);
-            final long correctedAmount = amountOverride.overrideAmount(
-                resource,
-                amount,
-                () -> ForgeHandlerUtil.getCurrentAmount(itemHandler, toExtractStack)
-            );
-            if (correctedAmount == 0) {
-                return 0L;
-            }
-            return doExtract(correctedAmount, action, itemHandler, toExtractStack);
-        }).orElse(0L);
+        return capabilityCache.getItemHandler()
+            .map(itemHandler -> extract(amount, action, itemHandler, itemResource.toItemStack(amount)))
+            .orElse(0L);
     }
 
-    private long doExtract(final long amount,
-                           final Action action,
-                           final IItemHandler itemHandler,
-                           final ItemStack toExtractStack) {
+    private long extract(final long amount,
+                         final Action action,
+                         final IItemHandler itemHandler,
+                         final ItemStack stack) {
         long extracted = 0;
         for (int slot = 0; slot < itemHandler.getSlots(); ++slot) {
             final boolean relevant = ItemStack.isSameItemSameComponents(
                 itemHandler.getStackInSlot(slot),
-                toExtractStack
+                stack
             );
             if (!relevant) {
                 continue;

@@ -21,6 +21,7 @@ import com.refinedmods.refinedstorage.api.network.autocrafting.ParentContainer;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternListener;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternProvider;
 import com.refinedmods.refinedstorage.api.network.node.container.NetworkNodeContainer;
+import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
@@ -102,6 +103,7 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
 
     @Override
     public CompletableFuture<Optional<Preview>> getPreview(final ResourceKey resource, final long amount) {
+        ResourceAmount.validate(resource, amount);
         return CompletableFuture.supplyAsync(() -> {
             final RootStorage rootStorage = rootStorageProvider.get();
             final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
@@ -112,11 +114,14 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
 
     @Override
     public CompletableFuture<Long> getMaxAmount(final ResourceKey resource) {
-        return CompletableFuture.supplyAsync(() -> {
-            final RootStorage rootStorage = rootStorageProvider.get();
-            final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
-            return calculator.getMaxAmount(resource);
-        }, executorService);
+        CoreValidations.validateNotNull(resource, "Resource cannot be null");
+        return CompletableFuture.supplyAsync(() -> getMaxAmountSync(resource), executorService);
+    }
+
+    private long getMaxAmountSync(final ResourceKey resource) {
+        final RootStorage rootStorage = rootStorageProvider.get();
+        final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
+        return calculator.getMaxAmount(resource);
     }
 
     @Override
@@ -124,12 +129,8 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
                                                          final long amount,
                                                          final Actor actor,
                                                          final boolean notify) {
-        return CompletableFuture.supplyAsync(() -> {
-            final RootStorage rootStorage = rootStorageProvider.get();
-            final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
-            return calculatePlan(calculator, resource, amount)
-                .map(plan -> startTask(resource, amount, actor, plan, notify));
-        }, executorService);
+        ResourceAmount.validate(resource, amount);
+        return CompletableFuture.supplyAsync(() -> startTaskSync(resource, amount, actor, notify), executorService);
     }
 
     private TaskId startTask(final ResourceKey resource,
@@ -145,6 +146,34 @@ public class AutocraftingNetworkComponentImpl implements AutocraftingNetworkComp
         );
         provider.addTask(task);
         return task.getId();
+    }
+
+    private Optional<TaskId> startTaskSync(final ResourceKey resource,
+                                           final long amount,
+                                           final Actor actor,
+                                           final boolean notify) {
+        final RootStorage rootStorage = rootStorageProvider.get();
+        final CraftingCalculator calculator = new CraftingCalculatorImpl(patternRepository, rootStorage);
+        return calculatePlan(calculator, resource, amount)
+            .map(plan -> startTask(resource, amount, actor, plan, notify));
+    }
+
+    @Override
+    public EnsureResult ensureTask(final ResourceKey resource, final long amount, final Actor actor) {
+        ResourceAmount.validate(resource, amount);
+        final long currentlyCrafting = providers.stream()
+            .mapToLong(provider -> provider.getAmount(resource))
+            .sum();
+        if (currentlyCrafting >= amount) {
+            return EnsureResult.TASK_ALREADY_RUNNING;
+        }
+        final long correctedAmount = Math.min(getMaxAmountSync(resource), amount - currentlyCrafting);
+        if (correctedAmount <= 0) {
+            return EnsureResult.MISSING_RESOURCES;
+        }
+        return startTaskSync(resource, correctedAmount, actor, false)
+            .map(taskId -> EnsureResult.TASK_CREATED)
+            .orElse(EnsureResult.MISSING_RESOURCES);
     }
 
     @Override

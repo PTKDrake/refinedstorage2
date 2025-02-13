@@ -4,7 +4,6 @@ import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.InsertableStorage;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
 import net.minecraft.world.item.ItemStack;
@@ -13,12 +12,18 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class ItemHandlerInsertableStorage implements InsertableStorage {
     private final CapabilityCache capabilityCache;
-    private final AmountOverride amountOverride;
 
-    public ItemHandlerInsertableStorage(final CapabilityCache capabilityCache,
-                                        final AmountOverride amountOverride) {
+    public ItemHandlerInsertableStorage(final CapabilityCache capabilityCache) {
         this.capabilityCache = capabilityCache;
-        this.amountOverride = amountOverride;
+    }
+
+    public long getAmount(final ResourceKey resource) {
+        if (!(resource instanceof ItemResource itemResource)) {
+            return 0;
+        }
+        return capabilityCache.getItemHandler()
+            .map(itemHandler -> ForgeHandlerUtil.getCurrentAmount(itemHandler, itemResource.toItemStack()))
+            .orElse(0L);
     }
 
     @Override
@@ -26,23 +31,15 @@ public class ItemHandlerInsertableStorage implements InsertableStorage {
         if (!(resource instanceof ItemResource itemResource)) {
             return 0L;
         }
-        return capabilityCache.getItemHandler().map(itemHandler -> {
-            final long correctedAmount = amountOverride.overrideAmount(
-                resource,
-                amount,
-                () -> ForgeHandlerUtil.getCurrentAmount(itemHandler, itemResource.toItemStack())
-            );
-            if (correctedAmount == 0) {
-                return 0L;
-            }
-            return doInsert(itemResource, correctedAmount, action, itemHandler);
-        }).orElse(0L);
+        return capabilityCache.getItemHandler()
+            .map(itemHandler -> insert(itemResource, amount, action, itemHandler))
+            .orElse(0L);
     }
 
-    private long doInsert(final ItemResource resource,
-                          final long amount,
-                          final Action action,
-                          final IItemHandler itemHandler) {
+    private long insert(final ItemResource resource,
+                        final long amount,
+                        final Action action,
+                        final IItemHandler itemHandler) {
         final ItemStack stack = resource.toItemStack(amount);
         final ItemStack remainder = ItemHandlerHelper.insertItem(
             itemHandler,

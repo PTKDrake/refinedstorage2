@@ -93,6 +93,8 @@ public final class Items {
     @Nullable
     private Supplier<AbstractUpgradeItem> creativeRangeUpgrade;
     @Nullable
+    private Supplier<AbstractUpgradeItem> autocraftingUpgrade;
+    @Nullable
     private Supplier<WirelessGridItem> wirelessGrid;
     @Nullable
     private Supplier<WirelessGridItem> creativeWirelessGrid;
@@ -380,6 +382,14 @@ public final class Items {
 
     public void setCreativeRangeUpgrade(final Supplier<AbstractUpgradeItem> creativeRangeUpgrade) {
         this.creativeRangeUpgrade = creativeRangeUpgrade;
+    }
+
+    public AbstractUpgradeItem getAutocraftingUpgrade() {
+        return requireNonNull(autocraftingUpgrade).get();
+    }
+
+    public void setAutocraftingUpgrade(final Supplier<AbstractUpgradeItem> autocraftingUpgrade) {
+        this.autocraftingUpgrade = autocraftingUpgrade;
     }
 
     public WirelessGridItem getWirelessGrid() {

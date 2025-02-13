@@ -24,7 +24,7 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
         this.energyUsage = energyUsage;
     }
 
-    public void setTransferStrategy(@Nullable final ExporterTransferStrategy transferStrategy) {
+    public void setTransferStrategy(final ExporterTransferStrategy transferStrategy) {
         this.transferStrategy = transferStrategy;
     }
 
@@ -41,9 +41,23 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
         schedulingMode.execute(tasks);
     }
 
+    @Nullable
+    public ExporterTransferStrategy.Result getLastResult(final int filterIndex) {
+        return tasks.get(filterIndex).lastResult;
+    }
+
     public void setFilters(final List<ResourceKey> filters) {
+        final List<ExporterTask> updatedTasks = new ArrayList<>();
+        for (int i = 0; i < filters.size(); ++i) {
+            final ResourceKey filter = filters.get(i);
+            final ExporterTransferStrategy.Result lastResult = (i < tasks.size() && tasks.get(i).filter.equals(filter))
+                ? tasks.get(i).lastResult
+                : null;
+            final ExporterTask task = new ExporterTask(filter, lastResult);
+            updatedTasks.add(task);
+        }
         tasks.clear();
-        tasks.addAll(filters.stream().map(ExporterTask::new).toList());
+        tasks.addAll(updatedTasks);
     }
 
     public void setEnergyUsage(final long energyUsage) {
@@ -57,9 +71,12 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
 
     class ExporterTask implements SchedulingMode.ScheduledTask {
         private final ResourceKey filter;
+        @Nullable
+        private ExporterTransferStrategy.Result lastResult;
 
-        ExporterTask(final ResourceKey filter) {
+        ExporterTask(final ResourceKey filter, @Nullable final ExporterTransferStrategy.Result lastResult) {
             this.filter = filter;
+            this.lastResult = lastResult;
         }
 
         @Override
@@ -67,7 +84,9 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
             if (transferStrategy == null || network == null) {
                 return false;
             }
-            return transferStrategy.transfer(filter, actor, network);
+            final ExporterTransferStrategy.Result result = transferStrategy.transfer(filter, actor, network);
+            this.lastResult = result;
+            return result == ExporterTransferStrategy.Result.EXPORTED;
         }
     }
 }

@@ -62,4 +62,15 @@ public final class SimpleUpgradeItem extends AbstractUpgradeItem {
             createTranslation("item", "silk_touch_upgrade.help")
         );
     }
+
+    // TODO: interface & constructor support
+    // TODO: more than 1 regulator in exporter and importer?
+    public static SimpleUpgradeItem autocraftingUpgrade() {
+        return new SimpleUpgradeItem(
+            RefinedStorageApi.INSTANCE.getUpgradeRegistry(),
+            Platform.INSTANCE.getConfig().getUpgrade()::getAutocraftingUpgradeEnergyUsage,
+            false,
+            createTranslation("item", "autocrafting_upgrade.help")
+        );
+    }
 }

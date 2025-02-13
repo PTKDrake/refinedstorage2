@@ -24,8 +24,8 @@ class RandomExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
     protected SchedulingMode createSchedulingMode() {
         return new RandomSchedulingMode(list -> {
             list.clear();
-            list.add(sut.new ExporterTask(A));
-            list.add(sut.new ExporterTask(B));
+            list.add(sut.new ExporterTask(A, null));
+            list.add(sut.new ExporterTask(B, null));
         });
     }
 
