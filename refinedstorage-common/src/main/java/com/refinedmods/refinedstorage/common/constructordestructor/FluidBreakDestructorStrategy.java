@@ -34,7 +34,7 @@ class FluidBreakDestructorStrategy implements DestructorStrategy {
     @Override
     public boolean apply(final Filter filter,
                          final Actor actor,
-                         final Supplier<Network> networkSupplier,
+                         final Supplier<Network> networkProvider,
                          final Player player) {
         if (!level.isLoaded(pos)) {
             return false;
@@ -49,7 +49,7 @@ class FluidBreakDestructorStrategy implements DestructorStrategy {
         if (!filter.isAllowed(fluidResource)) {
             return false;
         }
-        return tryInsert(actor, networkSupplier, player, blockState, liquidBlock, fluidResource);
+        return tryInsert(actor, networkProvider, player, blockState, liquidBlock, fluidResource);
     }
 
     private boolean tryInsert(final Actor actor,

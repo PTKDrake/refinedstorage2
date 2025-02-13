@@ -21,10 +21,10 @@ class CompositeDestructorStrategy implements DestructorStrategy {
     @Override
     public boolean apply(final Filter filter,
                          final Actor actor,
-                         final Supplier<Network> networkSupplier,
+                         final Supplier<Network> networkProvider,
                          final Player player) {
         for (final DestructorStrategy strategy : strategies) {
-            if (strategy.apply(filter, actor, networkSupplier, player)) {
+            if (strategy.apply(filter, actor, networkProvider, player)) {
                 return true;
             }
         }

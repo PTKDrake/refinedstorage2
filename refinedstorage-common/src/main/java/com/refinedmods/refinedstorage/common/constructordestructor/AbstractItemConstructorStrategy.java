@@ -31,30 +31,30 @@ abstract class AbstractItemConstructorStrategy implements ConstructorStrategy {
     }
 
     @Override
-    public final boolean apply(
+    public final Result apply(
         final ResourceKey resource,
         final Actor actor,
         final Player player,
         final Network network
     ) {
         if (!level.isLoaded(pos)) {
-            return false;
+            return Result.SKIPPED;
         }
         if (!(resource instanceof ItemResource itemResource)) {
-            return false;
+            return Result.SKIPPED;
         }
         final RootStorage rootStorage = network.getComponent(StorageNetworkComponent.class);
         final long amount = getTransferAmount();
         final long extractedAmount = rootStorage.extract(itemResource, amount, Action.SIMULATE, actor);
         if (extractedAmount == 0) {
-            return false;
+            return Result.RESOURCE_MISSING;
         }
         final ItemStack itemStack = itemResource.toItemStack(extractedAmount);
         final boolean success = apply(itemStack, actor, player);
         if (success) {
             rootStorage.extract(itemResource, extractedAmount, Action.EXECUTE, actor);
         }
-        return success;
+        return success ? Result.SUCCESS : Result.SKIPPED;
     }
 
     protected abstract boolean apply(ItemStack itemStack, Actor actor, Player actingPlayer);

@@ -84,9 +84,8 @@ public class ExporterNetworkNode extends AbstractNetworkNode {
             if (transferStrategy == null || network == null) {
                 return false;
             }
-            final ExporterTransferStrategy.Result result = transferStrategy.transfer(filter, actor, network);
-            this.lastResult = result;
-            return result == ExporterTransferStrategy.Result.EXPORTED;
+            this.lastResult = transferStrategy.transfer(filter, actor, network);
+            return lastResult == ExporterTransferStrategy.Result.EXPORTED;
         }
     }
 }

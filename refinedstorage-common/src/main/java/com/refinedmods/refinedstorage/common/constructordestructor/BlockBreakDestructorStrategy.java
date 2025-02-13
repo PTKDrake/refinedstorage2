@@ -44,7 +44,7 @@ class BlockBreakDestructorStrategy implements DestructorStrategy {
     @Override
     public boolean apply(final Filter filter,
                          final Actor actor,
-                         final Supplier<Network> networkSupplier,
+                         final Supplier<Network> networkProvider,
                          final Player player) {
         if (!level.isLoaded(pos)) {
             return false;
@@ -65,12 +65,12 @@ class BlockBreakDestructorStrategy implements DestructorStrategy {
             player,
             tool
         );
-        if (!insertDrops(actor, drops, getRootStorage(networkSupplier), Action.SIMULATE)) {
+        if (!insertDrops(actor, drops, getRootStorage(networkProvider), Action.SIMULATE)) {
             return false;
         }
         block.playerWillDestroy(level, pos, blockState, player);
         level.removeBlock(pos, false);
-        insertDrops(actor, drops, getRootStorage(networkSupplier), Action.EXECUTE);
+        insertDrops(actor, drops, getRootStorage(networkProvider), Action.EXECUTE);
         return true;
     }
 

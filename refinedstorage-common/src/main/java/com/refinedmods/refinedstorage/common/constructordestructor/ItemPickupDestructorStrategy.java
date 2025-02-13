@@ -31,12 +31,12 @@ class ItemPickupDestructorStrategy implements DestructorStrategy {
     @Override
     public boolean apply(final Filter filter,
                          final Actor actor,
-                         final Supplier<Network> networkSupplier,
+                         final Supplier<Network> networkProvider,
                          final Player player) {
         if (!level.isLoaded(pos)) {
             return false;
         }
-        final RootStorage rootStorage = networkSupplier.get().getComponent(StorageNetworkComponent.class);
+        final RootStorage rootStorage = networkProvider.get().getComponent(StorageNetworkComponent.class);
         final List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
         for (final ItemEntity itemEntity : items) {
             tryInsert(filter, actor, rootStorage, itemEntity);
