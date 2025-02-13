@@ -529,7 +529,8 @@ public abstract class AbstractModInitializer {
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.CONSTRUCTOR)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
-            .add(Items.INSTANCE.getStackUpgrade());
+            .add(Items.INSTANCE.getStackUpgrade())
+            .add(Items.INSTANCE.getAutocraftingUpgrade());
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.WIRELESS_TRANSMITTER)
             .add(Items.INSTANCE.getRangeUpgrade(), 4)

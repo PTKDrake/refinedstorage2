@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.11")
+@FunctionalInterface
 public interface ConstructorStrategyFactory {
     Optional<ConstructorStrategy> create(ServerLevel level,
                                          BlockPos pos,

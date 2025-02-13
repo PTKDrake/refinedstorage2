@@ -6,7 +6,7 @@ import com.refinedmods.refinedstorage.common.support.exportingindicator.Exportin
 import com.refinedmods.refinedstorage.common.support.widget.RedstoneModeSideButtonWidget;
 
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -48,7 +48,7 @@ public abstract class AbstractFilterScreen<T extends AbstractBaseContainerMenu> 
                                                       final int x,
                                                       final int y,
                                                       final int indicators,
-                                                      final Function<Integer, ExportingIndicator> indicatorProvider) {
+                                                      final IntFunction<ExportingIndicator> indicatorProvider) {
         for (int i = 0; i < indicators; ++i) {
             final ExportingIndicator indicator = indicatorProvider.apply(i);
             final int xx = leftPos + 7 + (i * 18) + 18 - 10 + 1;

@@ -7,6 +7,7 @@ import com.refinedmods.refinedstorage.common.api.constructordestructor.Construct
 import com.refinedmods.refinedstorage.common.api.constructordestructor.ConstructorStrategyFactory;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.ContentNames;
+import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.support.AbstractCableLikeBlockEntity;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
 import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
@@ -114,7 +115,11 @@ public abstract class AbstractConstructorBlockEntity
                 dropItems
             ).stream())
             .toList();
-        return new CompositeConstructorStrategy(strategies);
+        final ConstructorStrategy strategy = new CompositeConstructorStrategy(strategies);
+        if (upgradeContainer.has(Items.INSTANCE.getAutocraftingUpgrade())) {
+            return new AutocraftOnMissingResourcesConstructorStrategy(strategy);
+        }
+        return strategy;
     }
 
     @Override
