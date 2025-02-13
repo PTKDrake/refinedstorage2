@@ -36,6 +36,7 @@ import com.refinedmods.refinedstorage.common.configurationcard.ConfigurationCard
 import com.refinedmods.refinedstorage.common.configurationcard.ConfigurationCardState;
 import com.refinedmods.refinedstorage.common.constructordestructor.BlockBreakDestructorStrategyFactory;
 import com.refinedmods.refinedstorage.common.constructordestructor.ConstructorContainerMenu;
+import com.refinedmods.refinedstorage.common.constructordestructor.ConstructorData;
 import com.refinedmods.refinedstorage.common.constructordestructor.DestructorContainerMenu;
 import com.refinedmods.refinedstorage.common.constructordestructor.FluidBreakDestructorStrategyFactory;
 import com.refinedmods.refinedstorage.common.constructordestructor.ItemDropConstructorStrategyFactory;
@@ -528,7 +529,8 @@ public abstract class AbstractModInitializer {
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.CONSTRUCTOR)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
-            .add(Items.INSTANCE.getStackUpgrade());
+            .add(Items.INSTANCE.getStackUpgrade())
+            .add(Items.INSTANCE.getAutocraftingUpgrade());
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.WIRELESS_TRANSMITTER)
             .add(Items.INSTANCE.getRangeUpgrade(), 4)
@@ -767,7 +769,7 @@ public abstract class AbstractModInitializer {
         ));
         Menus.INSTANCE.setConstructor(callback.register(
             ContentIds.CONSTRUCTOR,
-            () -> extendedMenuTypeFactory.create(ConstructorContainerMenu::new, ResourceContainerData.STREAM_CODEC)
+            () -> extendedMenuTypeFactory.create(ConstructorContainerMenu::new, ConstructorData.STREAM_CODEC)
         ));
         Menus.INSTANCE.setRegulatorUpgrade(callback.register(
             ContentIds.REGULATOR_UPGRADE,

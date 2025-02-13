@@ -47,19 +47,36 @@ public class ConstructorNetworkNode extends SimpleNetworkNode {
     }
 
     void setFilters(final List<ResourceKey> filters) {
-        this.tasks.clear();
-        this.tasks.addAll(filters.stream().map(ConstructorTask::new).toList());
+        final List<ConstructorTask> updatedTasks = new ArrayList<>();
+        for (int i = 0; i < filters.size(); ++i) {
+            final ResourceKey filter = filters.get(i);
+            final ConstructorStrategy.Result lastResult = (i < tasks.size() && tasks.get(i).filter.equals(filter))
+                ? tasks.get(i).lastResult
+                : null;
+            final ConstructorTask task = new ConstructorTask(filter, lastResult);
+            updatedTasks.add(task);
+        }
+        tasks.clear();
+        tasks.addAll(updatedTasks);
     }
 
     void setStrategy(@Nullable final ConstructorStrategy strategy) {
         this.strategy = strategy;
     }
 
+    @Nullable
+    public ConstructorStrategy.Result getLastResult(final int filterIndex) {
+        return tasks.get(filterIndex).lastResult;
+    }
+
     private class ConstructorTask implements SchedulingMode.ScheduledTask {
         private final ResourceKey filter;
+        @Nullable
+        private ConstructorStrategy.Result lastResult;
 
-        private ConstructorTask(final ResourceKey filter) {
+        private ConstructorTask(final ResourceKey filter, @Nullable final ConstructorStrategy.Result lastResult) {
             this.filter = filter;
+            this.lastResult = lastResult;
         }
 
         @Override
@@ -68,8 +85,8 @@ public class ConstructorNetworkNode extends SimpleNetworkNode {
                 return false;
             }
             final Player player = playerProvider.get();
-            strategy.apply(filter, actor, player, network);
-            return true;
+            this.lastResult = strategy.apply(filter, actor, player, network);
+            return lastResult == ConstructorStrategy.Result.SUCCESS;
         }
     }
 }

@@ -63,7 +63,7 @@ public final class SimpleUpgradeItem extends AbstractUpgradeItem {
         );
     }
 
-    // TODO: interface & constructor support
+    // TODO: interface support
     // TODO: more than 1 regulator in exporter and importer?
     public static SimpleUpgradeItem autocraftingUpgrade() {
         return new SimpleUpgradeItem(

@@ -18,15 +18,16 @@ class CompositeConstructorStrategy implements ConstructorStrategy {
     }
 
     @Override
-    public boolean apply(final ResourceKey resource,
-                         final Actor actor,
-                         final Player player,
-                         final Network network) {
+    public Result apply(final ResourceKey resource,
+                        final Actor actor,
+                        final Player player,
+                        final Network network) {
         for (final ConstructorStrategy strategy : strategies) {
-            if (strategy.apply(resource, actor, player, network)) {
-                return true;
+            final Result result = strategy.apply(resource, actor, player, network);
+            if (result != Result.SKIPPED) {
+                return result;
             }
         }
-        return false;
+        return Result.SKIPPED;
     }
 }

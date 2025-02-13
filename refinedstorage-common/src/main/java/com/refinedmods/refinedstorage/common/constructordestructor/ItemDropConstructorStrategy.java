@@ -13,14 +13,12 @@ import net.minecraft.world.phys.Vec3;
 class ItemDropConstructorStrategy extends AbstractItemConstructorStrategy {
     private final long amount;
 
-    ItemDropConstructorStrategy(
-        final ServerLevel level,
-        final BlockPos pos,
-        final Direction direction,
-        final boolean hasStackUpgrade
-    ) {
+    ItemDropConstructorStrategy(final ServerLevel level,
+                                final BlockPos pos,
+                                final Direction direction,
+                                final boolean stackUpgrade) {
         super(level, pos, direction);
-        this.amount = hasStackUpgrade ? 64 : 1;
+        this.amount = stackUpgrade ? 64 : 1;
     }
 
     @Override

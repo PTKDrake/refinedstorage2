@@ -12,5 +12,5 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.10")
 @FunctionalInterface
 public interface DestructorStrategy {
-    boolean apply(Filter filter, Actor actor, Supplier<Network> networkSupplier, Player player);
+    boolean apply(Filter filter, Actor actor, Supplier<Network> networkProvider, Player player);
 }

@@ -27,17 +27,17 @@ public class PlaceFluidConstructorStrategy implements ConstructorStrategy {
     }
 
     @Override
-    public boolean apply(
+    public Result apply(
         final ResourceKey resource,
         final Actor actor,
         final Player player,
         final Network network
     ) {
         if (!level.isLoaded(pos)) {
-            return false;
+            return Result.SKIPPED;
         }
         if (!(resource instanceof FluidResource fluidResource)) {
-            return false;
+            return Result.SKIPPED;
         }
         final RootStorage rootStorage = network.getComponent(StorageNetworkComponent.class);
         final long bucketAmount = Platform.INSTANCE.getBucketAmount();
@@ -48,12 +48,12 @@ public class PlaceFluidConstructorStrategy implements ConstructorStrategy {
             actor
         );
         if (bucketAmount != extractedAmount) {
-            return false;
+            return Result.RESOURCE_MISSING;
         }
         final boolean success = Platform.INSTANCE.placeFluid(level, pos, direction, player, fluidResource);
         if (success) {
             rootStorage.extract(fluidResource, bucketAmount, Action.EXECUTE, actor);
         }
-        return success;
+        return success ? Result.SUCCESS : Result.SKIPPED;
     }
 }
