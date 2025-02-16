@@ -1,6 +1,8 @@
 package com.refinedmods.refinedstorage.api.network.impl.node.iface;
 
 import com.refinedmods.refinedstorage.api.core.Action;
+import com.refinedmods.refinedstorage.api.network.Network;
+import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
 import com.refinedmods.refinedstorage.api.network.impl.node.AbstractNetworkNode;
 import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExposedExternalStorage;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.externalstorage.InterfaceExternalStorageProvider;
@@ -23,6 +25,7 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
     @Nullable
     private InterfaceTransferResult[] lastResults;
     private ToLongFunction<ResourceKey> transferQuotaProvider = resource -> Long.MAX_VALUE;
+    private OnMissingResources onMissingResources = OnMissingResources.EMPTY;
 
     public InterfaceNetworkNode(final long energyUsage) {
         this.energyUsage = energyUsage;
@@ -30,6 +33,10 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
 
     public void setTransferQuotaProvider(final ToLongFunction<ResourceKey> transferQuotaProvider) {
         this.transferQuotaProvider = transferQuotaProvider;
+    }
+
+    public void setOnMissingResources(final OnMissingResources onMissingResources) {
+        this.onMissingResources = onMissingResources;
     }
 
     public boolean isActingAsExternalStorage() {
@@ -127,24 +134,25 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
 
     private void updateEmptySlot(final InterfaceExportState state,
                                  final int slot,
-                                 final ResourceKey want,
+                                 final ResourceKey resource,
                                  final RootStorage storage) {
         final long wantedAmount = state.getRequestedAmount(slot);
-        final Collection<ResourceKey> candidates = state.expandExportCandidates(storage, want);
+        final long correctedAmount = Math.min(transferQuotaProvider.applyAsLong(resource), wantedAmount);
+        final Collection<ResourceKey> candidates = state.expandExportCandidates(storage, resource);
         for (final ResourceKey candidate : candidates) {
-            final long extracted = storage.extract(
-                candidate,
-                Math.min(transferQuotaProvider.applyAsLong(want), wantedAmount),
-                Action.EXECUTE,
-                actor
-            );
+            final long extracted = storage.extract(candidate, correctedAmount, Action.EXECUTE, actor);
             if (extracted > 0) {
                 state.setExportSlot(slot, candidate, extracted);
                 updateResult(slot, InterfaceTransferResult.EXPORTED);
                 return;
             }
         }
-        updateResult(slot, InterfaceTransferResult.RESOURCE_MISSING);
+        if (network == null) {
+            return;
+        }
+        final InterfaceTransferResult result = onMissingResources.onMissingResources(resource, correctedAmount, actor,
+            network);
+        updateResult(slot, result);
     }
 
     private void extractMoreFromStorage(final InterfaceExportState state,
@@ -155,7 +163,12 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
         final long correctedAmount = Math.min(transferQuotaProvider.applyAsLong(resource), amount);
         final long extracted = storage.extract(resource, correctedAmount, Action.EXECUTE, actor);
         if (extracted == 0) {
-            updateResult(slot, InterfaceTransferResult.RESOURCE_MISSING);
+            if (network == null) {
+                return;
+            }
+            final InterfaceTransferResult result =
+                onMissingResources.onMissingResources(resource, correctedAmount, actor, network);
+            updateResult(slot, result);
             return;
         }
         state.growExportedAmount(slot, extracted);
@@ -195,5 +208,32 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
     @Override
     public long getEnergyUsage() {
         return energyUsage;
+    }
+
+    @FunctionalInterface
+    public interface OnMissingResources {
+        OnMissingResources EMPTY = (resource, amount, a, network)
+            -> InterfaceTransferResult.RESOURCE_MISSING;
+
+        InterfaceTransferResult onMissingResources(ResourceKey resource, long amount, Actor actor, Network network);
+    }
+
+    public static class AutocraftOnMissingResources implements OnMissingResources {
+        @Override
+        public InterfaceTransferResult onMissingResources(final ResourceKey resource,
+                                                          final long amount,
+                                                          final Actor actor,
+                                                          final Network network) {
+            final AutocraftingNetworkComponent autocrafting = network.getComponent(AutocraftingNetworkComponent.class);
+            if (!autocrafting.getPatternsByOutput(resource).isEmpty()) {
+                final var ensureResult = autocrafting.ensureTask(resource, amount, actor);
+                final boolean success = ensureResult == AutocraftingNetworkComponent.EnsureResult.TASK_CREATED
+                    || ensureResult == AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING;
+                return success
+                    ? InterfaceTransferResult.AUTOCRAFTING_STARTED
+                    : InterfaceTransferResult.AUTOCRAFTING_MISSING_RESOURCES;
+            }
+            return InterfaceTransferResult.RESOURCE_MISSING;
+        }
     }
 }

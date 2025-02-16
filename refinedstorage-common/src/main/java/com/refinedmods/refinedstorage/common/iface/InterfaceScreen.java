@@ -17,12 +17,10 @@ import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createId
 public class InterfaceScreen extends AbstractBaseScreen<InterfaceContainerMenu> {
     private static final ResourceLocation TEXTURE = createIdentifier("textures/gui/interface.png");
 
-    public InterfaceScreen(final InterfaceContainerMenu menu,
-                           final Inventory playerInventory,
-                           final Component title) {
+    public InterfaceScreen(final InterfaceContainerMenu menu, final Inventory playerInventory, final Component title) {
         super(menu, playerInventory, title);
         this.inventoryLabelY = 88;
-        this.imageWidth = 176;
+        this.imageWidth = 210;
         this.imageHeight = 182;
     }
 

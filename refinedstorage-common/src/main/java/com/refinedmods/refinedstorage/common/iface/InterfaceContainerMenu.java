@@ -13,6 +13,9 @@ import com.refinedmods.refinedstorage.common.support.containermenu.ServerPropert
 import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicator;
 import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicatorListener;
 import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicators;
+import com.refinedmods.refinedstorage.common.upgrade.UpgradeContainer;
+import com.refinedmods.refinedstorage.common.upgrade.UpgradeDestinations;
+import com.refinedmods.refinedstorage.common.upgrade.UpgradeSlot;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,9 +39,10 @@ public class InterfaceContainerMenu extends AbstractResourceContainerMenu implem
                            final ResourceContainer exportConfig,
                            final ResourceContainer exportedResources,
                            final Container exportedResourcesAsContainer,
+                           final UpgradeContainer upgradeContainer,
                            final ExportingIndicators indicators) {
         super(Menus.INSTANCE.getInterface(), syncId, player);
-        addSlots(player, exportConfig, exportedResources, exportedResourcesAsContainer);
+        addSlots(player, exportConfig, exportedResources, exportedResourcesAsContainer, upgradeContainer);
         registerProperty(new ServerProperty<>(
             PropertyTypes.FUZZY_MODE,
             blockEntity::isFuzzyMode,
@@ -61,7 +65,8 @@ public class InterfaceContainerMenu extends AbstractResourceContainerMenu implem
             interfaceData,
             FilterWithFuzzyMode.create(filterContainer, null)
         );
-        addSlots(playerInventory.player, filterContainer, exportedResources, exportedResources.toItemContainer());
+        addSlots(playerInventory.player, filterContainer, exportedResources, exportedResources.toItemContainer(),
+            new UpgradeContainer(UpgradeDestinations.INTERFACE, 1));
         registerProperty(new ClientProperty<>(PropertyTypes.FUZZY_MODE, false));
         registerProperty(new ClientProperty<>(PropertyTypes.REDSTONE_MODE, RedstoneMode.IGNORE));
         this.indicators = new ExportingIndicators(interfaceData.exportingIndicators());
@@ -70,13 +75,15 @@ public class InterfaceContainerMenu extends AbstractResourceContainerMenu implem
     private void addSlots(final Player player,
                           final ResourceContainer exportConfig,
                           final ResourceContainer exportedResources,
-                          final Container exportedResourcesAsContainer) {
+                          final Container exportedResourcesAsContainer,
+                          final UpgradeContainer upgradeContainer) {
         for (int i = 0; i < exportConfig.size(); ++i) {
             addSlot(createExportConfigSlot(exportConfig, i));
         }
         for (int i = 0; i < exportedResources.size(); ++i) {
             addSlot(addExportedResourceSlot(exportedResources, exportedResourcesAsContainer, i));
         }
+        addSlot(new UpgradeSlot(upgradeContainer, 0, 187, 6));
         addPlayerInventory(player.getInventory(), 8, 100);
         transferManager.addBiTransfer(exportedResourcesAsContainer, player.getInventory());
         transferManager.addFilterTransfer(player.getInventory());
