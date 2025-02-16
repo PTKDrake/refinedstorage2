@@ -1,6 +1,7 @@
 package com.refinedmods.refinedstorage.common.iface;
 
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceNetworkNode;
+import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceTransferResult;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.externalstorage.InterfaceExternalStorageProvider;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.externalstorage.InterfaceExternalStorageProviderImpl;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
@@ -14,6 +15,8 @@ import com.refinedmods.refinedstorage.common.content.ContentNames;
 import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
 import com.refinedmods.refinedstorage.common.support.FilterWithFuzzyMode;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeExtendedMenuProvider;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicator;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicators;
 import com.refinedmods.refinedstorage.common.support.network.AbstractBaseNetworkNodeContainerBlockEntity;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerData;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerImpl;
@@ -166,15 +169,33 @@ public class InterfaceBlockEntity
             this,
             filter.getFilterContainer(),
             exportedResources,
-            exportedResourcesAsContainer
+            exportedResourcesAsContainer,
+            getExportingIndicators()
         );
+    }
+
+    private ExportingIndicators getExportingIndicators() {
+        return new ExportingIndicators(
+            filter.getFilterContainer(),
+            i -> toExportingIndicator(mainNetworkNode.getLastResult(i)),
+            true
+        );
+    }
+
+    private ExportingIndicator toExportingIndicator(@Nullable final InterfaceTransferResult result) {
+        return switch (result) {
+            case STORAGE_DOES_NOT_ACCEPT_RESOURCE -> ExportingIndicator.DESTINATION_DOES_NOT_ACCEPT_RESOURCE;
+            case RESOURCE_MISSING -> ExportingIndicator.RESOURCE_MISSING;
+            case null, default -> ExportingIndicator.NONE;
+        };
     }
 
     @Override
     public InterfaceData getMenuData() {
         return new InterfaceData(
             ResourceContainerData.of(filter.getFilterContainer()),
-            ResourceContainerData.of(exportedResources)
+            ResourceContainerData.of(exportedResources),
+            getExportingIndicators().getAll()
         );
     }
 

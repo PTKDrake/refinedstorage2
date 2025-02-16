@@ -10,8 +10,12 @@ import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes
 import com.refinedmods.refinedstorage.common.support.containermenu.ResourceSlot;
 import com.refinedmods.refinedstorage.common.support.containermenu.ResourceSlotType;
 import com.refinedmods.refinedstorage.common.support.containermenu.ServerProperty;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicator;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicatorListener;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicators;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -19,17 +23,20 @@ import net.minecraft.world.inventory.Slot;
 
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslation;
 
-public class InterfaceContainerMenu extends AbstractResourceContainerMenu {
+public class InterfaceContainerMenu extends AbstractResourceContainerMenu implements ExportingIndicatorListener {
     private static final int EXPORT_CONFIG_SLOT_X = 8;
     private static final int EXPORT_CONFIG_SLOT_Y = 20;
     private static final int EXPORT_OUTPUT_SLOT_Y = 66;
+
+    private final ExportingIndicators indicators;
 
     InterfaceContainerMenu(final int syncId,
                            final Player player,
                            final InterfaceBlockEntity blockEntity,
                            final ResourceContainer exportConfig,
                            final ResourceContainer exportedResources,
-                           final Container exportedResourcesAsContainer) {
+                           final Container exportedResourcesAsContainer,
+                           final ExportingIndicators indicators) {
         super(Menus.INSTANCE.getInterface(), syncId, player);
         addSlots(player, exportConfig, exportedResources, exportedResourcesAsContainer);
         registerProperty(new ServerProperty<>(
@@ -42,6 +49,7 @@ public class InterfaceContainerMenu extends AbstractResourceContainerMenu {
             blockEntity::getRedstoneMode,
             blockEntity::setRedstoneMode
         ));
+        this.indicators = indicators;
     }
 
     public InterfaceContainerMenu(final int syncId,
@@ -56,6 +64,7 @@ public class InterfaceContainerMenu extends AbstractResourceContainerMenu {
         addSlots(playerInventory.player, filterContainer, exportedResources, exportedResources.toItemContainer());
         registerProperty(new ClientProperty<>(PropertyTypes.FUZZY_MODE, false));
         registerProperty(new ClientProperty<>(PropertyTypes.REDSTONE_MODE, RedstoneMode.IGNORE));
+        this.indicators = new ExportingIndicators(interfaceData.exportingIndicators());
     }
 
     private void addSlots(final Player player,
@@ -103,6 +112,27 @@ public class InterfaceContainerMenu extends AbstractResourceContainerMenu {
             EXPORT_OUTPUT_SLOT_Y,
             ResourceSlotType.CONTAINER
         );
+    }
+
+    ExportingIndicator getIndicator(final int idx) {
+        return indicators.get(idx);
+    }
+
+    int getIndicators() {
+        return indicators.size();
+    }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+        if (player instanceof ServerPlayer serverPlayer) {
+            indicators.detectChanges(serverPlayer);
+        }
+    }
+
+    @Override
+    public void indicatorChanged(final int index, final ExportingIndicator indicator) {
+        indicators.set(index, indicator);
     }
 
     private static int getExportSlotX(final int index) {

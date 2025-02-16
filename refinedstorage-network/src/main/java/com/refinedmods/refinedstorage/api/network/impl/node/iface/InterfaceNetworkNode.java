@@ -20,6 +20,8 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
     private final Actor actor = new NetworkNodeActor(this);
     @Nullable
     private InterfaceExportState exportState;
+    @Nullable
+    private InterfaceTransferResult[] lastResults;
     private ToLongFunction<ResourceKey> transferQuotaProvider = resource -> Long.MAX_VALUE;
 
     public InterfaceNetworkNode(final long energyUsage) {
@@ -56,6 +58,9 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
 
     public void setExportState(@Nullable final InterfaceExportState exportState) {
         this.exportState = exportState;
+        this.lastResults = exportState != null
+            ? new InterfaceTransferResult[exportState.getSlots()]
+            : null;
     }
 
     @Override
@@ -64,56 +69,70 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
         if (exportState == null || network == null || !isActive()) {
             return;
         }
-        final StorageNetworkComponent storageComponent = network.getComponent(StorageNetworkComponent.class);
+        final RootStorage storage = network.getComponent(StorageNetworkComponent.class);
         for (int i = 0; i < exportState.getSlots(); ++i) {
-            doExport(exportState, i, storageComponent);
+            updateSlot(exportState, i, storage);
         }
     }
 
-    private void doExport(final InterfaceExportState state,
-                          final int index,
-                          final StorageNetworkComponent storageComponent) {
+    private void updateSlot(final InterfaceExportState state, final int index, final RootStorage storage) {
         final ResourceKey want = state.getRequestedResource(index);
         final ResourceKey got = state.getExportedResource(index);
         if (want == null && got != null) {
-            clearExportedResource(state, index, got, storageComponent);
+            clearSlot(state, index, got, storage);
         } else if (want != null && got == null) {
-            doInitialExport(state, index, want, storageComponent);
+            updateEmptySlot(state, index, want, storage);
         } else if (want != null) {
             final boolean valid = state.isExportedResourceValid(want, got);
             if (!valid) {
-                clearExportedResource(state, index, got, storageComponent);
+                clearSlot(state, index, got, storage);
             } else {
-                doExportWithExistingResource(state, index, got, storageComponent);
+                updateSlot(state, index, got, storage);
             }
         }
     }
 
-    private void clearExportedResource(final InterfaceExportState state,
-                                       final int slot,
-                                       final ResourceKey got,
-                                       final RootStorage rootStorage) {
+    private void updateSlot(final InterfaceExportState state,
+                            final int slot,
+                            final ResourceKey got,
+                            final RootStorage storage) {
+        final long wantedAmount = state.getRequestedAmount(slot);
         final long currentAmount = state.getExportedAmount(slot);
-        final long inserted = rootStorage.insert(
+        final long difference = wantedAmount - currentAmount;
+        if (difference > 0) {
+            extractMoreFromStorage(state, slot, got, difference, storage);
+        } else if (difference < 0) {
+            insertOverflowToStorage(state, slot, got, difference, storage);
+        }
+    }
+
+    private void clearSlot(final InterfaceExportState state,
+                           final int slot,
+                           final ResourceKey got,
+                           final RootStorage storage) {
+        final long currentAmount = state.getExportedAmount(slot);
+        final long inserted = storage.insert(
             got,
             Math.min(currentAmount, transferQuotaProvider.applyAsLong(got)),
             Action.EXECUTE,
             actor
         );
         if (inserted == 0) {
+            updateResult(slot, InterfaceTransferResult.STORAGE_DOES_NOT_ACCEPT_RESOURCE);
             return;
         }
         state.shrinkExportedAmount(slot, inserted);
+        updateResult(slot, InterfaceTransferResult.EXPORTED);
     }
 
-    private void doInitialExport(final InterfaceExportState state,
+    private void updateEmptySlot(final InterfaceExportState state,
                                  final int slot,
                                  final ResourceKey want,
-                                 final RootStorage rootStorage) {
+                                 final RootStorage storage) {
         final long wantedAmount = state.getRequestedAmount(slot);
-        final Collection<ResourceKey> candidates = state.expandExportCandidates(rootStorage, want);
+        final Collection<ResourceKey> candidates = state.expandExportCandidates(storage, want);
         for (final ResourceKey candidate : candidates) {
-            final long extracted = rootStorage.extract(
+            final long extracted = storage.extract(
                 candidate,
                 Math.min(transferQuotaProvider.applyAsLong(want), wantedAmount),
                 Action.EXECUTE,
@@ -121,49 +140,56 @@ public class InterfaceNetworkNode extends AbstractNetworkNode {
             );
             if (extracted > 0) {
                 state.setExportSlot(slot, candidate, extracted);
-                break;
+                updateResult(slot, InterfaceTransferResult.EXPORTED);
+                return;
             }
         }
+        updateResult(slot, InterfaceTransferResult.RESOURCE_MISSING);
     }
 
-    private void doExportWithExistingResource(final InterfaceExportState state,
-                                              final int slot,
-                                              final ResourceKey got,
-                                              final StorageNetworkComponent storageComponent) {
-        final long wantedAmount = state.getRequestedAmount(slot);
-        final long currentAmount = state.getExportedAmount(slot);
-        final long difference = wantedAmount - currentAmount;
-        if (difference > 0) {
-            exportAdditionalResources(state, slot, got, difference, storageComponent);
-        } else if (difference < 0) {
-            returnExportedResource(state, slot, got, difference, storageComponent);
-        }
-    }
-
-    private void exportAdditionalResources(final InterfaceExportState state,
-                                           final int slot,
-                                           final ResourceKey got,
-                                           final long amount,
-                                           final RootStorage rootStorage) {
-        final long correctedAmount = Math.min(transferQuotaProvider.applyAsLong(got), amount);
-        final long extracted = rootStorage.extract(got, correctedAmount, Action.EXECUTE, actor);
+    private void extractMoreFromStorage(final InterfaceExportState state,
+                                        final int slot,
+                                        final ResourceKey resource,
+                                        final long amount,
+                                        final RootStorage storage) {
+        final long correctedAmount = Math.min(transferQuotaProvider.applyAsLong(resource), amount);
+        final long extracted = storage.extract(resource, correctedAmount, Action.EXECUTE, actor);
         if (extracted == 0) {
+            updateResult(slot, InterfaceTransferResult.RESOURCE_MISSING);
             return;
         }
         state.growExportedAmount(slot, extracted);
+        updateResult(slot, InterfaceTransferResult.EXPORTED);
     }
 
-    private void returnExportedResource(final InterfaceExportState state,
-                                        final int slot,
-                                        final ResourceKey got,
-                                        final long amount,
-                                        final RootStorage rootStorage) {
-        final long correctedAmount = Math.min(transferQuotaProvider.applyAsLong(got), Math.abs(amount));
-        final long inserted = rootStorage.insert(got, correctedAmount, Action.EXECUTE, actor);
+    private void insertOverflowToStorage(final InterfaceExportState state,
+                                         final int slot,
+                                         final ResourceKey resource,
+                                         final long amount,
+                                         final RootStorage storage) {
+        final long correctedAmount = Math.min(transferQuotaProvider.applyAsLong(resource), Math.abs(amount));
+        final long inserted = storage.insert(resource, correctedAmount, Action.EXECUTE, actor);
         if (inserted == 0) {
+            updateResult(slot, InterfaceTransferResult.STORAGE_DOES_NOT_ACCEPT_RESOURCE);
             return;
         }
         state.shrinkExportedAmount(slot, inserted);
+        updateResult(slot, InterfaceTransferResult.EXPORTED);
+    }
+
+    private void updateResult(final int slot, final InterfaceTransferResult result) {
+        if (lastResults == null) {
+            return;
+        }
+        lastResults[slot] = result;
+    }
+
+    @Nullable
+    public InterfaceTransferResult getLastResult(final int slot) {
+        if (lastResults == null) {
+            return null;
+        }
+        return lastResults[slot];
     }
 
     @Override
