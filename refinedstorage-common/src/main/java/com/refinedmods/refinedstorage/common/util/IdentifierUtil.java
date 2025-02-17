@@ -88,33 +88,21 @@ public final class IdentifierUtil {
         return prefix + id.getNamespace() + "." + fixedPath;
     }
 
-    public static String formatWithUnits(final long qty) {
-        if (qty >= 1_000_000_000) {
-            return formatBillion(qty);
-        } else if (qty >= 1_000_000) {
-            return formatMillion(qty);
-        } else if (qty >= 1000) {
-            return formatThousand(qty);
+    public static String formatWithUnits(final double qty) {
+        if (qty < 0.001) {
+            return "0";
         }
-        return String.valueOf(qty);
-    }
 
-    private static String formatBillion(final long qty) {
-        return FORMATTER_WITH_UNITS.format(qty / 1_000_000_000D) + "B";
-    }
-
-    private static String formatMillion(final long qty) {
-        if (qty >= 100_000_000) {
-            return FORMATTER_WITH_UNITS.format(Math.floor(qty / 1_000_000D)) + "M";
-        }
-        return FORMATTER_WITH_UNITS.format(qty / 1_000_000D) + "M";
-    }
-
-    private static String formatThousand(final long qty) {
-        if (qty >= 100_000) {
-            return FORMATTER_WITH_UNITS.format(Math.floor(qty / 1000D)) + "K";
-        }
-        return FORMATTER_WITH_UNITS.format(qty / 1000D) + "K";
+        return switch ((int) Math.floor(Math.log10(qty) / 3)) {
+            case -1 -> FORMATTER_WITH_UNITS.format(qty * 10e2) + "m";
+            case 0 -> FORMATTER_WITH_UNITS.format(qty >= 100 ? Math.floor(qty) : qty);
+            case 1 -> FORMATTER_WITH_UNITS.format(qty >= 10e4 ? Math.floor(qty / 10e2) : qty / 10e2) + "K";
+            case 2 -> FORMATTER_WITH_UNITS.format(qty >= 10e7 ? Math.floor(qty / 10e5) : qty / 10e5) + "M";
+            case 3 -> FORMATTER_WITH_UNITS.format(qty >= 10e9 ? Math.floor(qty / 10e8) : qty / 10e8) + "B";
+            case 4 -> FORMATTER_WITH_UNITS.format(qty >= 10e12 ? Math.floor(qty / 10e11) : qty / 10e11) + "G";
+            case 5 -> FORMATTER_WITH_UNITS.format(qty >= 10e15 ? Math.floor(qty / 10e14) : qty / 10e14) + "T";
+            default -> "∞";
+        };
     }
 
     public static String format(final long qty) {

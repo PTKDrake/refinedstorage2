@@ -19,22 +19,22 @@ class FluidResourceRenderingTest {
 
     @Test
     void shouldFormatWithUnitsForPartialBuckets() {
-        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2), true)).isEqualTo("1");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2), true)).isEqualTo("1.5");
         assertThat(sut.formatAmount(BUCKET_AMOUNT + 1, true)).isEqualTo("1");
     }
 
     @Test
     void shouldFormatWithUnitsForLessThan1Bucket() {
-        assertThat(sut.formatAmount(BUCKET_AMOUNT / 2, true)).isEqualTo("0.5");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT / 3, true)).isEqualTo("0.3");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT / 2, true)).isEqualTo("500m");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT / 3, true)).isEqualTo("333m");
     }
 
     @Test
     void shouldFormatWithoutUnits() {
         assertThat(sut.formatAmount(BUCKET_AMOUNT)).isEqualTo("1");
         assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2))).isEqualTo("1.5");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 3))).isEqualTo("1.3");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 3))).isEqualTo("1.333");
         assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000)).isEqualTo("1,000");
-        assertThat(sut.formatAmount((BUCKET_AMOUNT * 1000) + (BUCKET_AMOUNT / 3))).isEqualTo("1,000.3");
+        assertThat(sut.formatAmount((BUCKET_AMOUNT * 1000) + (BUCKET_AMOUNT / 3))).isEqualTo("1,000.333");
     }
 }
