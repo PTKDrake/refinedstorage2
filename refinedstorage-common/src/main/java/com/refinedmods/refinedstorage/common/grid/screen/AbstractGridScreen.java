@@ -524,14 +524,16 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             if (resource.canExtract(carriedStack, getMenu().getView()) && !hasControlDown()) {
                 mouseClickedInGrid(clickedButton, resource);
                 return true;
-            } else if (resource.isAutocraftable() && tryStartAutocrafting(resource)) {
-                return true;
             }
         }
 
         if (isOverStorageArea((int) mouseX, (int) mouseY)
             && !carriedStack.isEmpty() && (clickedButton == 0 || clickedButton == 1)) {
             mouseClickedInGrid(clickedButton);
+            return true;
+        }
+
+        if (resource != null && resource.isAutocraftable() && tryStartAutocrafting(resource)) {
             return true;
         }
 
