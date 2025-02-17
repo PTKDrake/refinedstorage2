@@ -10,5 +10,5 @@ public interface AmountOperations<N extends Number> {
 
     Optional<N> validate(N amount, @Nullable N minAmount, @Nullable N maxAmount);
 
-    N changeAmount(N current, int delta, @Nullable N minAmount, @Nullable N maxAmount);
+    N changeAmount(@Nullable N current, int delta, @Nullable N minAmount, @Nullable N maxAmount);
 }

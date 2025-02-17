@@ -1,10 +1,11 @@
 package com.refinedmods.refinedstorage.common.support.amount;
 
-import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
 import net.minecraft.util.Mth;
+
+import static java.util.Objects.requireNonNullElse;
 
 public class IntegerAmountOperations implements AmountOperations<Integer> {
     public static final AmountOperations<Integer> INSTANCE = new IntegerAmountOperations();
@@ -36,14 +37,21 @@ public class IntegerAmountOperations implements AmountOperations<Integer> {
     }
 
     @Override
-    public Integer changeAmount(final Integer current,
+    public Integer changeAmount(@Nullable final Integer current,
                                 final int delta,
                                 @Nullable final Integer minAmount,
                                 @Nullable final Integer maxAmount) {
+        if (current == null) {
+            return Mth.clamp(
+                delta,
+                requireNonNullElse(minAmount, Integer.MIN_VALUE),
+                requireNonNullElse(maxAmount, Integer.MAX_VALUE)
+            );
+        }
         return Mth.clamp(
             current + delta,
-            Objects.requireNonNullElse(minAmount, Integer.MIN_VALUE),
-            Objects.requireNonNullElse(maxAmount, Integer.MAX_VALUE)
+            requireNonNullElse(minAmount, Integer.MIN_VALUE),
+            requireNonNullElse(maxAmount, Integer.MAX_VALUE)
         );
     }
 }

@@ -18,6 +18,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 -   Fixed Pattern Grid processing matrix input slots not mentioning "SHIFT click to clear".
+-   Fixed amount buttons not working in the Autocrafting Preview when the amount is "0" after clicking the "Max" button.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 
