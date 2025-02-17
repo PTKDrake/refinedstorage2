@@ -3,7 +3,6 @@ package com.refinedmods.refinedstorage.common.autocrafting.patterngrid;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.grid.screen.AbstractGridScreen;
 import com.refinedmods.refinedstorage.common.support.containermenu.ResourceSlot;
-import com.refinedmods.refinedstorage.common.support.tooltip.SmallTextClientTooltipComponent;
 import com.refinedmods.refinedstorage.common.support.widget.HoveredImageButton;
 
 import java.util.EnumMap;
@@ -27,7 +26,6 @@ import net.minecraft.world.entity.player.Inventory;
 
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createIdentifier;
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslation;
-import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslationAsHeading;
 import static java.util.Objects.requireNonNull;
 
 public class PatternGridScreen extends AbstractGridScreen<PatternGridContainerMenu>
@@ -39,10 +37,6 @@ public class PatternGridScreen extends AbstractGridScreen<PatternGridContainerMe
     private static final ResourceLocation TEXTURE = createIdentifier("textures/gui/pattern_grid.png");
     private static final MutableComponent CREATE_PATTERN = createTranslation("gui", "pattern_grid.create_pattern");
     private static final MutableComponent CLEAR = createTranslation("gui", "pattern_grid.clear");
-    private static final SmallTextClientTooltipComponent CLICK_TO_CONFIGURE_AMOUNT_AND_ALTERNATIVES =
-        new SmallTextClientTooltipComponent(
-            createTranslationAsHeading("gui", "pattern_grid.processing.click_to_configure_amount_and_alternatives")
-        );
 
     private static final int CREATE_PATTERN_BUTTON_SIZE = 16;
     private static final WidgetSprites CREATE_PATTERN_BUTTON_SPRITES = new WidgetSprites(
@@ -217,10 +211,8 @@ public class PatternGridScreen extends AbstractGridScreen<PatternGridContainerMe
                         k -> new ProcessingMatrixInputClientTooltipComponent(k.getFirst(), k.getSecond()));
                 tooltip.add(cached);
             }
-            tooltip.add(CLICK_TO_CONFIGURE_AMOUNT_AND_ALTERNATIVES);
-        } else {
-            super.addResourceSlotTooltips(resourceSlot, tooltip);
         }
+        super.addResourceSlotTooltips(resourceSlot, tooltip);
     }
 
     @Override
