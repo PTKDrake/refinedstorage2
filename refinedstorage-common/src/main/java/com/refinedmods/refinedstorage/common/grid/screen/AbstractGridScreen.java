@@ -519,25 +519,31 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     public boolean mouseClicked(final double mouseX, final double mouseY, final int clickedButton) {
         final ItemStack carriedStack = getMenu().getCarried();
         final PlatformGridResource resource = getCurrentGridResource();
-
-        if (resource != null) {
-            if (resource.canExtract(carriedStack, getMenu().getView()) && !hasControlDown()) {
-                mouseClickedInGrid(clickedButton, resource);
-                return true;
-            }
+        if (canExtract(resource, carriedStack)) {
+            mouseClickedInGrid(clickedButton, resource);
+            return true;
         }
-
-        if (isOverStorageArea((int) mouseX, (int) mouseY)
-            && !carriedStack.isEmpty() && (clickedButton == 0 || clickedButton == 1)) {
+        if (canInsert((int) mouseX, (int) mouseY, clickedButton, carriedStack)) {
             mouseClickedInGrid(clickedButton);
             return true;
         }
-
         if (resource != null && resource.isAutocraftable() && tryStartAutocrafting(resource)) {
             return true;
         }
-
         return super.mouseClicked(mouseX, mouseY, clickedButton);
+    }
+
+    private boolean canExtract(@Nullable final PlatformGridResource resource, final ItemStack carriedStack) {
+        return resource != null && resource.canExtract(carriedStack, getMenu().getView()) && !hasControlDown();
+    }
+
+    private boolean canInsert(final int mouseX,
+                              final int mouseY,
+                              final int clickedButton,
+                              final ItemStack carriedStack) {
+        return isOverStorageArea(mouseX, mouseY)
+            && !carriedStack.isEmpty()
+            && (clickedButton == 0 || clickedButton == 1);
     }
 
     private boolean tryStartAutocrafting(final PlatformGridResource resource) {

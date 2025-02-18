@@ -2,6 +2,8 @@ package com.refinedmods.refinedstorage.common.support.amount;
 
 import com.refinedmods.refinedstorage.common.support.containermenu.AbstractSingleAmountContainerMenu;
 
+import java.util.function.Supplier;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +20,7 @@ public abstract class AbstractSingleAmountScreen<T extends AbstractSingleAmountC
                                          final Inventory playerInventory,
                                          final Component title,
                                          final Double initialAmount,
-                                         final double minAmount) {
+                                         final Supplier<Double> minAmount) {
         super(containerMenu, null, playerInventory, title,
             AmountScreenConfiguration.AmountScreenConfigurationBuilder.<Double>create()
                 .withInitialAmount(initialAmount)
@@ -30,7 +32,7 @@ public abstract class AbstractSingleAmountScreen<T extends AbstractSingleAmountC
                 .withAmountFieldPosition(new Vector3f(45, 51, 0))
                 .withActionButtonsEnabled(false)
                 .withMinAmount(minAmount)
-                .withResetAmount(minAmount)
+                .withResetAmount(minAmount.get())
                 .build(), DoubleAmountOperations.INSTANCE);
         this.inventoryLabelY = 94;
         this.imageWidth = 176;

@@ -1,5 +1,6 @@
 package com.refinedmods.refinedstorage.common.support.containermenu;
 
+import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceContainer;
 import com.refinedmods.refinedstorage.common.api.support.slotreference.SlotReference;
 import com.refinedmods.refinedstorage.common.support.packet.c2s.C2SPackets;
@@ -16,6 +17,7 @@ public abstract class AbstractSingleAmountContainerMenu extends AbstractResource
     private double clientAmount;
 
     private final Component filterHelpText;
+    private final ResourceContainer resourceContainer;
 
     protected AbstractSingleAmountContainerMenu(final MenuType<?> type,
                                                 final int syncId,
@@ -26,10 +28,8 @@ public abstract class AbstractSingleAmountContainerMenu extends AbstractResource
         this.disabledSlot = singleAmountData.slotReference().orElse(null);
         this.clientAmount = singleAmountData.amount();
         this.filterHelpText = filterHelpText;
-        addSlots(
-            playerInventory.player,
-            ResourceContainerImpl.createForFilter(singleAmountData.resourceContainerData())
-        );
+        this.resourceContainer = ResourceContainerImpl.createForFilter(singleAmountData.resourceContainerData());
+        addSlots(playerInventory.player);
     }
 
     protected AbstractSingleAmountContainerMenu(final MenuType<?> type,
@@ -41,14 +41,22 @@ public abstract class AbstractSingleAmountContainerMenu extends AbstractResource
         super(type, syncId, player);
         this.disabledSlot = disabledSlotReference;
         this.filterHelpText = filterHelpText;
-        addSlots(player, resourceContainer);
+        this.resourceContainer = resourceContainer;
+        addSlots(player);
     }
 
-    private void addSlots(final Player player,
-                          final ResourceContainer resourceContainer) {
+    private void addSlots(final Player player) {
         addSlot(new ResourceSlot(resourceContainer, 0, filterHelpText, 116, 47, ResourceSlotType.FILTER));
         addPlayerInventory(player.getInventory(), 8, 106);
         transferManager.addFilterTransfer(player.getInventory());
+    }
+
+    public double getMinAmount() {
+        final PlatformResourceKey resource = resourceContainer.getResource(0);
+        if (resource == null) {
+            return 1;
+        }
+        return resource.getResourceType().getDisplayAmount(1);
     }
 
     public double getAmount() {

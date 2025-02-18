@@ -114,6 +114,9 @@ public class RegulatorUpgradeItem extends AbstractUpgradeItem {
         return state.resource().map(resource -> {
             final double amount = state.amount();
             final long normalizedAmount = resource.getResourceType().normalizeAmount(amount);
+            if (normalizedAmount <= 0) {
+                return null;
+            }
             return new ResourceAmount(resource, normalizedAmount);
         }).orElse(null);
     }

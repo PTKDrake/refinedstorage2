@@ -9,6 +9,6 @@ public class RegulatorUpgradeScreen extends AbstractSingleAmountScreen<Regulator
     public RegulatorUpgradeScreen(final RegulatorUpgradeContainerMenu menu,
                                   final Inventory playerInventory,
                                   final Component title) {
-        super(menu, playerInventory, title, menu.getAmount(), 1);
+        super(menu, playerInventory, title, menu.getAmount(), menu::getMinAmount);
     }
 }
