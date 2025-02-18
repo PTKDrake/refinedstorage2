@@ -1,5 +1,6 @@
 package com.refinedmods.refinedstorage.common.support.amount;
 
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,7 @@ public final class AmountScreenConfiguration<T extends Number> {
     private final boolean actionButtonsEnabled;
     private final Component confirmButtonText;
     @Nullable
-    private final T minAmount;
+    private final Supplier<T> minAmount;
     @Nullable
     private final T maxAmount;
     @Nullable
@@ -41,7 +42,7 @@ public final class AmountScreenConfiguration<T extends Number> {
                                       final boolean horizontalActionButtons,
                                       final boolean actionButtonsEnabled,
                                       final Component confirmButtonText,
-                                      @Nullable final T minAmount,
+                                      @Nullable final Supplier<T> minAmount,
                                       @Nullable final T maxAmount,
                                       @Nullable final T resetAmount) {
         this.initialAmount = initialAmount;
@@ -107,7 +108,7 @@ public final class AmountScreenConfiguration<T extends Number> {
 
     @Nullable
     public T getMinAmount() {
-        return minAmount;
+        return minAmount != null ? minAmount.get() : null;
     }
 
     @Nullable
@@ -134,7 +135,7 @@ public final class AmountScreenConfiguration<T extends Number> {
         private Component confirmButtonText = SET_TEXT;
         private boolean actionButtonsEnabled = true;
         @Nullable
-        private T minAmount;
+        private Supplier<T> minAmount;
         @Nullable
         private T maxAmount;
         @Nullable
@@ -210,7 +211,7 @@ public final class AmountScreenConfiguration<T extends Number> {
             return this;
         }
 
-        public AmountScreenConfigurationBuilder<T> withMinAmount(final T newMinAmount) {
+        public AmountScreenConfigurationBuilder<T> withMinAmount(final Supplier<T> newMinAmount) {
             this.minAmount = newMinAmount;
             return this;
         }

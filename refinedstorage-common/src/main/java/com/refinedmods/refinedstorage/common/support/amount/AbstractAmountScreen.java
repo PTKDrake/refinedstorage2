@@ -220,7 +220,7 @@ public abstract class AbstractAmountScreen<T extends AbstractContainerMenu, N ex
         if (amountField == null) {
             return;
         }
-        getAndValidateAmount().ifPresent(oldAmount -> {
+        getAndValidateAmount().ifPresentOrElse(oldAmount -> {
             final int correctedDelta = correctDelta(oldAmount, delta);
             final N newAmount = amountOperations.changeAmount(
                 oldAmount,
@@ -229,7 +229,12 @@ public abstract class AbstractAmountScreen<T extends AbstractContainerMenu, N ex
                 configuration.getMaxAmount()
             );
             updateAmount(newAmount);
-        });
+        }, () -> updateAmount(amountOperations.changeAmount(
+            null,
+            delta,
+            configuration.getMinAmount(),
+            configuration.getMaxAmount()
+        )));
     }
 
     private int correctDelta(final N oldAmount, final int delta) {

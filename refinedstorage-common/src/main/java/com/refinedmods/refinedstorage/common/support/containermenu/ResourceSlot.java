@@ -23,7 +23,11 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslationAsHeading;
+
 public class ResourceSlot extends Slot {
+    private static final Component CLICK_TO_CONFIGURE_AMOUNT =
+        createTranslationAsHeading("gui", "filter_slot.click_to_configure_amount");
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceSlot.class);
 
     protected final ResourceContainer resourceContainer;
@@ -219,5 +223,9 @@ public class ResourceSlot extends Slot {
                 return result.container();
             })
             .orElse(null);
+    }
+
+    public Component getClickToConfigureAmountHelpTooltip() {
+        return CLICK_TO_CONFIGURE_AMOUNT;
     }
 }
