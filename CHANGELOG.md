@@ -15,9 +15,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   The filter slots for the Exporter, Constructor and Interface now display whether a resource is missing, the destination does not accept it, the resource cannot be autocrafted due to missing resources, or whether the resource is currently autocrafting.
 
-### Fixed 
+### Fixed
 
 -   Fixed coloured importers, exporters, and external storages not dropping when broken.
+-   Fixed fluids displaying to 0.1 buckets and not 0.001.
 -   Fixed Pattern Grid processing matrix input slots not mentioning "SHIFT click to clear".
 -   Fixed amount buttons not working in the Autocrafting Preview when the amount is "0" after clicking the "Max" button.
 -   Fixed not being able to insert resources in a Grid when clicking on something that is autocraftable.
