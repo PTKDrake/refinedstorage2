@@ -8,6 +8,7 @@ import com.refinedmods.refinedstorage.common.api.support.resource.ResourceContai
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceFactory;
 import com.refinedmods.refinedstorage.common.support.packet.c2s.C2SPackets;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.S2CPackets;
+import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
 import java.util.Objects;
 import java.util.Set;
@@ -64,8 +65,16 @@ public class ResourceSlot extends Slot {
     }
 
     public boolean shouldRenderAmount() {
-        return type == ResourceSlotType.FILTER_WITH_AMOUNT
-            || type == ResourceSlotType.CONTAINER;
+        if (type == ResourceSlotType.FILTER_WITH_AMOUNT) {
+            return true;
+        } else if (type == ResourceSlotType.CONTAINER) {
+            if (getResource() instanceof ItemResource) {
+                // if the amount is >1, renderSlot will render the amount for us
+                return getAmount() == 1;
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean isFilter() {

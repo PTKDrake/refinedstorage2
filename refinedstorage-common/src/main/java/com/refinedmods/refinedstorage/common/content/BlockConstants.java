@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 public final class BlockConstants {
     public static final BlockBehaviour.Properties PROPERTIES = BlockBehaviour.Properties
         .of()
-        .strength(0.5F, 6.0F)
+        .strength(2.0F, 6.0F)
         .sound(SoundType.STONE);
 
     public static final BlockBehaviour.Properties CABLE_PROPERTIES = BlockBehaviour.Properties

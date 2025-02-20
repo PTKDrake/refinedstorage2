@@ -158,7 +158,7 @@ public final class PlatformImpl extends AbstractPlatform {
         if (!(resourceAmount.resource() instanceof FluidResource fluidResource)) {
             return Optional.empty();
         }
-        return FluidUtil.getFluidHandler(container).map(handler -> {
+        return FluidUtil.getFluidHandler(container.copy()).map(handler -> {
             final FluidStack fluidStack = toFluidStack(fluidResource, resourceAmount.amount());
             final long filled = handler.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
             return new FluidOperationResult(handler.getContainer(), fluidResource, filled);

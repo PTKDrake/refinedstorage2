@@ -39,7 +39,7 @@ public class StorageMonitorBlock extends AbstractDirectionalBlock<BiDirection> i
         new NetworkNodeBlockEntityTicker<>(BlockEntities.INSTANCE::getStorageMonitor);
 
     public StorageMonitorBlock() {
-        super(BlockConstants.PROPERTIES.strength(2.5F, 6.0F));
+        super(BlockConstants.PROPERTIES);
     }
 
     @Override
