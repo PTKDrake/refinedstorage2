@@ -10,16 +10,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 -   Autocrafting Upgrade
--   Display 'b' after fluid amount inside grid
 
 ### Changed
 
 -   The filter slots for the Exporter, Constructor and Interface now display whether a resource is missing, the destination does not accept it, the resource cannot be autocrafted due to missing resources, or whether the resource is currently autocrafting.
+-   'b' is now displayed after fluid amounts, indicating the amount in buckets.
 
 ### Fixed
 
--   Fixed coloured importers, exporters, and external storages not dropping when broken.
--   Fixed fluids displaying to 0.1 buckets and not 0.001.
+-   Fixed colored importers, exporters, and external storages not dropping when broken.
+-   Fixed fluid amounts displaying to 0.1 buckets and not 0.001. The suffix "m" is used.
 -   Fixed Pattern Grid processing matrix input slots not mentioning "SHIFT click to clear".
 -   Fixed amount buttons not working in the Autocrafting Preview when the amount is "0" after clicking the "Max" button.
 -   Fixed not being able to insert resources in a Grid when clicking on something that is autocraftable.
