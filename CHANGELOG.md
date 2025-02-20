@@ -23,6 +23,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed amount buttons not working in the Autocrafting Preview when the amount is "0" after clicking the "Max" button.
 -   Fixed not being able to insert resources in a Grid when clicking on something that is autocraftable.
 -   Fixed not being able to specify amount < 1 in filter and pattern creation slots.
+-   Fixed visual bug where fluid containers were being filled when hovering over a fluid in the Grid.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 
