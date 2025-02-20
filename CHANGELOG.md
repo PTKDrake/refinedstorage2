@@ -25,6 +25,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed not being able to specify amount < 1 in filter and pattern creation slots.
 -   Fixed visual bug where fluid containers were being filled when hovering over a fluid in the Grid.
 -   Fixed clear button in the Pattern Grid for the smithing table not working.
+-   Fixed item count rendering behind the item in the Interface slots.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 
