@@ -26,6 +26,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed visual bug where fluid containers were being filled when hovering over a fluid in the Grid.
 -   Fixed clear button in the Pattern Grid for the smithing table not working.
 -   Fixed item count rendering behind the item in the Interface slots.
+-   Fixed pickaxes not influencing break speed of blocks.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 
