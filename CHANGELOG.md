@@ -28,6 +28,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed clear button in the Pattern Grid for the smithing table not working.
 -   Fixed item count rendering behind the item in the Interface slots.
 -   Fixed pickaxes not influencing break speed of blocks.
+-   Fixed non-autocraftables Grid view filter still showing autocraftable resources as they get inserted.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 

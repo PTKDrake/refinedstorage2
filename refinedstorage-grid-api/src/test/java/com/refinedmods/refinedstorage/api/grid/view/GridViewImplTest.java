@@ -214,6 +214,27 @@ class GridViewImplTest {
     }
 
     @Test
+    void shouldNotInsertNewAutocraftableResourceWhenFilteringProhibitsIt() {
+        // Arrange
+        final GridView view = viewBuilder
+            .withAutocraftableResource(A)
+            .withResource(B, 15, null)
+            .withResource(D, 10, null)
+            .build();
+
+        view.setFilterAndSort((v, resource) -> !resource.isAutocraftable());
+
+        // Act
+        view.onChange(A, 12, null);
+
+        // Assert
+        assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new GridResourceImpl(D),
+            new GridResourceImpl(B)
+        );
+    }
+
+    @Test
     void shouldCallListenerWhenSorting() {
         // Arrange
         final GridView view = viewBuilder
