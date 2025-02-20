@@ -11,30 +11,30 @@ class FluidResourceRenderingTest {
 
     @Test
     void shouldFormatWithUnitsForCompleteBuckets() {
-        assertThat(sut.formatAmount(BUCKET_AMOUNT, true)).isEqualTo("1");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT * 2, true)).isEqualTo("2");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT * 3, true)).isEqualTo("3");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000, true)).isEqualTo("1K");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT, true)).isEqualTo("1b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT * 2, true)).isEqualTo("2b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT * 3, true)).isEqualTo("3b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000, true)).isEqualTo("1Kb");
     }
 
     @Test
     void shouldFormatWithUnitsForPartialBuckets() {
-        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2), true)).isEqualTo("1.5");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT + 1, true)).isEqualTo("1");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2), true)).isEqualTo("1.5b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT + 1, true)).isEqualTo("1b");
     }
 
     @Test
     void shouldFormatWithUnitsForLessThan1Bucket() {
-        assertThat(sut.formatAmount(BUCKET_AMOUNT / 2, true)).isEqualTo("500m");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT / 3, true)).isEqualTo("333m");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT / 2, true)).isEqualTo("500mb");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT / 3, true)).isEqualTo("333mb");
     }
 
     @Test
     void shouldFormatWithoutUnits() {
-        assertThat(sut.formatAmount(BUCKET_AMOUNT)).isEqualTo("1");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2))).isEqualTo("1.5");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 3))).isEqualTo("1.333");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000)).isEqualTo("1,000");
-        assertThat(sut.formatAmount((BUCKET_AMOUNT * 1000) + (BUCKET_AMOUNT / 3))).isEqualTo("1,000.333");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT)).isEqualTo("1b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 2))).isEqualTo("1.5b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT + (BUCKET_AMOUNT / 3))).isEqualTo("1.333b");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000)).isEqualTo("1,000b");
+        assertThat(sut.formatAmount((BUCKET_AMOUNT * 1000) + (BUCKET_AMOUNT / 3))).isEqualTo("1,000.333b");
     }
 }
