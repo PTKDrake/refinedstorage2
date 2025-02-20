@@ -96,11 +96,12 @@ public final class IdentifierUtil {
         return switch ((int) Math.floor(Math.log10(qty) / 3)) {
             case -1 -> FORMATTER_WITH_UNITS.format(qty * 10e2) + "m";
             case 0 -> FORMATTER_WITH_UNITS.format(qty >= 100 ? Math.floor(qty) : qty);
-            case 1 -> FORMATTER_WITH_UNITS.format(qty >= 10e4 ? Math.floor(qty / 10e2) : qty / 10e2) + "K";
+            case 1 -> FORMATTER_WITH_UNITS.format(qty >= 10e4 ? Math.floor(qty / 10e2) : qty / 10e2) + "k";
             case 2 -> FORMATTER_WITH_UNITS.format(qty >= 10e7 ? Math.floor(qty / 10e5) : qty / 10e5) + "M";
-            case 3 -> FORMATTER_WITH_UNITS.format(qty >= 10e9 ? Math.floor(qty / 10e8) : qty / 10e8) + "B";
-            case 4 -> FORMATTER_WITH_UNITS.format(qty >= 10e12 ? Math.floor(qty / 10e11) : qty / 10e11) + "G";
-            case 5 -> FORMATTER_WITH_UNITS.format(qty >= 10e15 ? Math.floor(qty / 10e14) : qty / 10e14) + "T";
+            case 3 -> FORMATTER_WITH_UNITS.format(qty >= 10e10 ? Math.floor(qty / 10e8) : qty / 10e8) + "G";
+            case 4 -> FORMATTER_WITH_UNITS.format(qty >= 10e13 ? Math.floor(qty / 10e11) : qty / 10e11) + "T";
+            case 5 -> FORMATTER_WITH_UNITS.format(qty >= 10e16 ? Math.floor(qty / 10e14) : qty / 10e14) + "P";
+            case 6 -> FORMATTER_WITH_UNITS.format(qty >= 10e19 ? Math.floor(qty / 10e17) : qty / 10e17) + "E";
             default -> "∞";
         };
     }
