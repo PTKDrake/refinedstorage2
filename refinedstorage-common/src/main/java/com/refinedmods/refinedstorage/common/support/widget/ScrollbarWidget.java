@@ -113,6 +113,9 @@ public class ScrollbarWidget extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        if (!isActive()) {
+            return false;
+        }
         final boolean inBounds = mouseX >= getX()
             && mouseY >= getY()
             && mouseX <= getX() + width
