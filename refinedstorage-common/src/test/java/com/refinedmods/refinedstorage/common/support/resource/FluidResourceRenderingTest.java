@@ -14,7 +14,7 @@ class FluidResourceRenderingTest {
         assertThat(sut.formatAmount(BUCKET_AMOUNT, true)).isEqualTo("1b");
         assertThat(sut.formatAmount(BUCKET_AMOUNT * 2, true)).isEqualTo("2b");
         assertThat(sut.formatAmount(BUCKET_AMOUNT * 3, true)).isEqualTo("3b");
-        assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000, true)).isEqualTo("1Kb");
+        assertThat(sut.formatAmount(BUCKET_AMOUNT * 1000, true)).isEqualTo("1kb");
     }
 
     @Test

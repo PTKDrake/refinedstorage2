@@ -30,20 +30,20 @@ class IdentifierUtilTest {
     @Test
     void shouldFormatWithUnitsForThousands() {
         // Act & assert
-        assertThat(formatWithUnits(1000)).isEqualTo("1K");
-        assertThat(formatWithUnits(1510)).isEqualTo("1.5K");
+        assertThat(formatWithUnits(1000)).isEqualTo("1k");
+        assertThat(formatWithUnits(1510)).isEqualTo("1.5k");
 
-        assertThat(formatWithUnits(10_000)).isEqualTo("10K");
-        assertThat(formatWithUnits(10_510)).isEqualTo("10.5K");
-        assertThat(formatWithUnits(99_999)).isEqualTo("99.9K");
+        assertThat(formatWithUnits(10_000)).isEqualTo("10k");
+        assertThat(formatWithUnits(10_510)).isEqualTo("10.5k");
+        assertThat(formatWithUnits(99_999)).isEqualTo("99.9k");
 
-        assertThat(formatWithUnits(100_000)).isEqualTo("100K");
-        assertThat(formatWithUnits(100_500)).isEqualTo("100K");
-        assertThat(formatWithUnits(100_999)).isEqualTo("100K");
+        assertThat(formatWithUnits(100_000)).isEqualTo("100k");
+        assertThat(formatWithUnits(100_500)).isEqualTo("100k");
+        assertThat(formatWithUnits(100_999)).isEqualTo("100k");
 
-        assertThat(formatWithUnits(101_000)).isEqualTo("101K");
-        assertThat(formatWithUnits(101_500)).isEqualTo("101K");
-        assertThat(formatWithUnits(101_999)).isEqualTo("101K");
+        assertThat(formatWithUnits(101_000)).isEqualTo("101k");
+        assertThat(formatWithUnits(101_500)).isEqualTo("101k");
+        assertThat(formatWithUnits(101_999)).isEqualTo("101k");
     }
 
     @Test
@@ -68,11 +68,31 @@ class IdentifierUtilTest {
     @Test
     void shouldFormatWithUnitsForBillions() {
         // Act & assert
-        assertThat(formatWithUnits(1_000_000_000)).isEqualTo("1B");
-        assertThat(formatWithUnits(1_010_000_000)).isEqualTo("1B");
-        assertThat(formatWithUnits(1_100_000_000)).isEqualTo("1.1B");
-        assertThat(formatWithUnits(1_100_001_000)).isEqualTo("1.1B");
-        assertThat(formatWithUnits(1_920_001_000)).isEqualTo("1.9B");
+        assertThat(formatWithUnits(1_000_000_000)).isEqualTo("1G");
+        assertThat(formatWithUnits(1_010_000_000)).isEqualTo("1G");
+        assertThat(formatWithUnits(1_100_000_000)).isEqualTo("1.1G");
+        assertThat(formatWithUnits(1_100_001_000)).isEqualTo("1.1G");
+        assertThat(formatWithUnits(1_920_001_000)).isEqualTo("1.9G");
+    }
+
+    @Test
+    void shouldFormatWithUnitsForTrillions() {
+        // Act & assert
+        assertThat(formatWithUnits(1e12)).isEqualTo("1T");
+        assertThat(formatWithUnits(1.01e12)).isEqualTo("1T");
+        assertThat(formatWithUnits(1.1e12)).isEqualTo("1.1T");
+        assertThat(formatWithUnits(1.100_001e12)).isEqualTo("1.1T");
+        assertThat(formatWithUnits(1.920_001e12)).isEqualTo("1.9T");
+    }
+
+    @Test
+    void shouldFormatWithUnitsForQuadrillions() {
+        // Act & assert
+        assertThat(formatWithUnits(1e15)).isEqualTo("1P");
+        assertThat(formatWithUnits(1.01e15)).isEqualTo("1P");
+        assertThat(formatWithUnits(1.1e15)).isEqualTo("1.1P");
+        assertThat(formatWithUnits(1.100_001e15)).isEqualTo("1.1P");
+        assertThat(formatWithUnits(1.920_001e15)).isEqualTo("1.9P");
     }
 
     @Test
