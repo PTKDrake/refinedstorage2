@@ -4,16 +4,13 @@ import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
-import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.filter.FilterMode;
-import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.api.storage.AccessMode;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.Storage;
 import com.refinedmods.refinedstorage.api.storage.StorageImpl;
 import com.refinedmods.refinedstorage.api.storage.external.ExternalStorageProvider;
 import com.refinedmods.refinedstorage.api.storage.limited.LimitedStorageImpl;
-import com.refinedmods.refinedstorage.api.storage.root.RootStorageListener;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedStorageImpl;
 import com.refinedmods.refinedstorage.network.test.AddNetworkNode;
@@ -594,17 +591,9 @@ class ExternalStorageNetworkNodeTest {
         final StorageNetworkComponent networkStorage
     ) {
         final AtomicBoolean found = new AtomicBoolean();
-        networkStorage.addListener(new RootStorageListener() {
-            @Override
-            public InterceptResult beforeInsert(final ResourceKey resource, final long amount, final Actor actor) {
-                return InterceptResult.EMPTY;
-            }
-
-            @Override
-            public void changed(final MutableResourceList.OperationResult change) {
-                if (change.resource().equals(A)) {
-                    found.set(networkStorage.findTrackedResourceByActorType(A, ActorFixture.class).isPresent());
-                }
+        networkStorage.addListener(change -> {
+            if (change.resource().equals(A)) {
+                found.set(networkStorage.findTrackedResourceByActorType(A, ActorFixture.class).isPresent());
             }
         });
         return found;

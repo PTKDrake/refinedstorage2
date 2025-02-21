@@ -9,7 +9,6 @@ import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceListImpl;
 import com.refinedmods.refinedstorage.api.resource.list.ResourceList;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
-import com.refinedmods.refinedstorage.api.storage.root.RootStorageListener;
 
 import java.util.List;
 import javax.annotation.Nullable;
@@ -95,20 +94,34 @@ class ExternalTaskPattern extends AbstractTaskPattern {
     }
 
     @Override
-    RootStorageListener.InterceptResult interceptInsertion(final ResourceKey resource, final long amount) {
+    long beforeInsert(final ResourceKey resource, final long amount) {
+        if (root) {
+            return 0;
+        }
+        return trySatisfy(resource, amount);
+    }
+
+    @Override
+    long afterInsert(final ResourceKey resource, final long amount) {
+        if (!root) {
+            return 0;
+        }
+        return trySatisfy(resource, amount);
+    }
+
+    private long trySatisfy(final ResourceKey resource, final long amount) {
         final long needed = expectedOutputs.get(resource);
         if (needed == 0) {
-            return RootStorageListener.InterceptResult.EMPTY;
+            return 0;
         }
-        final long reserved = Math.min(needed, amount);
-        expectedOutputs.remove(resource, reserved);
+        final long correctedAmount = Math.min(needed, amount);
+        expectedOutputs.remove(resource, correctedAmount);
         final boolean receivedAtLeastOneIteration = updateIterationsReceived();
         if (receivedAtLeastOneIteration) {
             interceptedAnIterationAtLeastOnceSinceLastStep = true;
         }
-        this.interceptedAnythingSinceLastStep = true;
-        final long intercepted = root ? 0 : reserved;
-        return new RootStorageListener.InterceptResult(reserved, intercepted);
+        interceptedAnythingSinceLastStep = true;
+        return correctedAmount;
     }
 
     private boolean updateIterationsReceived() {

@@ -88,32 +88,39 @@ public class RootStorageImpl implements RootStorage {
 
     @Override
     public long insert(final ResourceKey resource, final long amount, final Action action, final Actor actor) {
-        final long intercepted = action == Action.EXECUTE ? interceptInsert(resource, amount, actor) : 0;
-        if (intercepted == amount) {
-            return amount;
-        }
-        final long inserted = storage.insert(resource, amount - intercepted, action, actor);
-        return inserted + intercepted;
-    }
-
-    private long interceptInsert(final ResourceKey resource, final long amount, final Actor actor) {
-        long totalReserved = 0;
         long totalIntercepted = 0;
         for (final RootStorageListener listener : listeners) {
-            final long amountRemaining = amount - totalReserved;
-            final RootStorageListener.InterceptResult result = listener.beforeInsert(resource, amountRemaining, actor);
-            if (result.reserved() > amountRemaining) {
+            final long available = amount - totalIntercepted;
+            final long intercepted = listener.beforeInsert(resource, available);
+            if (intercepted > available || intercepted < 0) {
                 throw new IllegalStateException(
-                    "Listener %s indicated it reserved %d while the original available amount was %d"
-                        .formatted(listener, result.reserved(), amountRemaining));
+                    "Intercepted %d while %d was available".formatted(intercepted, available)
+                );
             }
-            totalReserved += result.reserved();
-            totalIntercepted += result.intercepted();
-            if (totalReserved == amount) {
+            totalIntercepted += intercepted;
+            if (totalIntercepted == amount) {
                 return totalIntercepted;
             }
         }
-        return totalIntercepted;
+        final long inserted = storage.insert(resource, amount - totalIntercepted, action, actor);
+        if (inserted > 0) {
+            notifyAfterInsertListeners(resource, inserted);
+        }
+        return inserted + totalIntercepted;
+    }
+
+    private void notifyAfterInsertListeners(final ResourceKey resource, final long inserted) {
+        long available = inserted;
+        for (final RootStorageListener listener : listeners) {
+            final long reserved = listener.afterInsert(resource, available);
+            if (reserved > available || reserved < 0) {
+                throw new IllegalStateException("Reserved %d while %d was available".formatted(reserved, available));
+            }
+            available -= reserved;
+            if (available == 0) {
+                return;
+            }
+        }
     }
 
     @Override

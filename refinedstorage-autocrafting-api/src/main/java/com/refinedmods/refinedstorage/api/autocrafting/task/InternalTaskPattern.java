@@ -4,12 +4,10 @@ import com.refinedmods.refinedstorage.api.autocrafting.Pattern;
 import com.refinedmods.refinedstorage.api.autocrafting.status.TaskStatusBuilder;
 import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
-import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.api.resource.list.ResourceList;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
-import com.refinedmods.refinedstorage.api.storage.root.RootStorageListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,11 +67,6 @@ class InternalTaskPattern extends AbstractTaskPattern {
             LOGGER.debug("Inserting {}x {} into internal storage", output.amount(), output.resource());
             internalStorage.add(output);
         }
-    }
-
-    @Override
-    RootStorageListener.InterceptResult interceptInsertion(final ResourceKey resource, final long amount) {
-        return RootStorageListener.InterceptResult.EMPTY;
     }
 
     @Override
