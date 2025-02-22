@@ -26,4 +26,9 @@ public class PlaceBlockConstructorStrategy extends AbstractItemConstructorStrate
         }
         return Platform.INSTANCE.placeBlock(level, pos, direction, actingPlayer, itemStack);
     }
+
+    @Override
+    protected boolean hasWork() {
+        return level.isEmptyBlock(pos);
+    }
 }

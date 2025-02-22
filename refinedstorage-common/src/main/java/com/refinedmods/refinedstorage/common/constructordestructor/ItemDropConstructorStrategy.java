@@ -36,4 +36,9 @@ class ItemDropConstructorStrategy extends AbstractItemConstructorStrategy {
         DefaultDispenseItemBehavior.spawnItem(level, itemStack, 6, direction, position);
         return true;
     }
+
+    @Override
+    protected boolean hasWork() {
+        return true;
+    }
 }

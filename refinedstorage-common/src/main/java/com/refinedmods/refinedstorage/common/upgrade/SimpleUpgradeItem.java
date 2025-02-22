@@ -63,7 +63,6 @@ public final class SimpleUpgradeItem extends AbstractUpgradeItem {
         );
     }
 
-    // TODO: it appears like the constructor is constantly starting jobs?
     // TODO: more than 1 regulator in exporter and importer?
     public static SimpleUpgradeItem autocraftingUpgrade() {
         return new SimpleUpgradeItem(
