@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.world.level.block.Block;
 
 class ConnectionSinkImpl implements ConnectionSink {
     private final GlobalPos source;
@@ -24,15 +25,19 @@ class ConnectionSinkImpl implements ConnectionSink {
 
     @Override
     public void tryConnect(final GlobalPos pos) {
-        connections.add(new Connection(pos, null));
+        connections.add(new Connection(pos, null, null));
     }
 
     @Override
-    public void tryConnectInSameDimension(final BlockPos pos, final Direction incomingDirection) {
+    public void tryConnectInSameDimension(final BlockPos pos,
+                                          final Direction incomingDirection,
+                                          @Nullable final Class<? extends Block> allowedBlockType) {
         final GlobalPos globalPos = GlobalPos.of(source.dimension(), pos);
-        connections.add(new Connection(globalPos, incomingDirection));
+        connections.add(new Connection(globalPos, incomingDirection, allowedBlockType));
     }
 
-    record Connection(GlobalPos pos, @Nullable Direction incomingDirection) {
+    record Connection(GlobalPos pos,
+                      @Nullable Direction incomingDirection,
+                      @Nullable Class<? extends Block> allowedBlockType) {
     }
 }

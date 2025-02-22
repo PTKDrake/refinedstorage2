@@ -15,6 +15,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   The filter slots for the Exporter, Constructor and Interface now display whether a resource is missing, the destination does not accept it, the resource cannot be autocrafted due to missing resources, or whether the resource is currently autocrafting.
 -   'B' is now displayed after fluid amounts, indicating the amount in buckets.
+-   The Autocrafter now only connects to other autocrafters through its front face. The reason for this is so that you can connect it to an Interface and accept multi-type autocrafting inputs without the Interface being connected to your network.
 
 ### Fixed
 
