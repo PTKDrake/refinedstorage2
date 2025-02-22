@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
+import static com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock.tryExtractDirection;
+
 class AutocrafterConnectionStrategy extends ColoredConnectionStrategy {
     AutocrafterConnectionStrategy(final Supplier<BlockState> blockStateProvider, final BlockPos origin) {
         super(blockStateProvider, origin);
@@ -16,13 +18,31 @@ class AutocrafterConnectionStrategy extends ColoredConnectionStrategy {
 
     @Override
     public void addOutgoingConnections(final ConnectionSink sink) {
+        final Direction myDirection = tryExtractDirection(blockStateProvider.get());
+        if (myDirection == null) {
+            super.addOutgoingConnections(sink);
+            return;
+        }
         for (final Direction direction : Direction.values()) {
-            sink.tryConnectInSameDimension(origin.relative(direction), direction.getOpposite());
+            if (direction == myDirection) {
+                sink.tryConnectInSameDimension(origin.relative(direction), direction.getOpposite(),
+                    AutocrafterBlock.class);
+            } else {
+                sink.tryConnectInSameDimension(origin.relative(direction), direction.getOpposite());
+            }
         }
     }
 
     @Override
     public boolean canAcceptIncomingConnection(final Direction incomingDirection, final BlockState connectingState) {
-        return colorsAllowConnecting(connectingState);
+        if (!colorsAllowConnecting(connectingState)) {
+            return false;
+        }
+        final Direction myDirection = tryExtractDirection(blockStateProvider.get());
+        if (myDirection != null) {
+            return myDirection != incomingDirection
+                || connectingState.getBlock() instanceof AutocrafterBlock;
+        }
+        return true;
     }
 }

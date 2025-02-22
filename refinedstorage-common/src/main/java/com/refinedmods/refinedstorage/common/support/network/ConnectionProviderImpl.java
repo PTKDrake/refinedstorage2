@@ -23,6 +23,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,15 +108,26 @@ public class ConnectionProviderImpl implements ConnectionProvider {
             return Collections.emptySet();
         }
         if (connection.incomingDirection() == null) {
-            return provider.getContainers();
+            return provider.getContainers()
+                .stream()
+                .filter(container -> isBlockAllowed(container.getBlockState(), connection))
+                .collect(Collectors.toSet());
         }
         return provider.getContainers()
             .stream()
+            .filter(container -> isBlockAllowed(container.getBlockState(), connection))
             .filter(container -> container.canAcceptIncomingConnection(
                 connection.incomingDirection(),
                 from.getBlockState()
             ))
             .collect(Collectors.toSet());
+    }
+
+    private boolean isBlockAllowed(final BlockState state, final ConnectionSinkImpl.Connection connection) {
+        if (connection.allowedBlockType() == null) {
+            return true;
+        }
+        return state.getBlock().getClass().isAssignableFrom(connection.allowedBlockType());
     }
 
     @Override
