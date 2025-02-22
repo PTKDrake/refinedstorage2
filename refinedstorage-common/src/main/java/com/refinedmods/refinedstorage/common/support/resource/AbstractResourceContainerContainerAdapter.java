@@ -2,6 +2,7 @@ package com.refinedmods.refinedstorage.common.support.resource;
 
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceContainer;
 
 import net.minecraft.world.Container;
@@ -60,7 +61,15 @@ abstract class AbstractResourceContainerContainerAdapter implements Container {
 
     @Override
     public boolean canPlaceItem(final int slot, final ItemStack stack) {
-        return container.isEmpty(slot);
+        if (container.isEmpty(slot)) {
+            return true;
+        }
+        final PlatformResourceKey current = container.getResource(slot);
+        if (!(current instanceof ItemResource)) {
+            return false;
+        }
+        return ItemResource.ofItemStack(stack).equals(current)
+            && container.getAmount(slot) + stack.getCount() <= stack.getMaxStackSize();
     }
 
     @Override
