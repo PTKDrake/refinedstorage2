@@ -103,11 +103,7 @@ public class AutocrafterScreen extends AbstractBaseScreen<AutocrafterContainerMe
         super.init();
         getMenu().setListener(this);
 
-        lockModeSideButtonWidget = new LockModeSideButtonWidget(
-            getMenu().getProperty(AutocrafterPropertyTypes.LOCK_MODE)
-        );
-        lockedChanged(getMenu().isLocked());
-        addSideButton(lockModeSideButtonWidget);
+        tryAddLockModeSideButton();
         addSideButton(new AutocrafterPrioritySideButtonWidget(
             getMenu().getProperty(AutocrafterPropertyTypes.PRIORITY),
             playerInventory,
@@ -136,6 +132,17 @@ public class AutocrafterScreen extends AbstractBaseScreen<AutocrafterContainerMe
         editButton.active = getMenu().canChangeName();
 
         setEditName(false);
+    }
+
+    private void tryAddLockModeSideButton() {
+        if (getMenu().isPartOfChain()) {
+            return;
+        }
+        lockModeSideButtonWidget = new LockModeSideButtonWidget(
+            getMenu().getProperty(AutocrafterPropertyTypes.LOCK_MODE)
+        );
+        lockedChanged(getMenu().isLocked());
+        addSideButton(lockModeSideButtonWidget);
     }
 
     private void setEditName(final boolean editName) {

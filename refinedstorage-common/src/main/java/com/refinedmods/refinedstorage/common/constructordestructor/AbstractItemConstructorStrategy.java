@@ -37,11 +37,11 @@ abstract class AbstractItemConstructorStrategy implements ConstructorStrategy {
         final Player player,
         final Network network
     ) {
-        if (!level.isLoaded(pos)) {
+        if (!level.isLoaded(pos) || !(resource instanceof ItemResource itemResource)) {
             return Result.SKIPPED;
         }
-        if (!(resource instanceof ItemResource itemResource)) {
-            return Result.SKIPPED;
+        if (!hasWork()) {
+            return Result.SUCCESS;
         }
         final RootStorage rootStorage = network.getComponent(StorageNetworkComponent.class);
         final long amount = getTransferAmount();
@@ -58,6 +58,8 @@ abstract class AbstractItemConstructorStrategy implements ConstructorStrategy {
     }
 
     protected abstract boolean apply(ItemStack itemStack, Actor actor, Player actingPlayer);
+
+    protected abstract boolean hasWork();
 
     protected double getDispensePositionX() {
         return pos.getX() + 0.5D;
