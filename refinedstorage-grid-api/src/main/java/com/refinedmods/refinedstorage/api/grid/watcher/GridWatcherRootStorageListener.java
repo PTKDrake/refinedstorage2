@@ -1,6 +1,5 @@
 package com.refinedmods.refinedstorage.api.grid.watcher;
 
-import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
@@ -17,11 +16,6 @@ class GridWatcherRootStorageListener implements RootStorageListener {
         this.watcher = watcher;
         this.rootStorage = rootStorage;
         this.actorType = actorType;
-    }
-
-    @Override
-    public InterceptResult beforeInsert(final ResourceKey resource, final long amount, final Actor actor) {
-        return InterceptResult.EMPTY;
     }
 
     @Override

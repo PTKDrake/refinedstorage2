@@ -29,6 +29,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed item count rendering behind the item in the Interface slots.
 -   Fixed pickaxes not influencing break speed of blocks.
 -   Fixed non-autocraftables Grid view filter still showing autocraftable resources as they get inserted.
+-   Fixed autocrafting tasks being completed when not all processing outputs have been received yet.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 

@@ -295,24 +295,33 @@ public class TaskImpl implements Task {
     }
 
     @Override
-    public InterceptResult beforeInsert(final ResourceKey insertedResource,
-                                        final long insertedAmount,
-                                        final Actor insertActor) {
-        long reserved = 0;
+    public long beforeInsert(final ResourceKey insertedResource, final long insertedAmount) {
         long intercepted = 0;
         for (final AbstractTaskPattern pattern : patterns.values()) {
-            final long remainder = insertedAmount - reserved;
-            final InterceptResult result = pattern.interceptInsertion(insertedResource, remainder);
-            if (result.intercepted() > 0) {
-                internalStorage.add(insertedResource, result.intercepted());
-            }
-            reserved += result.reserved();
-            intercepted += result.intercepted();
-            if (reserved == insertedAmount) {
-                return new InterceptResult(reserved, intercepted);
+            final long available = insertedAmount - intercepted;
+            intercepted += pattern.beforeInsert(insertedResource, available);
+            if (intercepted == insertedAmount) {
+                internalStorage.add(insertedResource, intercepted);
+                return intercepted;
             }
         }
-        return new InterceptResult(reserved, intercepted);
+        if (intercepted > 0) {
+            internalStorage.add(insertedResource, intercepted);
+        }
+        return intercepted;
+    }
+
+    @Override
+    public long afterInsert(final ResourceKey insertedResource, final long insertedAmount) {
+        long reserved = 0;
+        for (final AbstractTaskPattern pattern : patterns.values()) {
+            final long available = insertedAmount - reserved;
+            reserved += pattern.afterInsert(insertedResource, available);
+            if (reserved == insertedAmount) {
+                return reserved;
+            }
+        }
+        return reserved;
     }
 
     @Override
