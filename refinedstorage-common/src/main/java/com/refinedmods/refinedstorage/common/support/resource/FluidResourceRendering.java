@@ -31,7 +31,7 @@ public class FluidResourceRendering implements ResourceRendering {
 
     @Override
     public String formatAmount(final long amount, final boolean withUnits) {
-        return (!withUnits ? format(amount, bucketAmount) : formatWithUnits(amount, bucketAmount)) + "b";
+        return (!withUnits ? format(amount, bucketAmount) : formatWithUnits(amount, bucketAmount)) + "B";
     }
 
     @Override
