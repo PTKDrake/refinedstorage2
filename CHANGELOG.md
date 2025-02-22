@@ -35,6 +35,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed items not stacking when externally interacting with an Interface.
 -   Fixed Constructor in default scheduling mode not trying other filters when resource is not available.
 -   Fixed autocrafter chaining returning "Machine not found" when starting autocrafting.
+-   Fixed Regulator Upgrade not being allowed 4 times in the Importer or Exporter.
 
 ## [2.0.0-milestone.4.13] - 2025-02-01
 

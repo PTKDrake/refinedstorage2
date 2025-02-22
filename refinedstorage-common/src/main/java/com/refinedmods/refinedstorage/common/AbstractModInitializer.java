@@ -512,12 +512,12 @@ public abstract class AbstractModInitializer {
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.IMPORTER)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
             .add(Items.INSTANCE.getStackUpgrade())
-            .add(Items.INSTANCE.getRegulatorUpgrade());
+            .add(Items.INSTANCE.getRegulatorUpgrade(), 4);
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.EXPORTER)
             .add(Items.INSTANCE.getSpeedUpgrade(), 4)
             .add(Items.INSTANCE.getStackUpgrade())
-            .add(Items.INSTANCE.getRegulatorUpgrade())
+            .add(Items.INSTANCE.getRegulatorUpgrade(), 4)
             .add(Items.INSTANCE.getAutocraftingUpgrade());
 
         RefinedStorageApi.INSTANCE.getUpgradeRegistry().forDestination(UpgradeDestinations.DESTRUCTOR)
