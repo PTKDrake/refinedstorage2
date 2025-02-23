@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0-milestone.4.14] - 2025-02-23
+
 ### Added
 
 -   Autocrafting Upgrade
@@ -27,7 +29,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed Pattern Grid processing matrix input slots not mentioning "SHIFT click to clear".
 -   Fixed amount buttons not working in the Autocrafting Preview when the amount is "0" after clicking the "Max" button.
 -   Fixed not being able to insert resources in a Grid when clicking on something that is autocraftable.
--   Fixed not being able to specify amount < 1 in filter and pattern creation slots.
+-   Fixed not being able to specify amount &lt; 1 in filter and pattern creation slots.
 -   Fixed visual bug where fluid containers were being filled when hovering over a fluid in the Grid.
 -   Fixed clear button in the Pattern Grid for the smithing table not working.
 -   Fixed item count rendering behind the item in the Interface slots.
@@ -898,7 +900,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   The Grid can now use smooth scrolling.
 -   The Grid now has syntax highlighting for the search query.
 
-[Unreleased]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.13...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.14...HEAD
+
+[2.0.0-milestone.4.14]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.13...v2.0.0-milestone.4.14
 
 [2.0.0-milestone.4.13]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.12...v2.0.0-milestone.4.13
 
