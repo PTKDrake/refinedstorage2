@@ -31,6 +31,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed item count rendering behind the item in the Interface slots.
 -   Fixed pickaxes not influencing break speed of blocks.
 -   Fixed non-autocraftables Grid view filter still showing autocraftable resources as they get inserted.
+-   Fixed pattern grid dropping items for pattern
+-   Fixed pattern dropped from broken pattern grid
 -   Fixed autocrafting tasks being completed when not all processing outputs have been received yet.
 -   Fixed items not stacking when externally interacting with an Interface.
 -   Fixed Constructor in default scheduling mode not trying other filters when resource is not available.
