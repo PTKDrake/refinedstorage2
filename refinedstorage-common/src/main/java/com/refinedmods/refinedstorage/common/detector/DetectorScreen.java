@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class DetectorScreen extends AbstractSingleAmountScreen<DetectorContainerMenu> {
     public DetectorScreen(final DetectorContainerMenu menu, final Inventory playerInventory, final Component title) {
-        super(menu, playerInventory, title, menu.getAmount(), 0);
+        super(menu, playerInventory, title, menu.getAmount(), () -> 0D);
     }
 
     @Override

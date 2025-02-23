@@ -33,4 +33,9 @@ public class PlaceFireworksConstructorStrategy extends AbstractItemConstructorSt
         ));
         return true;
     }
+
+    @Override
+    protected boolean hasWork() {
+        return true;
+    }
 }

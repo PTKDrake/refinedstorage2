@@ -10,6 +10,7 @@ import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskState;
 import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.Network;
+import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
 import com.refinedmods.refinedstorage.api.network.impl.NetworkImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.patternprovider.PatternProviderNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.container.NetworkNodeContainer;
@@ -25,8 +26,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static com.refinedmods.refinedstorage.api.autocrafting.PatternBuilder.pattern;
 import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.A;
@@ -34,6 +38,7 @@ import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtu
 import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.C;
 import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.D;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AutocraftingNetworkComponentImplTest {
     private Network network;
@@ -152,6 +157,26 @@ class AutocraftingNetworkComponentImplTest {
     }
 
     @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotGetPreviewForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.getPreview(null, 1);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotGetPreviewForInvalidAmount(final long amount) {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.getPreview(B, amount);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void shouldGetMaxAmount() {
         // Arrange
         rootStorage.addSource(new StorageImpl());
@@ -167,6 +192,16 @@ class AutocraftingNetworkComponentImplTest {
 
         // Assert
         assertThat(maxAmount).isEqualTo(16);
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotGetMaxAmountForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.getMaxAmount(null);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -186,6 +221,140 @@ class AutocraftingNetworkComponentImplTest {
         // Assert
         assertThat(taskId).isPresent();
         assertThat(provider.getTasks()).hasSize(1);
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotStartTaskForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.startTask(null, 1, Actor.EMPTY, false);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotStartTaskForInvalidAmount(final long amount) {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.startTask(B, amount, Actor.EMPTY, false);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldEnsureTask() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act & assert
+        assertThat(sut.startTask(B, 1, Actor.EMPTY, false).join()).isPresent();
+        final var result = sut.ensureTask(B, 10, Actor.EMPTY);
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_CREATED);
+        final var result2 = sut.ensureTask(B, 10, Actor.EMPTY);
+        assertThat(result2).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING);
+        final var result3 = sut.ensureTask(B, 9, Actor.EMPTY);
+        assertThat(result3).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING);
+        assertThat(provider.getTasks()).hasSize(2)
+            .anyMatch(t -> t.getAmount() == 9)
+            .anyMatch(t -> t.getAmount() == 1);
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void shouldNotEnsureTaskForInvalidResource() {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.ensureTask(null, 1, Actor.EMPTY);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, -1})
+    void shouldNotEnsureTaskForInvalidAmount(final long amount) {
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.ensureTask(B, amount, Actor.EMPTY);
+
+        // Act & assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldNotEnsureTaskWhenWeDontHaveEnoughResources() {
+        // Arrange
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act
+        final var result = sut.ensureTask(B, 1, Actor.EMPTY);
+
+        // Assert
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.MISSING_RESOURCES);
+        assertThat(provider.getTasks()).isEmpty();
+    }
+
+    @Test
+    void shouldEnsureTaskEvenIfWeDontHaveEnoughResourcesForTheRequestedAmount() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act
+        final var result = sut.ensureTask(B, 11, Actor.EMPTY);
+
+        // Assert
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_CREATED);
+        assertThat(provider.getTasks()).hasSize(1).allMatch(t -> t.getAmount() == 10);
+    }
+
+    @Test
+    void shouldEnsureTaskEvenIfWeCouldTheoreticallyRequestMore() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 20, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 1).output(B, 1).build());
+        sut.onContainerAdded(() -> provider);
+
+        // Act
+        final var result = sut.ensureTask(B, 11, Actor.EMPTY);
+
+        // Assert
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_CREATED);
+        assertThat(provider.getTasks()).hasSize(1).allMatch(t -> t.getAmount() == 11);
+    }
+
+    @Test
+    void shouldEnsureTaskWhenATaskIsAlreadyRunning() {
+        // Arrange
+        rootStorage.addSource(new StorageImpl());
+        rootStorage.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        final PatternProviderNetworkNode provider = new PatternProviderNetworkNode(0, 5);
+        provider.setPattern(1, pattern().ingredient(A, 3).output(B, 1).build());
+        final NetworkNodeContainer container = () -> provider;
+        sut.onContainerAdded(container);
+
+        sut.startTask(B, 1, Actor.EMPTY, false).join();
+
+        // Act
+        final var result = sut.ensureTask(B, 1, Actor.EMPTY);
+
+        // Assert
+        assertThat(result).isEqualTo(AutocraftingNetworkComponent.EnsureResult.TASK_ALREADY_RUNNING);
     }
 
     @Test

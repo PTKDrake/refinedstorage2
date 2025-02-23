@@ -38,10 +38,7 @@ public enum ItemResourceRendering implements ResourceRendering {
 
     @Override
     public String formatAmount(final long amount, final boolean withUnits) {
-        if (!withUnits) {
-            return format(amount);
-        }
-        return formatWithUnits(amount);
+        return !withUnits ? format(amount) : formatWithUnits(amount);
     }
 
     @Override

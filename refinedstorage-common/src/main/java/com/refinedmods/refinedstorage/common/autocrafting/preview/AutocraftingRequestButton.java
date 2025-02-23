@@ -63,8 +63,8 @@ class AutocraftingRequestButton extends AbstractButton {
         final int resourceX = getX() + 3;
         final int resourceY = getY() + 4;
         rendering.render(resource, graphics, resourceX, resourceY);
-        final long normalizedAmount = resource instanceof PlatformResourceKey platformResourceKey
-            ? platformResourceKey.getResourceType().normalizeAmount(request.getAmount())
+        final long normalizedAmount = resource instanceof PlatformResourceKey platformResource
+            ? platformResource.getResourceType().normalizeAmount(request.getAmount())
             : 0;
         ResourceSlotRendering.renderAmount(graphics, resourceX, resourceY, normalizedAmount, rendering);
     }

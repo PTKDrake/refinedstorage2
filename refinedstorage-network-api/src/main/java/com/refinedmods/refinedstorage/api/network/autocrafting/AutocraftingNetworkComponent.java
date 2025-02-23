@@ -6,6 +6,7 @@ import com.refinedmods.refinedstorage.api.autocrafting.status.TaskStatusProvider
 import com.refinedmods.refinedstorage.api.autocrafting.task.ExternalPatternSinkProvider;
 import com.refinedmods.refinedstorage.api.network.NetworkComponent;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.storage.Actor;
 
 import java.util.List;
 import java.util.Set;
@@ -30,4 +31,12 @@ public interface AutocraftingNetworkComponent
 
     @Nullable
     PatternProvider getProviderByPattern(Pattern pattern);
+
+    EnsureResult ensureTask(ResourceKey resource, long amount, Actor actor);
+
+    enum EnsureResult {
+        MISSING_RESOURCES,
+        TASK_ALREADY_RUNNING,
+        TASK_CREATED
+    }
 }

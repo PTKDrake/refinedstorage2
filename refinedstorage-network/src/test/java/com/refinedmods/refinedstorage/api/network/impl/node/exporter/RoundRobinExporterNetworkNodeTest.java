@@ -238,4 +238,49 @@ class RoundRobinExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest 
             new ResourceAmount(B, 5)
         );
     }
+
+
+    @Test
+    void shouldMaintainLastResultWhenUpdatingFilters(
+        @InjectNetworkStorageComponent final StorageNetworkComponent storage
+    ) {
+        // Arrange
+        storage.addSource(new StorageImpl());
+        storage.insert(A, 100, Action.EXECUTE, Actor.EMPTY);
+
+        final Storage destination = new StorageImpl();
+
+        final ExporterTransferStrategy strategy = createTransferStrategy(destination, 10);
+
+        sut.setTransferStrategy(strategy);
+
+        // Act & assert
+        sut.setFilters(List.of(A, B));
+        assertThat(sut.getLastResult(0)).isNull();
+        assertThat(sut.getLastResult(1)).isNull();
+
+        sut.doWork();
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
+        assertThat(sut.getLastResult(1)).isNull();
+
+        sut.doWork();
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.RESOURCE_MISSING);
+
+        sut.setFilters(List.of(A, B, C));
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
+        assertThat(sut.getLastResult(1)).isEqualTo(ExporterTransferStrategy.Result.RESOURCE_MISSING);
+        assertThat(sut.getLastResult(2)).isNull();
+
+        sut.setFilters(List.of(A, D, C));
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
+        assertThat(sut.getLastResult(1)).isNull();
+        assertThat(sut.getLastResult(2)).isNull();
+
+        sut.setFilters(List.of(A));
+        assertThat(sut.getLastResult(0)).isEqualTo(ExporterTransferStrategy.Result.EXPORTED);
+
+        sut.setFilters(List.of(D));
+        assertThat(sut.getLastResult(0)).isNull();
+    }
 }

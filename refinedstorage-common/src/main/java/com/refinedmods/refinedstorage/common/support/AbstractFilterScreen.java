@@ -1,12 +1,20 @@
 package com.refinedmods.refinedstorage.common.support;
 
+import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicator;
 import com.refinedmods.refinedstorage.common.support.widget.RedstoneModeSideButtonWidget;
 
+import java.util.List;
+import java.util.function.IntFunction;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+import static com.refinedmods.refinedstorage.common.support.Sprites.WARNING_SIZE;
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createIdentifier;
 
 public abstract class AbstractFilterScreen<T extends AbstractBaseContainerMenu> extends AbstractBaseScreen<T> {
@@ -34,5 +42,38 @@ public abstract class AbstractFilterScreen<T extends AbstractBaseContainerMenu> 
     @Override
     protected ResourceLocation getTexture() {
         return TEXTURE;
+    }
+
+    public static boolean renderExportingIndicators(final GuiGraphics graphics,
+                                                    final int leftPos,
+                                                    final int topPos,
+                                                    final int mouseX,
+                                                    final int mouseY,
+                                                    final int indicators,
+                                                    final IntFunction<ExportingIndicator> indicatorProvider) {
+        for (int i = 0; i < indicators; ++i) {
+            final ExportingIndicator indicator = indicatorProvider.apply(i);
+            final int xx = leftPos + 7 + (i * 18) + 18 - 10 + 1;
+            final int yy = topPos + 19 + 18 - 10 + 1;
+            final ResourceLocation sprite = indicator.getSprite();
+            if (sprite != null) {
+                graphics.pose().pushPose();
+                graphics.pose().translate(0, 0, 300);
+                graphics.blitSprite(sprite, xx, yy, WARNING_SIZE, WARNING_SIZE);
+                graphics.pose().popPose();
+            }
+            final boolean hovering =
+                mouseX >= xx && mouseX <= xx + WARNING_SIZE && mouseY >= yy && mouseY <= yy + WARNING_SIZE;
+            if (indicator != ExportingIndicator.NONE && hovering) {
+                Platform.INSTANCE.renderTooltip(
+                    graphics,
+                    List.of(ClientTooltipComponent.create(indicator.getTooltip().getVisualOrderText())),
+                    mouseX,
+                    mouseY
+                );
+                return true;
+            }
+        }
+        return false;
     }
 }

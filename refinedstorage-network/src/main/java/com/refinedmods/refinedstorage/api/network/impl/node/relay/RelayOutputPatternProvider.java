@@ -140,6 +140,11 @@ class RelayOutputPatternProvider implements PatternProvider, PatternListener, Ta
     }
 
     @Override
+    public long getAmount(final ResourceKey resource) {
+        return tasks.getAmount(resource);
+    }
+
+    @Override
     public void receivedExternalIteration() {
         // no op
     }

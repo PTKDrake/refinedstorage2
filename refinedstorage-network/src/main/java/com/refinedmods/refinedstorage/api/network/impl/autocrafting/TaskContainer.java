@@ -12,6 +12,7 @@ import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetwo
 import com.refinedmods.refinedstorage.api.network.autocrafting.ParentContainer;
 import com.refinedmods.refinedstorage.api.network.autocrafting.PatternProvider;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -116,5 +117,12 @@ public class TaskContainer {
             parents.forEach(parent -> parent.taskChanged(task));
         }
         return completed;
+    }
+
+    public long getAmount(final ResourceKey resource) {
+        return tasks.stream()
+            .filter(task -> task.getResource().equals(resource))
+            .mapToLong(Task::getAmount)
+            .sum();
     }
 }

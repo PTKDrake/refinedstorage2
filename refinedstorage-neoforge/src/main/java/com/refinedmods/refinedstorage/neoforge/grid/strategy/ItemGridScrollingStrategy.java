@@ -6,7 +6,6 @@ import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
 import com.refinedmods.refinedstorage.common.api.grid.Grid;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
@@ -57,10 +56,7 @@ public class ItemGridScrollingStrategy implements GridScrollingStrategy {
         gridOperations.insert(
             itemResource,
             GridInsertMode.SINGLE_RESOURCE,
-            new ItemHandlerExtractableStorage(
-                CapabilityCache.ofItemHandler(sourceStorage),
-                AmountOverride.NONE
-            )
+            new ItemHandlerExtractableStorage(CapabilityCache.ofItemHandler(sourceStorage))
         );
     }
 
@@ -68,10 +64,7 @@ public class ItemGridScrollingStrategy implements GridScrollingStrategy {
         gridOperations.extract(
             itemResource,
             GridExtractMode.SINGLE_RESOURCE,
-            new ItemHandlerInsertableStorage(
-                CapabilityCache.ofItemHandler(destinationStorage),
-                AmountOverride.NONE
-            )
+            new ItemHandlerInsertableStorage(CapabilityCache.ofItemHandler(destinationStorage))
         );
     }
 }

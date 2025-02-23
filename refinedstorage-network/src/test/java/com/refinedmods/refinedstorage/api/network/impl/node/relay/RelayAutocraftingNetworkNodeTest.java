@@ -636,6 +636,8 @@ class RelayAutocraftingNetworkNodeTest {
             outputStorage.addSource(new StorageImpl());
             outputStorage.insert(A, 2, Action.EXECUTE, Actor.EMPTY);
 
+            outputStorage2.addSource(new StorageImpl());
+
             input.setComponentTypes(Set.of(RelayComponentType.AUTOCRAFTING));
 
             assertThat(outputAutocrafting.startTask(B, 2, Actor.EMPTY, false).join()).isPresent();

@@ -11,17 +11,19 @@ import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
 
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.ToLongFunction;
 
 import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.1")
 public class ImporterTransferStrategyImpl implements ImporterTransferStrategy {
     private final ImporterSource source;
-    private final long transferQuota;
+    private final ToLongFunction<ResourceKey> transferQuotaProvider;
 
-    public ImporterTransferStrategyImpl(final ImporterSource source, final long transferQuota) {
+    public ImporterTransferStrategyImpl(final ImporterSource source,
+                                        final ToLongFunction<ResourceKey> transferQuotaProvider) {
         this.source = source;
-        this.transferQuota = transferQuota;
+        this.transferQuotaProvider = transferQuotaProvider;
     }
 
     @Override
@@ -31,42 +33,47 @@ public class ImporterTransferStrategyImpl implements ImporterTransferStrategy {
     }
 
     private boolean transfer(final Filter filter, final Actor actor, final RootStorage rootStorage) {
-        long totalTransferred = 0;
+        long total = 0;
+        long transferQuota = 0;
         ResourceKey workingResource = null;
         final Iterator<ResourceKey> iterator = source.getResources();
-        while (iterator.hasNext() && totalTransferred < transferQuota) {
+        while (iterator.hasNext() && (total < transferQuota || transferQuota == 0)) {
             final ResourceKey resource = iterator.next();
             if (workingResource != null) {
-                totalTransferred += performTransfer(rootStorage, actor, totalTransferred, workingResource, resource);
+                total += transfer(rootStorage, actor, transferQuota, total, workingResource, resource);
             } else if (filter.isAllowed(resource)) {
-                final long transferred = performTransfer(rootStorage, actor, totalTransferred, resource);
+                transferQuota = transferQuotaProvider.applyAsLong(resource);
+                final long transferred = transferQuota > 0
+                    ? transfer(rootStorage, actor, transferQuota, total, resource)
+                    : 0;
                 if (transferred > 0) {
                     workingResource = resource;
                 }
-                totalTransferred += transferred;
+                total += transferred;
             }
         }
-        return totalTransferred > 0;
+        return total > 0;
     }
 
-    private long performTransfer(final RootStorage rootStorage,
-                                 final Actor actor,
-                                 final long totalTransferred,
-                                 final ResourceKey workingResource,
-                                 final ResourceKey resource) {
-        if (Objects.equals(workingResource, resource)) {
-            return performTransfer(rootStorage, actor, totalTransferred, resource);
-        }
-        return 0L;
+    private long transfer(final RootStorage rootStorage,
+                          final Actor actor,
+                          final long transferQuota,
+                          final long total,
+                          final ResourceKey workingResource,
+                          final ResourceKey resource) {
+        return Objects.equals(workingResource, resource)
+            ? transfer(rootStorage, actor, transferQuota, total, resource)
+            : 0L;
     }
 
-    private long performTransfer(final RootStorage rootStorage,
-                                 final Actor actor,
-                                 final long totalTransferred,
-                                 final ResourceKey resource) {
+    private long transfer(final RootStorage rootStorage,
+                          final Actor actor,
+                          final long transferQuota,
+                          final long total,
+                          final ResourceKey resource) {
         return TransferHelper.transfer(
             resource,
-            transferQuota - totalTransferred,
+            transferQuota - total,
             actor,
             source,
             rootStorage,

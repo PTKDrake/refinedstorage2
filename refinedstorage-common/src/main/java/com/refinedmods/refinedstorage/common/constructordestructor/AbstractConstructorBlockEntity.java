@@ -7,6 +7,7 @@ import com.refinedmods.refinedstorage.common.api.constructordestructor.Construct
 import com.refinedmods.refinedstorage.common.api.constructordestructor.ConstructorStrategyFactory;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.ContentNames;
+import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.support.AbstractCableLikeBlockEntity;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
 import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
@@ -14,6 +15,8 @@ import com.refinedmods.refinedstorage.common.support.FilterWithFuzzyMode;
 import com.refinedmods.refinedstorage.common.support.SchedulingModeContainer;
 import com.refinedmods.refinedstorage.common.support.SchedulingModeType;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeExtendedMenuProvider;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicator;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicators;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerData;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerImpl;
 import com.refinedmods.refinedstorage.common.upgrade.UpgradeContainer;
@@ -41,7 +44,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class AbstractConstructorBlockEntity
     extends AbstractCableLikeBlockEntity<ConstructorNetworkNode>
-    implements BlockEntityWithDrops, NetworkNodeExtendedMenuProvider<ResourceContainerData> {
+    implements BlockEntityWithDrops, NetworkNodeExtendedMenuProvider<ConstructorData> {
     private static final String TAG_DROP_ITEMS = "di";
     private static final String TAG_UPGRADES = "upgr";
 
@@ -104,9 +107,7 @@ public abstract class AbstractConstructorBlockEntity
         final BlockPos sourcePosition = worldPosition.relative(direction);
         final Collection<ConstructorStrategyFactory> factories = RefinedStorageApi.INSTANCE
             .getConstructorStrategyFactories();
-        final List<ConstructorStrategy> strategies = factories
-            .stream()
-            .flatMap(factory -> factory.create(
+        final List<ConstructorStrategy> strategies = factories.stream().flatMap(factory -> factory.create(
                 serverLevel,
                 sourcePosition,
                 incomingDirection,
@@ -114,7 +115,11 @@ public abstract class AbstractConstructorBlockEntity
                 dropItems
             ).stream())
             .toList();
-        return new CompositeConstructorStrategy(strategies);
+        final ConstructorStrategy strategy = new CompositeConstructorStrategy(strategies);
+        if (upgradeContainer.has(Items.INSTANCE.getAutocraftingUpgrade())) {
+            return new AutocraftOnMissingResourcesConstructorStrategy(strategy);
+        }
+        return strategy;
     }
 
     @Override
@@ -193,17 +198,36 @@ public abstract class AbstractConstructorBlockEntity
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(final int syncId, final Inventory inventory, final Player player) {
-        return new ConstructorContainerMenu(syncId, player, this, filter.getFilterContainer(), upgradeContainer);
+        return new ConstructorContainerMenu(syncId, player, this, filter.getFilterContainer(), upgradeContainer,
+            getExportingIndicators());
+    }
+
+    private ExportingIndicators getExportingIndicators() {
+        return new ExportingIndicators(
+            filter.getFilterContainer(),
+            i -> toExportingIndicator(mainNetworkNode.getLastResult(i)),
+            false
+        );
+    }
+
+    private ExportingIndicator toExportingIndicator(@Nullable final ConstructorStrategy.Result result) {
+        return switch (result) {
+            case RESOURCE_MISSING -> ExportingIndicator.RESOURCE_MISSING;
+            case AUTOCRAFTING_STARTED -> ExportingIndicator.AUTOCRAFTING_WAS_STARTED;
+            case AUTOCRAFTING_MISSING_RESOURCES -> ExportingIndicator.AUTOCRAFTING_MISSING_RESOURCES;
+            case null, default -> ExportingIndicator.NONE;
+        };
     }
 
     @Override
-    public ResourceContainerData getMenuData() {
-        return ResourceContainerData.of(filter.getFilterContainer());
+    public ConstructorData getMenuData() {
+        return new ConstructorData(ResourceContainerData.of(filter.getFilterContainer()),
+            getExportingIndicators().getAll());
     }
 
     @Override
-    public StreamEncoder<RegistryFriendlyByteBuf, ResourceContainerData> getMenuCodec() {
-        return ResourceContainerData.STREAM_CODEC;
+    public StreamEncoder<RegistryFriendlyByteBuf, ConstructorData> getMenuCodec() {
+        return ConstructorData.STREAM_CODEC;
     }
 
     @Override

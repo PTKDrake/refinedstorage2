@@ -130,4 +130,11 @@ public class AutocraftingPreviewContainerMenu extends AbstractResourceContainerM
     void setNotify(final boolean notify) {
         Platform.INSTANCE.getConfig().setAutocraftingNotification(notify);
     }
+
+    double getMinAmount() {
+        if (currentRequest.getResource() instanceof PlatformResourceKey platformResource) {
+            return platformResource.getResourceType().getDisplayAmount(1);
+        }
+        return 1D;
+    }
 }

@@ -748,6 +748,7 @@ public class ConfigImpl implements Config {
         private final ModConfigSpec.LongValue rangeUpgradeEnergyUsage;
         private final ModConfigSpec.LongValue creativeRangeUpgradeEnergyUsage;
         private final ModConfigSpec.IntValue rangeUpgradeRange;
+        private final ModConfigSpec.LongValue autocraftingUpgradeUsage;
 
         UpgradeEntryImpl() {
             builder.translation(translationKey("upgrade")).push("upgrade");
@@ -786,6 +787,9 @@ public class ConfigImpl implements Config {
             rangeUpgradeRange = builder
                 .translation(translationKey("upgrade.rangeUpgradeRange"))
                 .defineInRange("rangeUpgradeRange", DefaultEnergyUsage.RANGE_UPGRADE_RANGE, 0, Integer.MAX_VALUE);
+            autocraftingUpgradeUsage = builder
+                .translation(translationKey("upgrade.autocraftingUpgradeUsage"))
+                .defineInRange("autocraftingUpgradeUsage", DefaultEnergyUsage.AUTOCRAFTING_UPGRADE, 0, Long.MAX_VALUE);
             builder.pop();
         }
 
@@ -837,6 +841,11 @@ public class ConfigImpl implements Config {
         @Override
         public int getRangeUpgradeRange() {
             return rangeUpgradeRange.get();
+        }
+
+        @Override
+        public long getAutocraftingUpgradeEnergyUsage() {
+            return autocraftingUpgradeUsage.get();
         }
     }
 

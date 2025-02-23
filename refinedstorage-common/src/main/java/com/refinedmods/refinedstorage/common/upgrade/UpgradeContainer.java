@@ -13,9 +13,7 @@ import com.refinedmods.refinedstorage.common.support.network.NetworkNodeTicker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalLong;
 import java.util.Set;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class UpgradeContainer extends SimpleContainer implements UpgradeState {
     private static final int DEFAULT_WORK_TICK_RATE = 9;
+    private static final int DEFAULT_SIZE = 4;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpgradeContainer.class);
 
@@ -44,14 +43,31 @@ public class UpgradeContainer extends SimpleContainer implements UpgradeState {
         this(destination, null);
     }
 
+    public UpgradeContainer(final UpgradeDestination destination, final int size) {
+        this(size, destination, null, DEFAULT_WORK_TICK_RATE);
+    }
+
     public UpgradeContainer(final UpgradeDestination destination, @Nullable final UpgradeContainerListener listener) {
         this(destination, listener, DEFAULT_WORK_TICK_RATE);
+    }
+
+    public UpgradeContainer(final int size,
+                            final UpgradeDestination destination,
+                            @Nullable final UpgradeContainerListener listener) {
+        this(DEFAULT_SIZE, destination, listener, DEFAULT_WORK_TICK_RATE);
     }
 
     public UpgradeContainer(final UpgradeDestination destination,
                             @Nullable final UpgradeContainerListener listener,
                             final int defaultWorkTickRate) {
-        super(4);
+        this(DEFAULT_SIZE, destination, listener, defaultWorkTickRate);
+    }
+
+    public UpgradeContainer(final int size,
+                            final UpgradeDestination destination,
+                            @Nullable final UpgradeContainerListener listener,
+                            final int defaultWorkTickRate) {
+        super(size);
         this.destination = destination;
         this.registry = RefinedStorageApi.INSTANCE.getUpgradeRegistry();
         this.addListener(container -> updateIndex());
@@ -90,12 +106,18 @@ public class UpgradeContainer extends SimpleContainer implements UpgradeState {
         return registry.getByDestination(destination);
     }
 
-    public OptionalLong getRegulatedAmount(final ResourceKey resource) {
-        return IntStream.range(0, getContainerSize())
-            .mapToObj(this::getItem)
-            .filter(stack -> stack.getItem() instanceof RegulatorUpgradeItem)
-            .flatMapToLong(stack -> ((RegulatorUpgradeItem) stack.getItem()).getDesiredAmount(stack, resource).stream())
-            .findFirst();
+    @Override
+    public long getRegulatedAmount(final ResourceKey resource) {
+        for (int i = 0; i < getContainerSize(); ++i) {
+            final ItemStack stack = getItem(i);
+            if (stack.getItem() instanceof RegulatorUpgradeItem item) {
+                final long regulatedAmount = item.getDesiredAmount(stack, resource);
+                if (regulatedAmount > 0) {
+                    return regulatedAmount;
+                }
+            }
+        }
+        return 0;
     }
 
     private void updateIndex() {

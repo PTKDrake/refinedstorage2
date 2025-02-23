@@ -8,6 +8,7 @@ import com.refinedmods.refinedstorage.common.api.support.resource.ResourceContai
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceFactory;
 import com.refinedmods.refinedstorage.common.support.packet.c2s.C2SPackets;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.S2CPackets;
+import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
 import java.util.Objects;
 import java.util.Set;
@@ -23,7 +24,11 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslationAsHeading;
+
 public class ResourceSlot extends Slot {
+    private static final Component CLICK_TO_CONFIGURE_AMOUNT =
+        createTranslationAsHeading("gui", "filter_slot.click_to_configure_amount");
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceSlot.class);
 
     protected final ResourceContainer resourceContainer;
@@ -60,8 +65,16 @@ public class ResourceSlot extends Slot {
     }
 
     public boolean shouldRenderAmount() {
-        return type == ResourceSlotType.FILTER_WITH_AMOUNT
-            || type == ResourceSlotType.CONTAINER;
+        if (type == ResourceSlotType.FILTER_WITH_AMOUNT) {
+            return true;
+        } else if (type == ResourceSlotType.CONTAINER) {
+            if (getResource() instanceof ItemResource) {
+                // if the amount is >1, renderSlot will render the amount for us
+                return getAmount() == 1;
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean isFilter() {
@@ -219,5 +232,9 @@ public class ResourceSlot extends Slot {
                 return result.container();
             })
             .orElse(null);
+    }
+
+    public Component getClickToConfigureAmountHelpTooltip() {
+        return CLICK_TO_CONFIGURE_AMOUNT;
     }
 }

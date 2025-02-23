@@ -7,6 +7,42 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0-milestone.4.14] - 2025-02-23
+
+### Added
+
+-   Autocrafting Upgrade
+
+### Changed
+
+-   The filter slots for the Exporter, Constructor and Interface now display whether a resource is missing, the destination does not accept it, the resource cannot be autocrafted due to missing resources, or whether the resource is currently autocrafting.
+-   'B' is now displayed after fluid amounts, indicating the amount in buckets.
+-   The Autocrafter now only connects to other autocrafters through its front face. The reason for this is so that you can connect it to an Interface and accept multi-type autocrafting inputs without the Interface being connected to your network.
+-   When using Autocrafter chaining, you can now only configure the locking mode on the head of the chain.
+-   For now, it is not possible to rotate the Relay. This behavior will be restored later.
+
+### Fixed
+
+-   Fixed cables broken with a Wrench not stacking.
+-   Fixed colored importers, exporters, and external storages not dropping when broken.
+-   Fixed fluid amounts displaying to 0.1 buckets and not 0.001. The suffix "m" is used.
+-   Fixed Pattern Grid processing matrix input slots not mentioning "SHIFT click to clear".
+-   Fixed amount buttons not working in the Autocrafting Preview when the amount is "0" after clicking the "Max" button.
+-   Fixed not being able to insert resources in a Grid when clicking on something that is autocraftable.
+-   Fixed not being able to specify amount &lt; 1 in filter and pattern creation slots.
+-   Fixed visual bug where fluid containers were being filled when hovering over a fluid in the Grid.
+-   Fixed clear button in the Pattern Grid for the smithing table not working.
+-   Fixed item count rendering behind the item in the Interface slots.
+-   Fixed pickaxes not influencing break speed of blocks.
+-   Fixed non-autocraftables Grid view filter still showing autocraftable resources as they get inserted.
+-   Fixed filter items from the Pattern Grid crafting matrix being dropped when the Pattern Grid is broken.
+-   Fixed created pattern not being insertable in an Autocrafter when it is dropped after breaking the Pattern Grid.
+-   Fixed autocrafting tasks being completed when not all processing outputs have been received yet.
+-   Fixed items not stacking when externally interacting with an Interface.
+-   Fixed Constructor in default scheduling mode not trying other filters when resource is not available.
+-   Fixed autocrafter chaining returning "Machine not found" when starting autocrafting.
+-   Fixed Regulator Upgrade not being allowed 4 times in the Importer or Exporter.
+
 ## [2.0.0-milestone.4.13] - 2025-02-01
 
 ### Added
@@ -864,7 +900,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   The Grid can now use smooth scrolling.
 -   The Grid now has syntax highlighting for the search query.
 
-[Unreleased]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.13...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.14...HEAD
+
+[2.0.0-milestone.4.14]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.13...v2.0.0-milestone.4.14
 
 [2.0.0-milestone.4.13]: https://github.com/refinedmods/refinedstorage2/compare/v2.0.0-milestone.4.12...v2.0.0-milestone.4.13
 

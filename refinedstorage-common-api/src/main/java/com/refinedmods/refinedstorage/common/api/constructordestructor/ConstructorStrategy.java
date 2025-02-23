@@ -10,5 +10,13 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.11")
 @FunctionalInterface
 public interface ConstructorStrategy {
-    boolean apply(ResourceKey resource, Actor actor, Player player, Network network);
+    Result apply(ResourceKey resource, Actor actor, Player player, Network network);
+
+    enum Result {
+        SKIPPED,
+        SUCCESS,
+        RESOURCE_MISSING,
+        AUTOCRAFTING_STARTED,
+        AUTOCRAFTING_MISSING_RESOURCES
+    }
 }

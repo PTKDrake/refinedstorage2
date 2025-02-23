@@ -1,6 +1,5 @@
 package com.refinedmods.refinedstorage.common.exporter;
 
-import com.refinedmods.refinedstorage.api.network.impl.node.exporter.CompositeExporterTransferStrategy;
 import com.refinedmods.refinedstorage.api.network.impl.node.exporter.ExporterNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.SchedulingMode;
 import com.refinedmods.refinedstorage.api.network.node.exporter.ExporterTransferStrategy;
@@ -8,10 +7,9 @@ import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.exporter.ExporterTransferStrategyFactory;
-import com.refinedmods.refinedstorage.common.api.support.network.AmountOverride;
+import com.refinedmods.refinedstorage.common.api.support.resource.ResourceContainer;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.ContentNames;
-import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.support.AbstractCableLikeBlockEntity;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
 import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
@@ -19,6 +17,8 @@ import com.refinedmods.refinedstorage.common.support.FilterWithFuzzyMode;
 import com.refinedmods.refinedstorage.common.support.SchedulingModeContainer;
 import com.refinedmods.refinedstorage.common.support.SchedulingModeType;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeExtendedMenuProvider;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicator;
+import com.refinedmods.refinedstorage.common.support.exportingindicator.ExportingIndicators;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerData;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceContainerImpl;
 import com.refinedmods.refinedstorage.common.upgrade.UpgradeContainer;
@@ -26,7 +26,8 @@ import com.refinedmods.refinedstorage.common.upgrade.UpgradeDestinations;
 import com.refinedmods.refinedstorage.common.util.ContainerUtil;
 
 import java.util.List;
-import java.util.function.LongSupplier;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractExporterBlockEntity
     extends AbstractCableLikeBlockEntity<ExporterNetworkNode>
-    implements AmountOverride, BlockEntityWithDrops, NetworkNodeExtendedMenuProvider<ResourceContainerData> {
+    implements BlockEntityWithDrops, NetworkNodeExtendedMenuProvider<ExporterData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExporterBlockEntity.class);
     private static final String TAG_UPGRADES = "upgr";
 
@@ -108,17 +109,17 @@ public abstract class AbstractExporterBlockEntity
         final BlockPos sourcePosition = worldPosition.relative(direction);
         final List<ExporterTransferStrategyFactory> factories =
             RefinedStorageApi.INSTANCE.getExporterTransferStrategyRegistry().getAll();
-        final List<ExporterTransferStrategy> strategies = factories
-            .stream()
-            .map(factory -> factory.create(
-                serverLevel,
-                sourcePosition,
-                incomingDirection,
-                upgradeContainer,
-                this,
-                filter.isFuzzyMode()
-            ))
-            .toList();
+        final Map<Class<? extends ResourceKey>, ExporterTransferStrategy> strategies =
+            factories.stream().collect(Collectors.toMap(
+                ExporterTransferStrategyFactory::getResourceType,
+                factory -> factory.create(
+                    serverLevel,
+                    sourcePosition,
+                    incomingDirection,
+                    upgradeContainer,
+                    filter.isFuzzyMode()
+                )
+            ));
         return new CompositeExporterTransferStrategy(strategies);
     }
 
@@ -182,43 +183,42 @@ public abstract class AbstractExporterBlockEntity
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(final int syncId, final Inventory inventory, final Player player) {
-        return new ExporterContainerMenu(syncId, player, this, filter.getFilterContainer(), upgradeContainer);
+        return new ExporterContainerMenu(syncId, player, this, filter.getFilterContainer(), upgradeContainer,
+            getExportingIndicators());
+    }
+
+    private ExportingIndicators getExportingIndicators() {
+        return new ExportingIndicators(
+            filter.getFilterContainer(),
+            i -> toExportingIndicator(mainNetworkNode.getLastResult(i)),
+            false
+        );
+    }
+
+    private ExportingIndicator toExportingIndicator(@Nullable final ExporterTransferStrategy.Result result) {
+        return switch (result) {
+            case DESTINATION_DOES_NOT_ACCEPT -> ExportingIndicator.DESTINATION_DOES_NOT_ACCEPT_RESOURCE;
+            case RESOURCE_MISSING -> ExportingIndicator.RESOURCE_MISSING;
+            case AUTOCRAFTING_STARTED -> ExportingIndicator.AUTOCRAFTING_WAS_STARTED;
+            case AUTOCRAFTING_MISSING_RESOURCES -> ExportingIndicator.AUTOCRAFTING_MISSING_RESOURCES;
+            case null, default -> ExportingIndicator.NONE;
+        };
     }
 
     @Override
-    public ResourceContainerData getMenuData() {
-        return ResourceContainerData.of(filter.getFilterContainer());
+    public ExporterData getMenuData() {
+        final ResourceContainer filterContainer = filter.getFilterContainer();
+        final ResourceContainerData resourceContainerData = ResourceContainerData.of(filterContainer);
+        return new ExporterData(resourceContainerData, getExportingIndicators().getAll());
     }
 
     @Override
-    public StreamEncoder<RegistryFriendlyByteBuf, ResourceContainerData> getMenuCodec() {
-        return ResourceContainerData.STREAM_CODEC;
+    public StreamEncoder<RegistryFriendlyByteBuf, ExporterData> getMenuCodec() {
+        return ExporterData.STREAM_CODEC;
     }
 
     void setFilters(final List<ResourceKey> filters) {
         mainNetworkNode.setFilters(filters);
-    }
-
-    @Override
-    public long overrideAmount(final ResourceKey resource,
-                               final long amount,
-                               final LongSupplier currentAmountSupplier) {
-        if (!upgradeContainer.has(Items.INSTANCE.getRegulatorUpgrade())) {
-            return amount;
-        }
-        return upgradeContainer.getRegulatedAmount(resource)
-            .stream()
-            .map(desiredAmount -> getAmountStillNeeded(amount, currentAmountSupplier.getAsLong(), desiredAmount))
-            .findFirst()
-            .orElse(amount);
-    }
-
-    private long getAmountStillNeeded(final long amount, final long currentAmount, final long desiredAmount) {
-        final long stillNeeding = desiredAmount - currentAmount;
-        if (stillNeeding <= 0) {
-            return 0;
-        }
-        return Math.min(stillNeeding, amount);
     }
 
     @Override

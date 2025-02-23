@@ -232,7 +232,7 @@ public class GridViewImpl implements GridView {
     }
 
     private void handleChangeForNewResource(final ResourceKey resource) {
-        final GridResource gridResource = resourceFactory.apply(resource, false)
+        final GridResource gridResource = resourceFactory.apply(resource, autocraftableResources.contains(resource))
             .orElseThrow();
         if (filter.test(this, gridResource)) {
             LOGGER.debug("Filter allowed, actually adding {}", resource);

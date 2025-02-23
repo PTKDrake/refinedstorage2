@@ -551,6 +551,10 @@ public class AutocrafterBlockEntity extends AbstractBaseNetworkNodeContainerBloc
 
     @Override
     public ExternalPatternSink.Result accept(final Collection<ResourceAmount> resources, final Action action) {
+        final AutocrafterBlockEntity root = getChainingRoot();
+        if (root != this) {
+            return root.accept(resources, action);
+        }
         if (sink == null) {
             return ExternalPatternSink.Result.SKIPPED;
         }
@@ -569,6 +573,11 @@ public class AutocrafterBlockEntity extends AbstractBaseNetworkNodeContainerBloc
 
     @Override
     public void receivedExternalIteration() {
+        final AutocrafterBlockEntity root = getChainingRoot();
+        if (root != this) {
+            root.receivedExternalIteration();
+            return;
+        }
         if (lockMode == LockMode.LOCK_UNTIL_ALL_OUTPUTS_ARE_RECEIVED && locked) {
             setLocked(false);
         }

@@ -31,7 +31,7 @@ public class PriorityScreen extends AbstractAmountScreen<AbstractAmountScreen.De
                 .withIncrementsBottom(-1, -5, -10)
                 .withAmountFieldPosition(new Vector3f(19, 48, 0))
                 .withActionButtonsStartPosition(new Vector3f(107, 18, 0))
-                .withMinAmount(Integer.MIN_VALUE)
+                .withMinAmount(() -> Integer.MIN_VALUE)
                 .withMaxAmount(Integer.MAX_VALUE)
                 .withResetAmount(0)
                 .build(),

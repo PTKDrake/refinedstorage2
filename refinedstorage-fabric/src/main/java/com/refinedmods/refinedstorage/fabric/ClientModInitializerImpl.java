@@ -31,6 +31,7 @@ import com.refinedmods.refinedstorage.common.support.packet.s2c.AutocraftingPrev
 import com.refinedmods.refinedstorage.common.support.packet.s2c.AutocraftingResponsePacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.AutocraftingTaskCompletedPacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.EnergyInfoPacket;
+import com.refinedmods.refinedstorage.common.support.packet.s2c.ExportingIndicatorUpdatePacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.GridActivePacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.GridClearPacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.GridUpdatePacket;
@@ -345,6 +346,10 @@ public class ClientModInitializerImpl extends AbstractClientModInitializer imple
         ClientPlayNetworking.registerGlobalReceiver(
             AutocraftingTaskCompletedPacket.PACKET_TYPE,
             wrapHandler((packet, ctx) -> AutocraftingTaskCompletedPacket.handle(packet))
+        );
+        ClientPlayNetworking.registerGlobalReceiver(
+            ExportingIndicatorUpdatePacket.PACKET_TYPE,
+            wrapHandler(ExportingIndicatorUpdatePacket::handle)
         );
     }
 

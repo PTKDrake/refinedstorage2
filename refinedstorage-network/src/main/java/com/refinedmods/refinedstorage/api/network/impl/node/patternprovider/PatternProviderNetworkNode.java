@@ -17,6 +17,7 @@ import com.refinedmods.refinedstorage.api.network.autocrafting.PatternProviderEx
 import com.refinedmods.refinedstorage.api.network.impl.autocrafting.TaskContainer;
 import com.refinedmods.refinedstorage.api.network.impl.node.SimpleNetworkNode;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -122,6 +123,11 @@ public class PatternProviderNetworkNode extends SimpleNetworkNode implements Pat
     @Override
     public List<TaskStatus> getTaskStatuses() {
         return tasks.getStatuses();
+    }
+
+    @Override
+    public long getAmount(final ResourceKey resource) {
+        return tasks.getAmount(resource);
     }
 
     @Override

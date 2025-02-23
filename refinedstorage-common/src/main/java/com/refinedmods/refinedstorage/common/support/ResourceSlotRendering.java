@@ -70,7 +70,7 @@ public final class ResourceSlotRendering {
         final PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
         // Large amounts overlap with the slot lines (see Minecraft behavior)
-        poseStack.translate(x + (large ? 1D : 0D), y + (large ? 1D : 0D), 199);
+        poseStack.translate(x + (large ? 1D : 0D), y + (large ? 1D : 0D), 300);
         if (!large) {
             poseStack.scale(0.5F, 0.5F, 1);
         }

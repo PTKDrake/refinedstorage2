@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,9 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslation;
+import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTranslationAsHeading;
 
 class ProcessingMatrixResourceSlot extends ResourceSlot {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingMatrixResourceSlot.class);
+
+    private static final Component CLICK_TO_CONFIGURE_AMOUNT_AND_ALTERNATIVES =
+        createTranslationAsHeading("gui", "pattern_grid.processing.click_to_configure_amount_and_alternatives");
     private static final MutableComponent INPUT_HELP = createTranslation(
         "gui",
         "pattern_grid.processing.input_slots_help"
@@ -101,5 +106,13 @@ class ProcessingMatrixResourceSlot extends ResourceSlot {
     @Override
     public boolean isHighlightable() {
         return false; // we render the highlight in the scissor render
+    }
+
+    @Override
+    public Component getClickToConfigureAmountHelpTooltip() {
+        if (input) {
+            return CLICK_TO_CONFIGURE_AMOUNT_AND_ALTERNATIVES;
+        }
+        return super.getClickToConfigureAmountHelpTooltip();
     }
 }

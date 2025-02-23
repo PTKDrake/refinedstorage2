@@ -44,10 +44,6 @@ public abstract class AbstractBaseScreen<T extends AbstractContainerMenu> extend
     private static final SmallTextClientTooltipComponent CLICK_TO_CLEAR = new SmallTextClientTooltipComponent(
         createTranslationAsHeading("gui", "filter_slot.click_to_clear")
     );
-    private static final SmallTextClientTooltipComponent CLICK_TO_CONFIGURE_AMOUNT =
-        new SmallTextClientTooltipComponent(
-            createTranslationAsHeading("gui", "filter_slot.click_to_configure_amount")
-        );
     private static final SmallTextClientTooltipComponent SHIFT_CLICK_TO_CLEAR = new SmallTextClientTooltipComponent(
         createTranslationAsHeading("gui", "filter_slot.shift_click_to_clear")
     );
@@ -272,7 +268,7 @@ public abstract class AbstractBaseScreen<T extends AbstractContainerMenu> extend
 
     protected void addResourceSlotTooltips(final ResourceSlot slot, final List<ClientTooltipComponent> tooltip) {
         if (slot.canModifyAmount()) {
-            tooltip.add(CLICK_TO_CONFIGURE_AMOUNT);
+            tooltip.add(new SmallTextClientTooltipComponent(slot.getClickToConfigureAmountHelpTooltip()));
             tooltip.add(SHIFT_CLICK_TO_CLEAR);
         } else {
             tooltip.add(CLICK_TO_CLEAR);

@@ -254,9 +254,6 @@ public class PatternGridBlockEntity extends AbstractGridBlockEntity implements B
         final NonNullList<ItemStack> drops = NonNullList.create();
         drops.add(patternInput.getItem(0));
         drops.add(patternOutput.getItem(0));
-        for (int i = 0; i < craftingRecipe.getMatrix().getContainerSize(); ++i) {
-            drops.add(craftingRecipe.getMatrix().getItem(i));
-        }
         return drops;
     }
 

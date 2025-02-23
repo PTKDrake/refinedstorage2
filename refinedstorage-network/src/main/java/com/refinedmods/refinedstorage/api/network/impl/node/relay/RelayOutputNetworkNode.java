@@ -169,6 +169,11 @@ public class RelayOutputNetworkNode extends AbstractNetworkNode
     }
 
     @Override
+    public long getAmount(final ResourceKey resource) {
+        return patternProvider.getAmount(resource);
+    }
+
+    @Override
     public void receivedExternalIteration() {
         patternProvider.receivedExternalIteration();
     }

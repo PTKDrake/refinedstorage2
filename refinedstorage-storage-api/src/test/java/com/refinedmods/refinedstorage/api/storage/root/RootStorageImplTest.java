@@ -2,6 +2,7 @@ package com.refinedmods.refinedstorage.api.storage.root;
 
 import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceListImpl;
 import com.refinedmods.refinedstorage.api.storage.Actor;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import static com.refinedmods.refinedstorage.api.storage.TestResource.A;
@@ -30,6 +32,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +112,6 @@ class RootStorageImplTest {
         sut.insert(A, 2, Action.EXECUTE, Actor.EMPTY);
 
         final RootStorageListener listener = mock(RootStorageListener.class);
-        when(listener.beforeInsert(any(), anyLong(), any())).thenReturn(RootStorageListener.InterceptResult.EMPTY);
         sut.addListener(listener);
 
         final var changedResource = ArgumentCaptor.forClass(MutableResourceList.OperationResult.class);
@@ -196,31 +198,296 @@ class RootStorageImplTest {
     }
 
     @Test
-    void shouldDetectWhenListenerIsIndicatingItReservedMoreThanOriginallyAvailable() {
+    void shouldInterceptInsertionPartiallyWithSingleListener() {
         // Arrange
         sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener = mock(RootStorageListener.class, "listener mock");
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(3L);
         sut.addListener(listener);
-        when(listener.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            11,
-            11
-        ));
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new ResourceAmount(A, 7)
+        );
+        assertThat(inserted).isEqualTo(10);
+    }
+
+    @Test
+    void shouldInterceptInsertionCompletelyWithSingleListener() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(10L);
+        sut.addListener(listener);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).isEmpty();
+        assertThat(inserted).isEqualTo(10);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {11, -1})
+    void shouldDetectWhenListenerIsInterceptingMoreThanIsAvailableWithSingleListener(final long invalidReservation) {
+        // Arrange
+        sut.addSource(new StorageImpl());
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(invalidReservation);
+        sut.addListener(listener);
 
         // Act
         final ThrowableAssert.ThrowingCallable action = () -> sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
 
         // Assert
-        assertThatThrownBy(action).isInstanceOf(IllegalStateException.class).hasMessage(
-            "Listener listener mock indicated it reserved 11 while the original available amount was 10"
-        );
+        assertThatThrownBy(action)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Intercepted %d while 10 was available", invalidReservation);
     }
 
     @Test
-    void shouldNotReserveOrInterceptWhenSimulatingInsert() {
+    void shouldInterceptInsertionPartiallyWithMultipleListeners() {
         // Arrange
         sut.addSource(new StorageImpl());
 
+        final RootStorageListener listener1 = mock(RootStorageListener.class);
+        when(listener1.beforeInsert(A, 10)).thenReturn(3L);
+        sut.addListener(listener1);
+
+        final RootStorageListener listener2 = mock(RootStorageListener.class);
+        when(listener2.beforeInsert(A, 7)).thenReturn(5L);
+        sut.addListener(listener2);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new ResourceAmount(A, 2)
+        );
+        assertThat(inserted).isEqualTo(10);
+    }
+
+    @Test
+    void shouldInterceptInsertionCompletelyWithMultipleListeners() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+
+        final RootStorageListener listener1 = mock(RootStorageListener.class);
+        when(listener1.beforeInsert(A, 10)).thenReturn(3L);
+        sut.addListener(listener1);
+
+        final RootStorageListener listener2 = mock(RootStorageListener.class);
+        when(listener2.beforeInsert(A, 7)).thenReturn(7L);
+        sut.addListener(listener2);
+
+        final RootStorageListener listener3 = mock(RootStorageListener.class);
+        sut.addListener(listener3);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).isEmpty();
+        assertThat(inserted).isEqualTo(10);
+        verify(listener3, never()).beforeInsert(any(), anyLong());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {4, -1})
+    void shouldDetectWhenListenerIsInterceptingMoreThanIsAvailableWithMultipleListeners(final long invalidReservation) {
+        // Arrange
+        sut.addSource(new StorageImpl());
+
+        final RootStorageListener listener1 = mock(RootStorageListener.class);
+        when(listener1.beforeInsert(A, 10)).thenReturn(7L);
+        sut.addListener(listener1);
+
+        final RootStorageListener listener2 = mock(RootStorageListener.class);
+        when(listener2.beforeInsert(A, 3)).thenReturn(invalidReservation);
+        sut.addListener(listener2);
+
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThatThrownBy(action)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Intercepted %d while 3 was available", invalidReservation);
+    }
+
+    @Test
+    void shouldNotifySingleListenerOfInsertionAndReservePartially() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(3L);
+        when(listener.afterInsert(A, 7)).thenReturn(3L);
+        sut.addListener(listener);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new ResourceAmount(A, 7)
+        );
+        assertThat(inserted).isEqualTo(10);
+        verify(listener, times(1)).afterInsert(A, 7);
+    }
+
+    @Test
+    void shouldNotifySingleListenerOfInsertionAndReserveCompletely() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(3L);
+        when(listener.afterInsert(A, 7)).thenReturn(7L);
+        sut.addListener(listener);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new ResourceAmount(A, 7)
+        );
+        assertThat(inserted).isEqualTo(10);
+        verify(listener, times(1)).afterInsert(A, 7);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {8, -1})
+    void shouldDetectWhenListenerIsReservingMoreThanIsAvailableWithSingleListener(final long invalidReservation) {
+        // Arrange
+        sut.addSource(new StorageImpl());
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(3L);
+        when(listener.afterInsert(A, 7)).thenReturn(invalidReservation);
+        sut.addListener(listener);
+
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThatThrownBy(action)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Reserved %d while 7 was available", invalidReservation);
+    }
+
+    @Test
+    void shouldNotifyMultipleListenersOfInsertionAndReservePartially() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+
+        final RootStorageListener listener1 = mock(RootStorageListener.class);
+        when(listener1.beforeInsert(A, 10)).thenReturn(3L);
+        when(listener1.afterInsert(A, 7)).thenReturn(3L);
+        sut.addListener(listener1);
+
+        final RootStorageListener listener2 = mock(RootStorageListener.class);
+        when(listener2.afterInsert(A, 4)).thenReturn(1L);
+        sut.addListener(listener2);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new ResourceAmount(A, 7)
+        );
+        assertThat(inserted).isEqualTo(10);
+        verify(listener1, times(1)).afterInsert(A, 7);
+        verify(listener2, times(1)).afterInsert(A, 4);
+    }
+
+    @Test
+    void shouldNotifyMultipleListenersOfInsertionAndReserveCompletely() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+
+        final RootStorageListener listener1 = mock(RootStorageListener.class);
+        when(listener1.beforeInsert(A, 10)).thenReturn(3L);
+        when(listener1.afterInsert(A, 7)).thenReturn(3L);
+        sut.addListener(listener1);
+
+        final RootStorageListener listener2 = mock(RootStorageListener.class);
+        when(listener2.afterInsert(A, 4)).thenReturn(4L);
+        sut.addListener(listener2);
+
+        final RootStorageListener listener3 = mock(RootStorageListener.class);
+        sut.addListener(listener3);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new ResourceAmount(A, 7)
+        );
+        assertThat(inserted).isEqualTo(10);
+        verify(listener1, times(1)).afterInsert(A, 7);
+        verify(listener2, times(1)).afterInsert(A, 4);
+        verify(listener3, never()).afterInsert(any(), anyLong());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {5, -1})
+    void shouldDetectWhenListenerIsReservingMoreThanIsAvailableWithMultipleListeners(final long invalidReservation) {
+        // Arrange
+        sut.addSource(new StorageImpl());
+
+        final RootStorageListener listener1 = mock(RootStorageListener.class);
+        when(listener1.beforeInsert(A, 10)).thenReturn(3L);
+        when(listener1.afterInsert(A, 7)).thenReturn(3L);
+        sut.addListener(listener1);
+
+        final RootStorageListener listener2 = mock(RootStorageListener.class);
+        when(listener2.afterInsert(A, 4)).thenReturn(invalidReservation);
+        sut.addListener(listener2);
+
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThatThrownBy(action)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Reserved %d while 4 was available", invalidReservation);
+    }
+
+    @Test
+    void shouldNotNotifyListenerWhenNothingWasInserted() {
+        // Arrange
+        sut.addSource(new StorageImpl() {
+            @Override
+            public long insert(final ResourceKey resource, final long amount, final Action action, final Actor actor) {
+                if (amount == 7) {
+                    return 0;
+                }
+                throw new IllegalArgumentException();
+            }
+        });
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        when(listener.beforeInsert(A, 10)).thenReturn(3L);
+        sut.addListener(listener);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).isEmpty();
+        assertThat(inserted).isEqualTo(3);
+        verify(listener, never()).afterInsert(any(), anyLong());
+    }
+
+    @Test
+    void shouldNotNotifyListenerWhenSimulating() {
+        // Arrange
+        sut.addSource(new StorageImpl());
         final RootStorageListener listener = mock(RootStorageListener.class);
         sut.addListener(listener);
 
@@ -230,274 +497,8 @@ class RootStorageImplTest {
         // Assert
         assertThat(sut.getAll()).isEmpty();
         assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isZero();
-        verify(listener, never()).beforeInsert(A, 10, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldNotReserveOrInterceptNothingWithSingleListener() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener = mock(RootStorageListener.class);
-        sut.addListener(listener);
-        when(listener.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(RootStorageListener.InterceptResult.EMPTY);
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new ResourceAmount(A, 10)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(10);
-        verify(listener).beforeInsert(A, 10, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReserveAndInterceptPartiallyWithSingleListener() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener = mock(RootStorageListener.class);
-        sut.addListener(listener);
-        when(listener.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            7,
-            7
-        ));
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 3)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(3);
-        verify(listener).beforeInsert(A, 10, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReserveAndInterceptPartiallyWithMultipleListeners() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener1 = mock(RootStorageListener.class);
-        sut.addListener(listener1);
-        when(listener1.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            7,
-            7
-        ));
-
-        final RootStorageListener listener2 = mock(RootStorageListener.class);
-        sut.addListener(listener2);
-        when(listener2.beforeInsert(A, 3, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            2,
-            2
-        ));
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new ResourceAmount(A, 1)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(1);
-        verify(listener1).beforeInsert(A, 10, Actor.EMPTY);
-        verify(listener2).beforeInsert(A, 3, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReserveAndInterceptCompletelyWithSingleListener() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener = mock(RootStorageListener.class);
-        sut.addListener(listener);
-        when(listener.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            10,
-            10
-        ));
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).isEmpty();
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isZero();
-        verify(listener).beforeInsert(A, 10, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReserveAndInterceptCompletelyWithMultipleListeners() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener1 = mock(RootStorageListener.class);
-        sut.addListener(listener1);
-        when(listener1.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            7,
-            7
-        ));
-
-        final RootStorageListener listener2 = mock(RootStorageListener.class);
-        sut.addListener(listener2);
-        when(listener2.beforeInsert(A, 3, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            3,
-            3
-        ));
-
-        final RootStorageListener listener3 = mock(RootStorageListener.class);
-        sut.addListener(listener3);
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).isEmpty();
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isZero();
-        verify(listener1).beforeInsert(A, 10, Actor.EMPTY);
-        verify(listener2).beforeInsert(A, 3, Actor.EMPTY);
-        verify(listener3, never()).beforeInsert(any(), anyLong(), any());
-    }
-
-    @Test
-    void shouldReservePartiallyWithSingleListener() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener = mock(RootStorageListener.class);
-        sut.addListener(listener);
-        when(listener.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            7,
-            4
-        ));
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 6)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(6);
-        verify(listener).beforeInsert(A, 10, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReservePartiallyWithMultipleListeners() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener1 = mock(RootStorageListener.class);
-        sut.addListener(listener1);
-        when(listener1.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            6,
-            3
-        ));
-
-        // We have reserved 6 and intercepted 3.
-        // That means that the next listener will only be able to reserve 4.
-        // At this point, the root storage will be receiving 7.
-
-        final RootStorageListener listener2 = mock(RootStorageListener.class);
-        sut.addListener(listener2);
-        when(listener2.beforeInsert(A, 4, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            2,
-            1
-        ));
-
-        // We have reserved 2 and intercepted 1.
-        // That means that the next listener (if there were to be one) will only be able to reserve 2.
-        // At this point, the root storage will be receiving 6.
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 6)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(6);
-        verify(listener1).beforeInsert(A, 10, Actor.EMPTY);
-        verify(listener2).beforeInsert(A, 4, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReserveCompletelyWithSingleListener() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener = mock(RootStorageListener.class);
-        sut.addListener(listener);
-        when(listener.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            10,
-            0
-        ));
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new ResourceAmount(A, 10)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(10);
-        verify(listener).beforeInsert(A, 10, Actor.EMPTY);
-    }
-
-    @Test
-    void shouldReserveCompletelyWithMultipleListeners() {
-        // Arrange
-        sut.addSource(new StorageImpl());
-
-        final RootStorageListener listener1 = mock(RootStorageListener.class);
-        sut.addListener(listener1);
-        when(listener1.beforeInsert(A, 10, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            6,
-            0
-        ));
-
-        // We have reserved 6 and intercepted 0.
-        // That means that the next listener will only be able to reserve 4.
-        // At this point, the root storage will be receiving 10.
-
-        final RootStorageListener listener2 = mock(RootStorageListener.class);
-        sut.addListener(listener2);
-        when(listener2.beforeInsert(A, 4, Actor.EMPTY)).thenReturn(new RootStorageListener.InterceptResult(
-            4,
-            0
-        ));
-
-        final RootStorageListener listener3 = mock(RootStorageListener.class);
-        sut.addListener(listener3);
-
-        // We have reserved 4 and intercepted 0.
-        // That means that the next listener (if there were to be one) will not be called as it can't reserve anything
-        // anymore.
-        // At this point, the root storage will be receiving 10.
-
-        // Act
-        final long inserted = sut.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
-
-        // Assert
-        assertThat(sut.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
-            new ResourceAmount(A, 10)
-        );
-        assertThat(inserted).isEqualTo(10);
-        assertThat(sut.getStored()).isEqualTo(10);
-        verify(listener1).beforeInsert(A, 10, Actor.EMPTY);
-        verify(listener2).beforeInsert(A, 4, Actor.EMPTY);
-        verify(listener3, never()).beforeInsert(any(), anyLong(), any());
+        verify(listener, never()).beforeInsert(any(), anyLong());
+        verify(listener, never()).afterInsert(any(), anyLong());
     }
 
     @Test

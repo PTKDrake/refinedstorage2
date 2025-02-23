@@ -62,4 +62,13 @@ public final class SimpleUpgradeItem extends AbstractUpgradeItem {
             createTranslation("item", "silk_touch_upgrade.help")
         );
     }
+
+    public static SimpleUpgradeItem autocraftingUpgrade() {
+        return new SimpleUpgradeItem(
+            RefinedStorageApi.INSTANCE.getUpgradeRegistry(),
+            Platform.INSTANCE.getConfig().getUpgrade()::getAutocraftingUpgradeEnergyUsage,
+            false,
+            createTranslation("item", "autocrafting_upgrade.help")
+        );
+    }
 }
