@@ -5,6 +5,7 @@ import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.support.network.NetworkNodeContainerProvider;
 import com.refinedmods.refinedstorage.common.content.BlockColorMap;
 import com.refinedmods.refinedstorage.common.content.Sounds;
+import com.refinedmods.refinedstorage.common.networking.CableConnections;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeMenuProvider;
 
 import java.util.Optional;
@@ -12,6 +13,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +28,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -231,6 +234,7 @@ public abstract class AbstractBaseBlock extends Block {
         final ItemStack stack = Platform.INSTANCE.getCloneItemStack(state, level, hitResult, player);
         if (blockEntity != null) {
             blockEntity.saveToItem(stack, level.registryAccess());
+            CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, CableConnections::stripTag);
             // Ensure that we don't drop items
             level.removeBlockEntity(hitResult.getBlockPos());
         }
