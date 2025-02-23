@@ -485,6 +485,23 @@ class RootStorageImplTest {
     }
 
     @Test
+    void shouldNotNotifyListenerWhenSimulating() {
+        // Arrange
+        sut.addSource(new StorageImpl());
+        final RootStorageListener listener = mock(RootStorageListener.class);
+        sut.addListener(listener);
+
+        // Act
+        final long inserted = sut.insert(A, 10, Action.SIMULATE, Actor.EMPTY);
+
+        // Assert
+        assertThat(sut.getAll()).isEmpty();
+        assertThat(inserted).isEqualTo(10);
+        verify(listener, never()).beforeInsert(any(), anyLong());
+        verify(listener, never()).afterInsert(any(), anyLong());
+    }
+
+    @Test
     void shouldExtract() {
         // Arrange
         final Storage storage = new LimitedStorageImpl(100);
