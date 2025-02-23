@@ -17,6 +17,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   'B' is now displayed after fluid amounts, indicating the amount in buckets.
 -   The Autocrafter now only connects to other autocrafters through its front face. The reason for this is so that you can connect it to an Interface and accept multi-type autocrafting inputs without the Interface being connected to your network.
 -   When using Autocrafter chaining, you can now only configure the locking mode on the head of the chain.
+-   For now, it is not possible to rotate the Relay. This behavior will be restored later.
 
 ### Fixed
 
@@ -31,8 +32,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed item count rendering behind the item in the Interface slots.
 -   Fixed pickaxes not influencing break speed of blocks.
 -   Fixed non-autocraftables Grid view filter still showing autocraftable resources as they get inserted.
--   Fixed pattern grid dropping items for pattern
--   Fixed pattern dropped from broken pattern grid
+-   Fixed filter items from the Pattern Grid crafting matrix being dropped when the Pattern Grid is broken.
+-   Fixed created pattern not being insertable in an Autocrafter when it is dropped after breaking the Pattern Grid.
 -   Fixed autocrafting tasks being completed when not all processing outputs have been received yet.
 -   Fixed items not stacking when externally interacting with an Interface.
 -   Fixed Constructor in default scheduling mode not trying other filters when resource is not available.
