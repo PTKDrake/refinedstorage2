@@ -89,21 +89,23 @@ public class RootStorageImpl implements RootStorage {
     @Override
     public long insert(final ResourceKey resource, final long amount, final Action action, final Actor actor) {
         long totalIntercepted = 0;
-        for (final RootStorageListener listener : listeners) {
-            final long available = amount - totalIntercepted;
-            final long intercepted = listener.beforeInsert(resource, available);
-            if (intercepted > available || intercepted < 0) {
-                throw new IllegalStateException(
-                    "Intercepted %d while %d was available".formatted(intercepted, available)
-                );
-            }
-            totalIntercepted += intercepted;
-            if (totalIntercepted == amount) {
-                return totalIntercepted;
+        if (action == Action.EXECUTE) {
+            for (final RootStorageListener listener : listeners) {
+                final long available = amount - totalIntercepted;
+                final long intercepted = listener.beforeInsert(resource, available);
+                if (intercepted > available || intercepted < 0) {
+                    throw new IllegalStateException(
+                        "Intercepted %d while %d was available".formatted(intercepted, available)
+                    );
+                }
+                totalIntercepted += intercepted;
+                if (totalIntercepted == amount) {
+                    return totalIntercepted;
+                }
             }
         }
         final long inserted = storage.insert(resource, amount - totalIntercepted, action, actor);
-        if (inserted > 0) {
+        if (inserted > 0 && action == Action.EXECUTE) {
             notifyAfterInsertListeners(resource, inserted);
         }
         return inserted + totalIntercepted;
