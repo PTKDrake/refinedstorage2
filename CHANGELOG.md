@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed cables broken with a Wrench not stacking with newly crafted cables.
+
 ## [2.0.0-milestone.4.14] - 2025-02-23
 
 ### Added
@@ -23,7 +27,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
--   Fixed cables broken with a Wrench not stacking.
+-   Fixed cables broken with a Wrench not stacking with any other cables.
 -   Fixed colored importers, exporters, and external storages not dropping when broken.
 -   Fixed fluid amounts displaying to 0.1 buckets and not 0.001. The suffix "m" is used.
 -   Fixed Pattern Grid processing matrix input slots not mentioning "SHIFT click to clear".

@@ -5,6 +5,7 @@ import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.support.network.NetworkNodeContainerProvider;
 import com.refinedmods.refinedstorage.common.content.BlockColorMap;
 import com.refinedmods.refinedstorage.common.content.Sounds;
+import com.refinedmods.refinedstorage.common.networking.AbstractCableBlockEntity;
 import com.refinedmods.refinedstorage.common.networking.CableConnections;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeMenuProvider;
 
@@ -233,8 +234,10 @@ public abstract class AbstractBaseBlock extends Block {
         final BlockEntity blockEntity = level.getBlockEntity(hitResult.getBlockPos());
         final ItemStack stack = Platform.INSTANCE.getCloneItemStack(state, level, hitResult, player);
         if (blockEntity != null) {
-            blockEntity.saveToItem(stack, level.registryAccess());
-            CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, CableConnections::stripTag);
+            if (!(blockEntity instanceof AbstractCableBlockEntity)) {
+                blockEntity.saveToItem(stack, level.registryAccess());
+                CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, CableConnections::stripTag);
+            }
             // Ensure that we don't drop items
             level.removeBlockEntity(hitResult.getBlockPos());
         }
