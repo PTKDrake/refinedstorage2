@@ -516,6 +516,35 @@ class GridViewImplTest {
     }
 
     @Test
+    void shouldNotRemoveNonExistentResource() {
+        // Arrange
+        final GridView view = viewBuilder
+            .withResource(B, 20, null)
+            .withResource(A, 15, null)
+            .withResource(D, 10, null)
+            .build();
+
+        view.sort();
+
+        final Runnable listener = mock(Runnable.class);
+        view.setListener(listener);
+
+        // Act
+        view.onChange(C, -7, null);
+
+        // Assert
+        assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
+            new GridResourceImpl(D),
+            new GridResourceImpl(A),
+            new GridResourceImpl(B)
+        );
+        verify(listener, never()).run();
+        assertThat(view.getAmount(A)).isEqualTo(15);
+        assertThat(view.getAmount(B)).isEqualTo(20);
+        assertThat(view.getAmount(D)).isEqualTo(10);
+    }
+
+    @Test
     void shouldRemoveExistingResourceCompletely() {
         // Arrange
         final GridView view = viewBuilder
