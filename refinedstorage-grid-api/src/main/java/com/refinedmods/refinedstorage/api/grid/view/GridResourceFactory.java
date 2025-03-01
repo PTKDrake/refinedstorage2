@@ -13,9 +13,8 @@ public interface GridResourceFactory {
     /**
      * Transforms a {@link com.refinedmods.refinedstorage.api.resource.ResourceKey} into a {@link GridResource}.
      *
-     * @param resource      the resource
-     * @param autocraftable whether the resource is autocraftable
+     * @param resource the resource
      * @return the grid resource
      */
-    GridResource apply(ResourceKey resource, boolean autocraftable);
+    GridResource apply(ResourceKey resource);
 }

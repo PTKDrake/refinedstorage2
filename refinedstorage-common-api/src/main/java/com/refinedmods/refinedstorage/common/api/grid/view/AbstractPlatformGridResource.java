@@ -18,16 +18,13 @@ public abstract class AbstractPlatformGridResource<T extends PlatformResourceKey
     protected final T resource;
     private final String name;
     private final Map<GridResourceAttributeKey, Set<String>> attributes;
-    private final boolean autocraftable;
 
     protected AbstractPlatformGridResource(final T resource,
                                            final String name,
-                                           final Map<GridResourceAttributeKey, Set<String>> attributes,
-                                           final boolean autocraftable) {
+                                           final Map<GridResourceAttributeKey, Set<String>> attributes) {
         this.resource = resource;
         this.name = name;
         this.attributes = attributes;
-        this.autocraftable = autocraftable;
     }
 
     @Override
@@ -51,8 +48,8 @@ public abstract class AbstractPlatformGridResource<T extends PlatformResourceKey
     }
 
     @Override
-    public boolean isAutocraftable() {
-        return autocraftable;
+    public boolean isAutocraftable(final GridView view) {
+        return view.isAutocraftable(resource);
     }
 
     @Nullable
@@ -67,7 +64,6 @@ public abstract class AbstractPlatformGridResource<T extends PlatformResourceKey
             + "resource=" + resource
             + ", name='" + name + '\''
             + ", attributes=" + attributes
-            + ", autocraftable=" + autocraftable
             + '}';
     }
 }

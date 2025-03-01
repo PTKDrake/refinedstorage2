@@ -161,7 +161,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     private BiPredicate<GridView, GridResource> createViewTypeFilter() {
         return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
-            .accepts(resource.isAutocraftable());
+            .accepts(resource.isAutocraftable(v));
     }
 
     private static GridViewBuilder createViewBuilder() {

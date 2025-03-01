@@ -30,17 +30,17 @@ public class CompositeGridResourceFactory implements GridResourceFactory {
     }
 
     @Override
-    public GridResource apply(final ResourceKey resource, final boolean autocraftable) {
+    public GridResource apply(final ResourceKey resource) {
         final Class<? extends ResourceKey> resourceClass = resource.getClass();
         if (resourceClass == ItemResource.class && itemFactory != null) {
-            return itemFactory.apply(resource, autocraftable);
+            return itemFactory.apply(resource);
         } else if (resourceClass == FluidResource.class && fluidFactory != null) {
-            return fluidFactory.apply(resource, autocraftable);
+            return fluidFactory.apply(resource);
         }
         final GridResourceFactory factory = requireNonNull(
             strategies.get(resourceClass),
             "No factory for " + resourceClass
         );
-        return factory.apply(resource, autocraftable);
+        return factory.apply(resource);
     }
 }

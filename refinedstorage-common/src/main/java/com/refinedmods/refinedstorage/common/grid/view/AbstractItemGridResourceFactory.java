@@ -24,7 +24,7 @@ public abstract class AbstractItemGridResourceFactory implements GridResourceFac
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractItemGridResourceFactory.class);
 
     @Override
-    public GridResource apply(final ResourceKey resource, final boolean autocraftable) {
+    public GridResource apply(final ResourceKey resource) {
         final ItemResource itemResource = (ItemResource) resource;
         final Item item = itemResource.item();
         final ItemStack itemStack = itemResource.toItemStack();
@@ -42,8 +42,7 @@ public abstract class AbstractItemGridResourceFactory implements GridResourceFac
                 GridResourceAttributeKeys.MOD_NAME, Set.of(modName),
                 GridResourceAttributeKeys.TAGS, tags,
                 GridResourceAttributeKeys.TOOLTIP, Set.of(tooltip)
-            ),
-            autocraftable
+            )
         );
     }
 

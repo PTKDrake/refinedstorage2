@@ -74,11 +74,11 @@ class ViewList {
                            final Predicate<GridResource> filter) {
         final ViewList newList = new ViewList();
         for (final ResourceKey resource : source.getAll()) {
-            tryAdd(resource, existingList, newList, autocraftableResources.contains(resource), resourceFactory, filter);
+            tryAdd(resource, existingList, newList, resourceFactory, filter);
         }
         for (final ResourceKey autocraftableResource : autocraftableResources) {
             if (!newList.index.containsKey(autocraftableResource)) {
-                tryAdd(autocraftableResource, existingList, newList, true, resourceFactory, filter);
+                tryAdd(autocraftableResource, existingList, newList, resourceFactory, filter);
             }
         }
         newList.list.sort(comparator);
@@ -88,14 +88,13 @@ class ViewList {
     private static void tryAdd(final ResourceKey resource,
                                final ViewList existingList,
                                final ViewList newList,
-                               final boolean autocraftable,
                                final GridResourceFactory resourceFactory,
                                final Predicate<GridResource> filter) {
         final GridResource existing = existingList.get(resource);
         if (existing != null) {
             tryAdd(existing, newList, resource, filter);
         } else {
-            final GridResource newGridResource = resourceFactory.apply(resource, autocraftable);
+            final GridResource newGridResource = resourceFactory.apply(resource);
             tryAdd(newGridResource, newList, resource, filter);
         }
     }

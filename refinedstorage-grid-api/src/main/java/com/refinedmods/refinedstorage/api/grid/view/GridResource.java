@@ -20,5 +20,5 @@ public interface GridResource {
 
     Set<String> getAttribute(GridResourceAttributeKey key);
 
-    boolean isAutocraftable();
+    boolean isAutocraftable(GridView view);
 }

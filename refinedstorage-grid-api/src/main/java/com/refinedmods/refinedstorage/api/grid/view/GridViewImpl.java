@@ -166,7 +166,7 @@ public class GridViewImpl implements GridView {
     }
 
     private void tryAddNewResource(final ResourceKey resource) {
-        final GridResource gridResource = resourceFactory.apply(resource, autocraftableResources.contains(resource));
+        final GridResource gridResource = resourceFactory.apply(resource);
         if (filter.test(this, gridResource)) {
             LOGGER.debug("Filter allowed, actually adding {}", resource);
             viewList.add(resource, gridResource, getComparator());

@@ -46,9 +46,7 @@ class GridViewImplTest {
         // in the view, but actually isn't because it has a different identity.
 
         // Arrange
-        final GridViewBuilder builder = getViewBuilder(
-            (resource, autocraftable) -> new GridResourceWithMetadata(resource)
-        );
+        final GridViewBuilder builder = getViewBuilder(GridResourceWithMetadata::new);
         final GridView view = builder.build();
 
         // Act
@@ -222,7 +220,7 @@ class GridViewImplTest {
             .withResource(D, 10, null)
             .build();
 
-        view.setFilterAndSort((v, resource) -> !resource.isAutocraftable());
+        view.setFilterAndSort((v, resource) -> !resource.isAutocraftable(v));
 
         // Act
         view.onChange(A, 12, null);
@@ -720,7 +718,7 @@ class GridViewImplTest {
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new GridResourceImpl(A),
-            new GridResourceImpl(B).autocraftable()
+            new GridResourceImpl(B)
         );
         assertThat(view.isAutocraftable(A)).isFalse();
         assertThat(view.isAutocraftable(B)).isTrue();
@@ -743,7 +741,7 @@ class GridViewImplTest {
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new GridResourceImpl(A).autocraftable()
+            new GridResourceImpl(A)
         );
         assertThat(view.isAutocraftable(A)).isTrue();
         assertThat(view.getAmount(A)).isEqualTo(15);
@@ -767,7 +765,7 @@ class GridViewImplTest {
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new GridResourceImpl(A).autocraftable()
+            new GridResourceImpl(A)
         );
         assertThat(view.isAutocraftable(A)).isTrue();
         assertThat(view.getAmount(A)).isZero();
@@ -789,7 +787,7 @@ class GridViewImplTest {
         view.onChange(A, -15, null);
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new GridResourceImpl(A).autocraftable()
+            new GridResourceImpl(A)
         );
         assertThat(view.isAutocraftable(A)).isTrue();
         assertThat(view.getAmount(A)).isZero();
@@ -798,7 +796,7 @@ class GridViewImplTest {
         view.onChange(A, 1, null);
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
-            new GridResourceImpl(A).autocraftable()
+            new GridResourceImpl(A)
         );
         assertThat(view.isAutocraftable(A)).isTrue();
         assertThat(view.getAmount(A)).isEqualTo(1);

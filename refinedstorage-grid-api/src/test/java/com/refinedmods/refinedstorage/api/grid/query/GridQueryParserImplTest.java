@@ -34,7 +34,7 @@ class GridQueryParserImplTest {
     );
 
     private final GridView view = new GridViewImpl(
-        (resource, autocraftable) -> new GridResourceImpl(resource),
+        GridResourceImpl::new,
         MutableResourceListImpl.create(),
         new HashMap<>(),
         new HashSet<>(),
@@ -324,7 +324,7 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public boolean isAutocraftable() {
+        public boolean isAutocraftable(final GridView view) {
             return false;
         }
     }

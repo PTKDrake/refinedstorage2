@@ -16,7 +16,7 @@ import net.minecraft.world.level.material.Fluid;
 
 public abstract class AbstractFluidGridResourceFactory implements GridResourceFactory {
     @Override
-    public GridResource apply(final ResourceKey resource, final boolean autocraftable) {
+    public GridResource apply(final ResourceKey resource) {
         final FluidResource fluidResource = (FluidResource) resource;
         final String name = getName(fluidResource);
         final String modId = getModId(fluidResource);
@@ -31,8 +31,7 @@ public abstract class AbstractFluidGridResourceFactory implements GridResourceFa
                 GridResourceAttributeKeys.MOD_NAME, Set.of(modName),
                 GridResourceAttributeKeys.TAGS, tags,
                 GridResourceAttributeKeys.TOOLTIP, Set.of(tooltip)
-            ),
-            autocraftable
+            )
         );
     }
 
