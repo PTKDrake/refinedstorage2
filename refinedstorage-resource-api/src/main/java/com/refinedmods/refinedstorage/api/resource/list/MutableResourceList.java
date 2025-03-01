@@ -3,7 +3,7 @@ package com.refinedmods.refinedstorage.api.resource.list;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 
@@ -34,24 +34,26 @@ public interface MutableResourceList extends ResourceList {
     }
 
     /**
-     * Removes an amount of a certain resource in the list.
+     * Removes as much of a certain amount of a resource in the list.
      * If the amount reaches 0 due to this removal, the resource is removed from the list.
      *
      * @param resource the resource, may not be null
      * @param amount   the amount, must be larger than 0
-     * @return a result if the removal operation was successful, otherwise an empty {@link Optional}
+     * @return a result if the removal operation was successful, otherwise null
      */
-    Optional<OperationResult> remove(ResourceKey resource, long amount);
+    @Nullable
+    OperationResult remove(ResourceKey resource, long amount);
 
     /**
-     * Removes an amount of a certain resource in the list.
+     * Removes as much of a certain amount of a resource in the list.
      * If the amount reaches 0 due to this removal, the resource is removed from the list.
      * Shorthand for {@link #remove(ResourceKey, long)}.
      *
      * @param resourceAmount the resource and the amount
-     * @return a result if the removal operation was successful, otherwise an empty {@link Optional}
+     * @return a result if the removal operation was successful, otherwise null
      */
-    default Optional<OperationResult> remove(ResourceAmount resourceAmount) {
+    @Nullable
+    default OperationResult remove(ResourceAmount resourceAmount) {
         return remove(resourceAmount.resource(), resourceAmount.amount());
     }
 

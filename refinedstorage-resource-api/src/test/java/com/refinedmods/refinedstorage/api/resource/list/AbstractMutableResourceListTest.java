@@ -5,7 +5,6 @@ import com.refinedmods.refinedstorage.api.resource.TestResource;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -149,10 +148,10 @@ abstract class AbstractMutableResourceListTest {
     @Test
     void shouldNotRemoveResourceWhenItIsNotAvailable() {
         // Act
-        final Optional<MutableResourceList.OperationResult> result = list.remove(TestResource.A, 10);
+        final MutableResourceList.OperationResult result = list.remove(TestResource.A, 10);
 
         // Assert
-        assertThat(result).isEmpty();
+        assertThat(result).isNull();
     }
 
     @Test
@@ -162,14 +161,14 @@ abstract class AbstractMutableResourceListTest {
         list.add(TestResource.B, 6);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result2 = list.remove(TestResource.A, 5);
+        final MutableResourceList.OperationResult result2 = list.remove(TestResource.A, 5);
 
         // Assert
-        assertThat(result2).isPresent();
-        assertThat(result2.get().change()).isEqualTo(-5);
-        assertThat(result2.get().amount()).isEqualTo(15);
-        assertThat(result2.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result2.get().available()).isTrue();
+        assertThat(result2).isNotNull();
+        assertThat(result2.change()).isEqualTo(-5);
+        assertThat(result2.amount()).isEqualTo(15);
+        assertThat(result2.resource()).isEqualTo(TestResource.A);
+        assertThat(result2.available()).isTrue();
 
         assertThat(list.copyState()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(TestResource.A, 15),
@@ -191,17 +190,17 @@ abstract class AbstractMutableResourceListTest {
         list.add(TestResource.B, 6);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result2 = list.remove(new ResourceAmount(
+        final MutableResourceList.OperationResult result2 = list.remove(new ResourceAmount(
             TestResource.A,
             5
         ));
 
         // Assert
-        assertThat(result2).isPresent();
-        assertThat(result2.get().change()).isEqualTo(-5);
-        assertThat(result2.get().amount()).isEqualTo(15);
-        assertThat(result2.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result2.get().available()).isTrue();
+        assertThat(result2).isNotNull();
+        assertThat(result2.change()).isEqualTo(-5);
+        assertThat(result2.amount()).isEqualTo(15);
+        assertThat(result2.resource()).isEqualTo(TestResource.A);
+        assertThat(result2.available()).isTrue();
 
         assertThat(list.copyState()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(TestResource.A, 15),
@@ -223,14 +222,14 @@ abstract class AbstractMutableResourceListTest {
         list.add(TestResource.B, 6);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result = list.remove(TestResource.A, 20);
+        final MutableResourceList.OperationResult result = list.remove(TestResource.A, 20);
 
         // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().change()).isEqualTo(-20);
-        assertThat(result.get().amount()).isZero();
-        assertThat(result.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result.get().available()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.change()).isEqualTo(-20);
+        assertThat(result.amount()).isZero();
+        assertThat(result.resource()).isEqualTo(TestResource.A);
+        assertThat(result.available()).isFalse();
 
         assertThat(list.copyState()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(TestResource.B, 6)
@@ -251,17 +250,17 @@ abstract class AbstractMutableResourceListTest {
         list.add(TestResource.B, 6);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result2 = list.remove(new ResourceAmount(
+        final MutableResourceList.OperationResult result2 = list.remove(new ResourceAmount(
             TestResource.A,
             20
         ));
 
         // Assert
-        assertThat(result2).isPresent();
-        assertThat(result2.get().change()).isEqualTo(-20);
-        assertThat(result2.get().amount()).isZero();
-        assertThat(result2.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result2.get().available()).isFalse();
+        assertThat(result2).isNotNull();
+        assertThat(result2.change()).isEqualTo(-20);
+        assertThat(result2.amount()).isZero();
+        assertThat(result2.resource()).isEqualTo(TestResource.A);
+        assertThat(result2.available()).isFalse();
 
         assertThat(list.copyState()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(TestResource.B, 6)
@@ -281,14 +280,14 @@ abstract class AbstractMutableResourceListTest {
         list.add(TestResource.A, 1);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result = list.remove(TestResource.A, 1);
+        final MutableResourceList.OperationResult result = list.remove(TestResource.A, 1);
 
         // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().change()).isEqualTo(-1);
-        assertThat(result.get().amount()).isZero();
-        assertThat(result.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result.get().available()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.change()).isEqualTo(-1);
+        assertThat(result.amount()).isZero();
+        assertThat(result.resource()).isEqualTo(TestResource.A);
+        assertThat(result.available()).isFalse();
 
         assertThat(list.copyState()).isEmpty();
         assertThat(list.get(TestResource.A)).isZero();
@@ -304,14 +303,14 @@ abstract class AbstractMutableResourceListTest {
         list.add(TestResource.B, 6);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result = list.remove(TestResource.A, 21);
+        final MutableResourceList.OperationResult result = list.remove(TestResource.A, 21);
 
         // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().change()).isEqualTo(-20);
-        assertThat(result.get().amount()).isZero();
-        assertThat(result.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result.get().available()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.change()).isEqualTo(-20);
+        assertThat(result.amount()).isZero();
+        assertThat(result.resource()).isEqualTo(TestResource.A);
+        assertThat(result.available()).isFalse();
 
         assertThat(list.copyState()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(TestResource.B, 6)

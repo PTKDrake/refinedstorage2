@@ -5,8 +5,8 @@ import com.refinedmods.refinedstorage.api.resource.list.AbstractProxyMutableReso
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 
@@ -32,11 +32,13 @@ public class ListenableResourceList extends AbstractProxyMutableResourceList {
     }
 
     @Override
-    public Optional<OperationResult> remove(final ResourceKey resource, final long amount) {
-        return super.remove(resource, amount).map(result -> {
+    @Nullable
+    public OperationResult remove(final ResourceKey resource, final long amount) {
+        final OperationResult result = super.remove(resource, amount);
+        if (result != null) {
             notifyListeners(result);
-            return result;
-        });
+        }
+        return result;
     }
 
     private void notifyListeners(final OperationResult result) {

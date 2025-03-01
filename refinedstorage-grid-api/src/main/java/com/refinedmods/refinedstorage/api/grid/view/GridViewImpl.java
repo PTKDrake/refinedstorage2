@@ -20,6 +20,8 @@ import org.apiguardian.api.API;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Objects.requireNonNull;
+
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
 public class GridViewImpl implements GridView {
     private static final Logger LOGGER = LoggerFactory.getLogger(GridViewImpl.class);
@@ -173,7 +175,7 @@ public class GridViewImpl implements GridView {
 
     private MutableResourceList.OperationResult updateBackingList(final ResourceKey resource, final long amount) {
         if (amount < 0) {
-            return backingList.remove(resource, Math.abs(amount)).orElseThrow(RuntimeException::new);
+            return requireNonNull(backingList.remove(resource, Math.abs(amount)));
         } else {
             return backingList.add(resource, amount);
         }

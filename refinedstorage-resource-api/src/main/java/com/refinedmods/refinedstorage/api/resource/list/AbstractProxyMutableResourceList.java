@@ -4,8 +4,8 @@ import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 
@@ -26,7 +26,8 @@ public abstract class AbstractProxyMutableResourceList implements MutableResourc
     }
 
     @Override
-    public Optional<OperationResult> remove(final ResourceKey resource, final long amount) {
+    @Nullable
+    public OperationResult remove(final ResourceKey resource, final long amount) {
         return delegate.remove(resource, amount);
     }
 

@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 public class FuzzyResourceListImpl extends AbstractProxyMutableResourceList implements FuzzyResourceList {
     private final Map<ResourceKey, Set<ResourceKey>> normalizedFuzzyMap = new HashMap<>();
@@ -35,13 +35,13 @@ public class FuzzyResourceListImpl extends AbstractProxyMutableResourceList impl
     }
 
     @Override
-    public Optional<OperationResult> remove(final ResourceKey resource, final long amount) {
-        return super.remove(resource, amount).map(result -> {
-            if (!result.available()) {
-                removeFromIndex(resource, result);
-            }
-            return result;
-        });
+    @Nullable
+    public OperationResult remove(final ResourceKey resource, final long amount) {
+        final OperationResult result = super.remove(resource, amount);
+        if (result != null && !result.available()) {
+            removeFromIndex(resource, result);
+        }
+        return result;
     }
 
     private void removeFromIndex(final ResourceKey resource, final OperationResult result) {
