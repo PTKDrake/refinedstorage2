@@ -28,7 +28,7 @@ class GridViewImplTest {
 
     @BeforeEach
     void setUp() {
-        viewBuilder = getViewBuilder((resource, craftable) -> Optional.of(new GridResourceImpl(resource, craftable)));
+        viewBuilder = getViewBuilder(GridResourceImpl::new);
     }
 
     private static GridViewBuilderImpl getViewBuilder(final GridResourceFactory resourceFactory) {
@@ -47,7 +47,7 @@ class GridViewImplTest {
 
         // Arrange
         final GridViewBuilder builder = getViewBuilder(
-            (resource, craftable) -> Optional.of(new GridResourceWithMetadata(resource))
+            (resource, autocraftable) -> new GridResourceWithMetadata(resource)
         );
         final GridView view = builder.build();
 

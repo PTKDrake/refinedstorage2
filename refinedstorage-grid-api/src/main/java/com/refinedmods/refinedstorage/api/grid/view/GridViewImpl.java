@@ -135,9 +135,8 @@ public class GridViewImpl implements GridView {
         if (existingGridResource != null) {
             tryAddGridResourceIntoViewList(existingGridResource, list, index, resource);
         } else {
-            resourceFactory.apply(resource, autocraftable).ifPresent(
-                gridResource -> tryAddGridResourceIntoViewList(gridResource, list, index, resource)
-            );
+            final GridResource gridResource = resourceFactory.apply(resource, autocraftable);
+            tryAddGridResourceIntoViewList(gridResource, list, index, resource);
         }
     }
 
@@ -191,10 +190,7 @@ public class GridViewImpl implements GridView {
 
     private void reinsertIntoViewList(final ResourceKey resource, final GridResource oldGridResource) {
         LOGGER.debug("{} was removed from backing list, reinserting now into the view list", resource);
-        final GridResource newResource = resourceFactory.apply(
-            resource,
-            autocraftableResources.contains(resource)
-        ).orElseThrow();
+        final GridResource newResource = resourceFactory.apply(resource, autocraftableResources.contains(resource));
         viewList.index.put(resource, newResource);
         final int index = CoreValidations.validateNotNegative(
             viewList.list.indexOf(oldGridResource),
@@ -232,8 +228,7 @@ public class GridViewImpl implements GridView {
     }
 
     private void handleChangeForNewResource(final ResourceKey resource) {
-        final GridResource gridResource = resourceFactory.apply(resource, autocraftableResources.contains(resource))
-            .orElseThrow();
+        final GridResource gridResource = resourceFactory.apply(resource, autocraftableResources.contains(resource));
         if (filter.test(this, gridResource)) {
             LOGGER.debug("Filter allowed, actually adding {}", resource);
             viewList.index.put(resource, gridResource);

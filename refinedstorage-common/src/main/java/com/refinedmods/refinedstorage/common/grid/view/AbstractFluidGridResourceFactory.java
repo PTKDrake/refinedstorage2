@@ -7,7 +7,6 @@ import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,16 +16,14 @@ import net.minecraft.world.level.material.Fluid;
 
 public abstract class AbstractFluidGridResourceFactory implements GridResourceFactory {
     @Override
-    public Optional<GridResource> apply(final ResourceKey resource, final boolean autocraftable) {
-        if (!(resource instanceof FluidResource fluidResource)) {
-            return Optional.empty();
-        }
+    public GridResource apply(final ResourceKey resource, final boolean autocraftable) {
+        final FluidResource fluidResource = (FluidResource) resource;
         final String name = getName(fluidResource);
         final String modId = getModId(fluidResource);
         final String modName = getModName(modId);
         final Set<String> tags = getTags(fluidResource.fluid());
         final String tooltip = getTooltip(fluidResource);
-        return Optional.of(new FluidGridResource(
+        return new FluidGridResource(
             fluidResource,
             name,
             Map.of(
@@ -36,7 +33,7 @@ public abstract class AbstractFluidGridResourceFactory implements GridResourceFa
                 GridResourceAttributeKeys.TOOLTIP, Set.of(tooltip)
             ),
             autocraftable
-        ));
+        );
     }
 
     private Set<String> getTags(final Fluid fluid) {

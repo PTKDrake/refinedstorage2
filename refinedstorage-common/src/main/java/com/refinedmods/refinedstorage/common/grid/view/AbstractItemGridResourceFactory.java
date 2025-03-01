@@ -24,10 +24,8 @@ public abstract class AbstractItemGridResourceFactory implements GridResourceFac
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractItemGridResourceFactory.class);
 
     @Override
-    public Optional<GridResource> apply(final ResourceKey resource, final boolean autocraftable) {
-        if (!(resource instanceof ItemResource itemResource)) {
-            return Optional.empty();
-        }
+    public GridResource apply(final ResourceKey resource, final boolean autocraftable) {
+        final ItemResource itemResource = (ItemResource) resource;
         final Item item = itemResource.item();
         final ItemStack itemStack = itemResource.toItemStack();
         final String name = item.getDescription().getString();
@@ -35,7 +33,7 @@ public abstract class AbstractItemGridResourceFactory implements GridResourceFac
         final String modName = getModName(modId).orElse("");
         final Set<String> tags = getTags(item);
         final String tooltip = getTooltip(itemStack);
-        return Optional.of(new ItemGridResource(
+        return new ItemGridResource(
             itemResource,
             itemStack,
             name,
@@ -46,7 +44,7 @@ public abstract class AbstractItemGridResourceFactory implements GridResourceFac
                 GridResourceAttributeKeys.TOOLTIP, Set.of(tooltip)
             ),
             autocraftable
-        ));
+        );
     }
 
     private String getTooltip(final ItemStack itemStack) {

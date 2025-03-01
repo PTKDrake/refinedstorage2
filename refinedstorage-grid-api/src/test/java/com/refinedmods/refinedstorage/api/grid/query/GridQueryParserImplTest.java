@@ -34,7 +34,7 @@ class GridQueryParserImplTest {
     );
 
     private final GridView view = new GridViewImpl(
-        (resource, craftable) -> Optional.of(new GridResourceImpl(resource)),
+        (resource, autocraftable) -> new GridResourceImpl(resource),
         MutableResourceListImpl.create(),
         new HashMap<>(),
         new HashSet<>(),

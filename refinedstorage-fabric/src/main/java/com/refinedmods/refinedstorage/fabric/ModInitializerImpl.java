@@ -98,6 +98,8 @@ import com.refinedmods.refinedstorage.fabric.grid.strategy.FluidGridExtractionSt
 import com.refinedmods.refinedstorage.fabric.grid.strategy.FluidGridInsertionStrategy;
 import com.refinedmods.refinedstorage.fabric.grid.strategy.ItemGridExtractionStrategy;
 import com.refinedmods.refinedstorage.fabric.grid.strategy.ItemGridScrollingStrategy;
+import com.refinedmods.refinedstorage.fabric.grid.view.FabricFluidGridResourceFactory;
+import com.refinedmods.refinedstorage.fabric.grid.view.FabricItemGridResourceFactory;
 import com.refinedmods.refinedstorage.fabric.importer.FabricImporterBlockEntity;
 import com.refinedmods.refinedstorage.fabric.importer.FabricStorageImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.fabric.networking.FabricCableBlockEntity;
@@ -198,6 +200,7 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
         ((RefinedStorageFabricApiProxy) RefinedStorageFabricApi.INSTANCE).setDelegate(
             new RefinedStorageFabricApiImpl(RefinedStorageApi.INSTANCE)
         );
+        registerGridResourceFactories();
         registerAdditionalGridInsertionStrategyFactories();
         registerGridExtractionStrategyFactories();
         registerGridScrollingStrategyFactories();
@@ -221,6 +224,11 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
         pluginEntrypoints.forEach(plugin -> plugin.onApiAvailable(RefinedStorageApi.INSTANCE));
 
         LOGGER.debug("Refined Storage has loaded.");
+    }
+
+    private void registerGridResourceFactories() {
+        RefinedStorageApi.INSTANCE.addGridResourceFactory(ItemResource.class, new FabricItemGridResourceFactory());
+        RefinedStorageApi.INSTANCE.addGridResourceFactory(FluidResource.class, new FabricFluidGridResourceFactory());
     }
 
     private void registerAdditionalGridInsertionStrategyFactories() {

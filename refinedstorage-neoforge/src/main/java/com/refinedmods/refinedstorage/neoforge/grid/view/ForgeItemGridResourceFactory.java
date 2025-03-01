@@ -2,11 +2,12 @@ package com.refinedmods.refinedstorage.neoforge.grid.view;
 
 import com.refinedmods.refinedstorage.common.grid.view.AbstractItemGridResourceFactory;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
+
+import static java.util.Objects.requireNonNullElse;
 
 public class ForgeItemGridResourceFactory extends AbstractItemGridResourceFactory {
     @Override
@@ -18,6 +19,6 @@ public class ForgeItemGridResourceFactory extends AbstractItemGridResourceFactor
 
     @Override
     public String getModId(final ItemStack itemStack) {
-        return Objects.requireNonNullElse(itemStack.getItem().getCreatorModId(itemStack), "");
+        return requireNonNullElse(itemStack.getItem().getCreatorModId(itemStack), "");
     }
 }

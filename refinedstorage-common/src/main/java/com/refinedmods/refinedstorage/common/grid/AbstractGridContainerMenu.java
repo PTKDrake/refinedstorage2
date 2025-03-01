@@ -37,7 +37,6 @@ import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import com.refinedmods.refinedstorage.common.grid.strategy.ClientGridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.ClientGridInsertionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.ClientGridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.grid.view.CompositeGridResourceFactory;
 import com.refinedmods.refinedstorage.common.support.containermenu.AbstractResourceContainerMenu;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.S2CPackets;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
@@ -167,7 +166,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     private static GridViewBuilder createViewBuilder() {
         return new GridViewBuilderImpl(
-            new CompositeGridResourceFactory(RefinedStorageApi.INSTANCE.getResourceTypeRegistry()),
+            RefinedStorageApi.INSTANCE.getGridResourceFactory(),
             GridSortingTypes.NAME,
             GridSortingTypes.QUANTITY
         );

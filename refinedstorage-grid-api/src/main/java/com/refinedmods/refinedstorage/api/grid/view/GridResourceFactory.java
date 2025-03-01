@@ -2,8 +2,6 @@ package com.refinedmods.refinedstorage.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 
-import java.util.Optional;
-
 import org.apiguardian.api.API;
 
 /**
@@ -17,7 +15,7 @@ public interface GridResourceFactory {
      *
      * @param resource      the resource
      * @param autocraftable whether the resource is autocraftable
-     * @return the grid resource, if applicable
+     * @return the grid resource
      */
-    Optional<GridResource> apply(ResourceKey resource, boolean autocraftable);
+    GridResource apply(ResourceKey resource, boolean autocraftable);
 }
