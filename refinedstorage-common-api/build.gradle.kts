@@ -20,6 +20,5 @@ dependencies {
     api(project(":refinedstorage-storage-api"))
     api(project(":refinedstorage-resource-api"))
     api(project(":refinedstorage-network-api"))
-    api(project(":refinedstorage-grid-api"))
     api(project(":refinedstorage-autocrafting-api"))
 }

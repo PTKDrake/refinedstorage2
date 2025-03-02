@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.api.support.resource;
 
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
 

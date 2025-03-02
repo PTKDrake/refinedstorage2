@@ -1,9 +1,9 @@
-package com.refinedmods.refinedstorage.api.grid.service;
+package com.refinedmods.refinedstorage.api.network.impl.node.grid;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperationsImpl;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridExtractMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridInsertMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
@@ -20,20 +20,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import static com.refinedmods.refinedstorage.api.grid.TestResource.A;
-import static com.refinedmods.refinedstorage.api.grid.TestResource.B;
+import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.A;
+import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.B;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GridOperationsImplTest {
+    private static final Actor ACTOR = () -> "Grid";
     private static final long MAX_COUNT = 15;
 
     private RootStorage rootStorage;
-    private GridOperationsImpl sut;
+    private GridOperations sut;
 
     @BeforeEach
     void setUp() {
         rootStorage = new RootStorageImpl();
-        sut = new GridOperationsImpl(rootStorage, GridActor.INSTANCE, r -> MAX_COUNT, 1);
+        sut = new GridOperationsImpl(rootStorage, ACTOR, r -> MAX_COUNT, 1);
     }
 
     @Nested
@@ -65,10 +66,10 @@ class GridOperationsImplTest {
             assertThat(source.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, (MAX_COUNT * 3) - expectedAmount)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class))
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass()))
                 .get()
                 .usingRecursiveComparison()
-                .isEqualTo(new TrackedResource(GridActor.NAME, 0));
+                .isEqualTo(new TrackedResource(ACTOR.getName(), 0));
         }
 
         @ParameterizedTest
@@ -87,7 +88,7 @@ class GridOperationsImplTest {
             assertThat(success).isFalse();
             assertThat(rootStorage.getAll()).isEmpty();
             assertThat(source.getAll()).isEmpty();
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class)).isEmpty();
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass())).isEmpty();
         }
 
         @ParameterizedTest
@@ -112,7 +113,7 @@ class GridOperationsImplTest {
             assertThat(source.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, 100)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class)).isEmpty();
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass())).isEmpty();
         }
     }
 
@@ -139,10 +140,10 @@ class GridOperationsImplTest {
             assertThat(source.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, 1)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class))
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass()))
                 .get()
                 .usingRecursiveComparison()
-                .isEqualTo(new TrackedResource(GridActor.NAME, 0));
+                .isEqualTo(new TrackedResource(ACTOR.getName(), 0));
         }
 
         @Test
@@ -183,7 +184,7 @@ class GridOperationsImplTest {
             assertThat(source.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, MAX_COUNT)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class)).isEmpty();
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass())).isEmpty();
         }
     }
 
@@ -217,10 +218,10 @@ class GridOperationsImplTest {
             assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, expectedExtracted)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class))
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass()))
                 .get()
                 .usingRecursiveComparison()
-                .isEqualTo(new TrackedResource(GridActor.NAME, 0));
+                .isEqualTo(new TrackedResource(ACTOR.getName(), 0));
         }
 
         @ParameterizedTest
@@ -239,7 +240,7 @@ class GridOperationsImplTest {
             assertThat(success).isFalse();
             assertThat(rootStorage.getAll()).isEmpty();
             assertThat(destination.getAll()).isEmpty();
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class)).isNotPresent();
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass())).isNotPresent();
         }
 
         @ParameterizedTest
@@ -264,7 +265,7 @@ class GridOperationsImplTest {
             assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(B, 100)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class)).isEmpty();
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass())).isEmpty();
         }
     }
 
@@ -288,10 +289,10 @@ class GridOperationsImplTest {
             assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, MAX_COUNT - 1)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class))
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass()))
                 .get()
                 .usingRecursiveComparison()
-                .isEqualTo(new TrackedResource(GridActor.NAME, 0));
+                .isEqualTo(new TrackedResource(ACTOR.getName(), 0));
         }
 
         @Test
@@ -314,10 +315,10 @@ class GridOperationsImplTest {
             assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, MAX_COUNT - 1)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class))
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass()))
                 .get()
                 .usingRecursiveComparison()
-                .isEqualTo(new TrackedResource(GridActor.NAME, 0));
+                .isEqualTo(new TrackedResource(ACTOR.getName(), 0));
         }
     }
 
@@ -341,20 +342,10 @@ class GridOperationsImplTest {
             assertThat(destination.getAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(
                 new ResourceAmount(A, 1)
             );
-            assertThat(rootStorage.findTrackedResourceByActorType(A, GridActor.class))
+            assertThat(rootStorage.findTrackedResourceByActorType(A, ACTOR.getClass()))
                 .get()
                 .usingRecursiveComparison()
-                .isEqualTo(new TrackedResource(GridActor.NAME, 0));
-        }
-    }
-
-    private static class GridActor implements Actor {
-        private static final String NAME = "GridSource";
-        private static final GridActor INSTANCE = new GridActor();
-
-        @Override
-        public String getName() {
-            return NAME;
+                .isEqualTo(new TrackedResource(ACTOR.getName(), 0));
         }
     }
 }

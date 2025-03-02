@@ -23,7 +23,6 @@ dependencies {
     api(project(":refinedstorage-network-api"))
     api(project(":refinedstorage-network"))
     api(project(":refinedstorage-query-parser"))
-    api(project(":refinedstorage-grid-api"))
     testImplementation(libs.junit.api)
     testImplementation(libs.junit.params)
     testImplementation(libs.assertj)

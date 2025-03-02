@@ -1,4 +1,4 @@
-package com.refinedmods.refinedstorage.api.grid.operations;
+package com.refinedmods.refinedstorage.api.network.node.grid;
 
 import org.apiguardian.api.API;
 
