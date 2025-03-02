@@ -1,7 +1,7 @@
 package com.refinedmods.refinedstorage.api.network.impl;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.network.ConnectionProvider;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.impl.node.container.NetworkNodeContainerPriorities;

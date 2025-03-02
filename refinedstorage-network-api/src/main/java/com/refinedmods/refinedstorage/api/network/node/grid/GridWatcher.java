@@ -1,4 +1,4 @@
-package com.refinedmods.refinedstorage.api.grid.watcher;
+package com.refinedmods.refinedstorage.api.network.node.grid;
 
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;

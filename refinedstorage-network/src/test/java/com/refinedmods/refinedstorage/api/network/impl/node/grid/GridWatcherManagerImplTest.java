@@ -1,6 +1,7 @@
-package com.refinedmods.refinedstorage.api.grid.watcher;
+package com.refinedmods.refinedstorage.api.network.impl.node.grid;
 
 import com.refinedmods.refinedstorage.api.core.Action;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.StorageImpl;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
@@ -10,10 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import static com.refinedmods.refinedstorage.api.grid.TestResource.A;
-import static com.refinedmods.refinedstorage.api.grid.TestResource.B;
-import static com.refinedmods.refinedstorage.api.grid.TestResource.C;
-import static com.refinedmods.refinedstorage.api.grid.TestResource.D;
+import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.A;
+import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.B;
+import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.C;
+import static com.refinedmods.refinedstorage.network.test.fixtures.ResourceFixtures.D;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
