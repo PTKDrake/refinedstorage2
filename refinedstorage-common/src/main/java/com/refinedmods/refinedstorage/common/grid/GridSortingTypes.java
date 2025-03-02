@@ -9,7 +9,7 @@ import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
 import java.util.Comparator;
 import java.util.function.Function;
 
-public enum GridSortingTypes implements GridSortingType {
+public enum GridSortingTypes implements GridSortingType<PlatformGridResource> {
     QUANTITY(view -> Comparator.comparingLong(value -> value.getAmount(view))),
     NAME(view -> Comparator.comparing(GridResource::getName)),
     ID(view -> (a, b) -> {
@@ -24,14 +24,14 @@ public enum GridSortingTypes implements GridSortingType {
         return Long.compare(lastModifiedA, lastModifiedB);
     });
 
-    private final Function<GridView, Comparator<GridResource>> comparator;
+    private final Function<GridView<PlatformGridResource>, Comparator<PlatformGridResource>> comparator;
 
-    GridSortingTypes(final Function<GridView, Comparator<GridResource>> comparator) {
+    GridSortingTypes(final Function<GridView<PlatformGridResource>, Comparator<PlatformGridResource>> comparator) {
         this.comparator = comparator;
     }
 
     @Override
-    public Comparator<GridResource> apply(final GridView view) {
+    public Comparator<PlatformGridResource> apply(final GridView<PlatformGridResource> view) {
         return comparator.apply(view);
     }
 }

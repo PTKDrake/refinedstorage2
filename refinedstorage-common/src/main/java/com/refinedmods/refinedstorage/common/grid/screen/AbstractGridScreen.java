@@ -267,14 +267,14 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                             final int mouseX,
                             final int mouseY,
                             final int idx,
-                            final GridView view,
+                            final GridView<PlatformGridResource> view,
                             final int slotX,
                             final int slotY) {
         final boolean inBounds = mouseX >= slotX
             && mouseY >= slotY
             && mouseX <= slotX + 16
             && mouseY <= slotY + 16;
-        GridResource resource = null;
+        PlatformGridResource resource = null;
         if (idx < view.getViewList().size()) {
             resource = view.getViewList().get(idx);
             renderResourceWithAmount(graphics, slotX, slotY, resource);
@@ -500,11 +500,11 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         if (currentGridSlotIndex < 0) {
             return null;
         }
-        final List<GridResource> viewList = menu.getView().getViewList();
+        final List<PlatformGridResource> viewList = menu.getView().getViewList();
         if (currentGridSlotIndex >= viewList.size()) {
             return null;
         }
-        return (PlatformGridResource) viewList.get(currentGridSlotIndex);
+        return viewList.get(currentGridSlotIndex);
     }
 
     @Override

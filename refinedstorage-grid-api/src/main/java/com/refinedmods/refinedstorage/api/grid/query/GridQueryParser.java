@@ -8,6 +8,6 @@ import java.util.function.BiPredicate;
 import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
-public interface GridQueryParser {
-    BiPredicate<GridView, GridResource> parse(String query) throws GridQueryParserException;
+public interface GridQueryParser<T extends GridResource> {
+    BiPredicate<GridView<T>, T> parse(String query) throws GridQueryParserException;
 }

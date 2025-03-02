@@ -13,27 +13,27 @@ import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
-class ViewList {
-    private final List<GridResource> list = new ArrayList<>();
-    private final List<GridResource> listView = Collections.unmodifiableList(list);
-    private final Map<ResourceKey, GridResource> index = new HashMap<>();
+class ViewList<T> {
+    private final List<T> list = new ArrayList<>();
+    private final List<T> listView = Collections.unmodifiableList(list);
+    private final Map<ResourceKey, T> index = new HashMap<>();
 
     @Nullable
-    GridResource get(final ResourceKey resource) {
+    T get(final ResourceKey resource) {
         return index.get(resource);
     }
 
-    void remove(final ResourceKey resource, final GridResource gridResource) {
+    void remove(final ResourceKey resource, final T gridResource) {
         list.remove(gridResource);
         index.remove(resource);
     }
 
-    void add(final ResourceKey resource, final GridResource gridResource, final Comparator<GridResource> comparator) {
+    void add(final ResourceKey resource, final T gridResource, final Comparator<T> comparator) {
         index.put(resource, gridResource);
         add(gridResource, comparator);
     }
 
-    private void add(final GridResource gridResource, final Comparator<GridResource> comparator) {
+    private void add(final T gridResource, final Comparator<T> comparator) {
         // Calculate the position according to sorting rules.
         final int wouldBePosition = Collections.binarySearch(list, gridResource, comparator);
         // Most of the time, the "would be" position is negative, indicating that the resource wasn't found yet in the
@@ -52,12 +52,12 @@ class ViewList {
         }
     }
 
-    void update(final GridResource gridResource, final Comparator<GridResource> comparator) {
+    void update(final T gridResource, final Comparator<T> comparator) {
         list.remove(gridResource);
         add(gridResource, comparator);
     }
 
-    List<GridResource> getListView() {
+    List<T> getListView() {
         return listView;
     }
 
@@ -66,13 +66,13 @@ class ViewList {
         list.clear();
     }
 
-    static ViewList create(final ViewList existingList,
-                           final ResourceList source,
-                           final Set<ResourceKey> autocraftableResources,
-                           final Comparator<GridResource> comparator,
-                           final GridResourceFactory resourceFactory,
-                           final Predicate<GridResource> filter) {
-        final ViewList newList = new ViewList();
+    static <T> ViewList<T> create(final ViewList<T> existingList,
+                                  final ResourceList source,
+                                  final Set<ResourceKey> autocraftableResources,
+                                  final Comparator<T> comparator,
+                                  final GridResourceFactory<T> resourceFactory,
+                                  final Predicate<T> filter) {
+        final ViewList<T> newList = new ViewList<>();
         for (final ResourceKey resource : source.getAll()) {
             tryAdd(resource, existingList, newList, resourceFactory, filter);
         }
@@ -85,24 +85,24 @@ class ViewList {
         return newList;
     }
 
-    private static void tryAdd(final ResourceKey resource,
-                               final ViewList existingList,
-                               final ViewList newList,
-                               final GridResourceFactory resourceFactory,
-                               final Predicate<GridResource> filter) {
-        final GridResource existing = existingList.get(resource);
+    private static <T> void tryAdd(final ResourceKey resource,
+                                   final ViewList<T> existingList,
+                                   final ViewList<T> newList,
+                                   final GridResourceFactory<T> resourceFactory,
+                                   final Predicate<T> filter) {
+        final T existing = existingList.get(resource);
         if (existing != null) {
             tryAdd(existing, newList, resource, filter);
         } else {
-            final GridResource newGridResource = resourceFactory.apply(resource);
+            final T newGridResource = resourceFactory.apply(resource);
             tryAdd(newGridResource, newList, resource, filter);
         }
     }
 
-    private static void tryAdd(final GridResource gridResource,
-                               final ViewList newList,
-                               final ResourceKey resource,
-                               final Predicate<GridResource> filter) {
+    private static <T> void tryAdd(final T gridResource,
+                                   final ViewList<T> newList,
+                                   final ResourceKey resource,
+                                   final Predicate<T> filter) {
         if (filter.test(gridResource)) {
             newList.list.add(gridResource);
             newList.index.put(resource, gridResource);

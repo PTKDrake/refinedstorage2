@@ -10,7 +10,6 @@ import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
 import com.refinedmods.refinedstorage.api.grid.query.GridQueryParserException;
 import com.refinedmods.refinedstorage.api.grid.query.GridQueryParserImpl;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilder;
@@ -66,7 +65,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
     implements GridWatcher, GridInsertionStrategy, GridExtractionStrategy, GridScrollingStrategy, ScreenSizeListener,
     PreviewProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGridContainerMenu.class);
-    private static final GridQueryParserImpl QUERY_PARSER = new GridQueryParserImpl(
+    private static final GridQueryParserImpl<PlatformGridResource> QUERY_PARSER = new GridQueryParserImpl<>(
         LexerTokenMappings.DEFAULT_MAPPINGS,
         ParserOperatorMappings.DEFAULT_MAPPINGS,
         Map.of(
@@ -80,7 +79,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     protected final Inventory playerInventory;
 
-    private final GridView view;
+    private final GridView<PlatformGridResource> view;
     private final PatternRepository playerInventoryPatterns = new PatternRepositoryImpl();
     @Nullable
     private Grid grid;
@@ -107,7 +106,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
         this.active = gridData.active();
 
-        final GridViewBuilder viewBuilder = createViewBuilder();
+        final GridViewBuilder<PlatformGridResource> viewBuilder = createViewBuilder();
         gridData.resources().forEach(resource -> viewBuilder.withResource(
             resource.resourceAmount().resource(),
             resource.resourceAmount().amount(),
@@ -145,11 +144,11 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         initStrategies((ServerPlayer) playerInventory.player);
     }
 
-    private BiPredicate<GridView, GridResource> createBaseFilter() {
+    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource> createBaseFilter() {
         return createResourceTypeFilter().and(createViewTypeFilter());
     }
 
-    private BiPredicate<GridView, GridResource> createResourceTypeFilter() {
+    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource> createResourceTypeFilter() {
         return (v, resource) -> resource instanceof PlatformGridResource platformResource
             && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
             RefinedStorageApi.INSTANCE
@@ -159,13 +158,13 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         ).orElse(true);
     }
 
-    private BiPredicate<GridView, GridResource> createViewTypeFilter() {
+    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource> createViewTypeFilter() {
         return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
             .accepts(resource.isAutocraftable(v));
     }
 
-    private static GridViewBuilder createViewBuilder() {
-        return new GridViewBuilderImpl(
+    private static GridViewBuilder<PlatformGridResource> createViewBuilder() {
+        return new GridViewBuilderImpl<>(
             RefinedStorageApi.INSTANCE.getGridResourceFactory(),
             GridSortingTypes.NAME,
             GridSortingTypes.QUANTITY
@@ -258,7 +257,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         });
     }
 
-    public GridView getView() {
+    public GridView<PlatformGridResource> getView() {
         return view;
     }
 

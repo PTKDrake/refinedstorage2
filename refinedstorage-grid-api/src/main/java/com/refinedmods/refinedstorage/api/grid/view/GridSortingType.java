@@ -7,5 +7,5 @@ import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
 @FunctionalInterface
-public interface GridSortingType extends Function<GridView, Comparator<GridResource>> {
+public interface GridSortingType<T> extends Function<GridView<T>, Comparator<T>> {
 }

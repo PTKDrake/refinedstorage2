@@ -18,19 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
-public class GridViewImpl implements GridView {
+public class GridViewImpl<T> implements GridView<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GridViewImpl.class);
 
     private final MutableResourceList backingList;
-    private final Comparator<GridResource> identitySort;
-    private final GridResourceFactory resourceFactory;
+    private final Comparator<T> identitySort;
+    private final GridResourceFactory<T> resourceFactory;
     private final Map<ResourceKey, TrackedResource> trackedResources = new HashMap<>();
     private final Set<ResourceKey> autocraftableResources;
 
-    private ViewList viewList = new ViewList();
-    private GridSortingType sortingType;
+    private ViewList<T> viewList = new ViewList<>();
+    private GridSortingType<T> sortingType;
     private GridSortingDirection sortingDirection = GridSortingDirection.ASCENDING;
-    private BiPredicate<GridView, GridResource> filter = (view, resource) -> true;
+    private BiPredicate<GridView<T>, T> filter = (view, resource) -> true;
     @Nullable
     private Runnable listener;
     private boolean preventSorting;
@@ -43,12 +43,12 @@ public class GridViewImpl implements GridView {
      * @param defaultSortingType      the default sorting type
      * @param autocraftableResources  resources which are autocraftable and must stay in the view list
      */
-    public GridViewImpl(final GridResourceFactory resourceFactory,
+    public GridViewImpl(final GridResourceFactory<T> resourceFactory,
                         final MutableResourceList backingList,
                         final Map<ResourceKey, TrackedResource> initialTrackedResources,
                         final Set<ResourceKey> autocraftableResources,
-                        final GridSortingType identitySortingType,
-                        final GridSortingType defaultSortingType) {
+                        final GridSortingType<T> identitySortingType,
+                        final GridSortingType<T> defaultSortingType) {
         this.resourceFactory = resourceFactory;
         this.identitySort = identitySortingType.apply(this);
         this.sortingType = defaultSortingType;
@@ -63,22 +63,22 @@ public class GridViewImpl implements GridView {
     }
 
     @Override
-    public void setSortingType(final GridSortingType sortingType) {
+    public void setSortingType(final GridSortingType<T> sortingType) {
         this.sortingType = sortingType;
     }
 
     @Override
-    public BiPredicate<GridView, GridResource> setFilterAndSort(final BiPredicate<GridView, GridResource> predicate) {
-        final BiPredicate<GridView, GridResource> previousPredicate = filter;
-        this.filter = predicate;
+    public BiPredicate<GridView<T>, T> setFilterAndSort(final BiPredicate<GridView<T>, T> f) {
+        final BiPredicate<GridView<T>, T> previousFilter = this.filter;
+        this.filter = f;
         sort();
-        return previousPredicate;
+        return previousFilter;
     }
 
     @Override
-    public boolean setPreventSorting(final boolean changedPreventSorting) {
-        final boolean changed = preventSorting != changedPreventSorting;
-        this.preventSorting = changedPreventSorting;
+    public boolean setPreventSorting(final boolean ps) {
+        final boolean changed = this.preventSorting != ps;
+        this.preventSorting = ps;
         return changed;
     }
 
@@ -120,7 +120,7 @@ public class GridViewImpl implements GridView {
             return;
         }
         updateOrRemoveTrackedResource(resource, trackedResource);
-        final GridResource viewListResource = viewList.get(resource);
+        final T viewListResource = viewList.get(resource);
         if (viewListResource != null) {
             updateExistingResource(resource, !backingListResult.available(), viewListResource);
             return;
@@ -147,7 +147,7 @@ public class GridViewImpl implements GridView {
 
     private void updateExistingResource(final ResourceKey resource,
                                         final boolean removedFromBackingList,
-                                        final GridResource gridResource) {
+                                        final T gridResource) {
         final boolean canBeSorted = !preventSorting;
         if (canBeSorted) {
             LOGGER.debug("Actually updating {} resource in the view list", resource);
@@ -166,7 +166,7 @@ public class GridViewImpl implements GridView {
     }
 
     private void tryAddNewResource(final ResourceKey resource) {
-        final GridResource gridResource = resourceFactory.apply(resource);
+        final T gridResource = resourceFactory.apply(resource);
         if (filter.test(this, gridResource)) {
             LOGGER.debug("Filter allowed, actually adding {}", resource);
             viewList.add(resource, gridResource, getComparator());
@@ -180,10 +180,10 @@ public class GridViewImpl implements GridView {
         }
     }
 
-    private Comparator<GridResource> getComparator() {
+    private Comparator<T> getComparator() {
         // An identity sort is necessary so the order of items is preserved in quantity sorting mode.
         // If two grid resources have the same quantity, their order would otherwise not be preserved.
-        final Comparator<GridResource> comparator = sortingType.apply(this).thenComparing(identitySort);
+        final Comparator<T> comparator = sortingType.apply(this).thenComparing(identitySort);
         if (sortingDirection == GridSortingDirection.ASCENDING) {
             return comparator;
         }
@@ -191,7 +191,7 @@ public class GridViewImpl implements GridView {
     }
 
     @Override
-    public List<GridResource> getViewList() {
+    public List<T> getViewList() {
         return viewList.getListView();
     }
 

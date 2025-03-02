@@ -24,16 +24,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 class GridViewImplTest {
-    private GridViewBuilder viewBuilder;
+    private GridViewBuilder<GridResource> viewBuilder;
 
     @BeforeEach
     void setUp() {
         viewBuilder = getViewBuilder(GridResourceImpl::new);
     }
 
-    private static GridViewBuilderImpl getViewBuilder(final GridResourceFactory resourceFactory) {
-        return new GridViewBuilderImpl(
-            resourceFactory,
+    private static <T extends GridResource> GridViewBuilderImpl<T> getViewBuilder(final GridResourceFactory<T> rf) {
+        return new GridViewBuilderImpl<>(
+            rf,
             view -> Comparator.comparing(GridResource::getName),
             view -> Comparator.comparingLong(resource -> resource.getAmount(view))
         );
@@ -46,8 +46,8 @@ class GridViewImplTest {
         // in the view, but actually isn't because it has a different identity.
 
         // Arrange
-        final GridViewBuilder builder = getViewBuilder(GridResourceWithMetadata::new);
-        final GridView view = builder.build();
+        final GridViewBuilder<GridResourceWithMetadata> builder = getViewBuilder(GridResourceWithMetadata::new);
+        final GridView<GridResourceWithMetadata> view = builder.build();
 
         // Act
         view.onChange(new ResourceWithMetadata(A, 1), 1, null);
@@ -63,7 +63,7 @@ class GridViewImplTest {
     @Test
     void shouldPreserveOrderWhenSortingAndTwoResourcesHaveTheSameQuantity() {
         // Arrange
-        final GridView view = viewBuilder.build();
+        final GridView<GridResource> view = viewBuilder.build();
         view.setSortingDirection(GridSortingDirection.DESCENDING);
 
         // Act & assert
@@ -95,7 +95,7 @@ class GridViewImplTest {
     @SuppressWarnings("AssertBetweenInconvertibleTypes")
     void shouldLoadResourcesAndRetrieveTrackedResourcesProperly() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 1, new TrackedResource("Raoul", 1))
             .withResource(A, 1, new TrackedResource("RaoulA", 2))
             .withResource(B, 1, new TrackedResource("VDB", 3))
@@ -127,7 +127,7 @@ class GridViewImplTest {
     @Test
     void shouldInsertNewResource() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 15, null)
             .withResource(D, 10, null)
             .build();
@@ -162,17 +162,19 @@ class GridViewImplTest {
     @Test
     void shouldSetFilterAndSort() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 10, null)
             .withResource(B, 10, null)
             .build();
 
-        final BiPredicate<GridView, GridResource> filterA = (v, resource) -> resource.getName().equals(A.name());
-        final BiPredicate<GridView, GridResource> filterB = (v, resource) -> resource.getName().equals(B.name());
+        final BiPredicate<GridView<GridResource>, GridResource> filterA =
+            (v, resource) -> resource.getName().equals(A.name());
+        final BiPredicate<GridView<GridResource>, GridResource> filterB =
+            (v, resource) -> resource.getName().equals(B.name());
 
         // Act
-        final BiPredicate<GridView, GridResource> previousFilter1 = view.setFilterAndSort(filterA);
-        final BiPredicate<GridView, GridResource> previousFilter2 = view.setFilterAndSort(filterB);
+        final BiPredicate<GridView<GridResource>, GridResource> previousFilter1 = view.setFilterAndSort(filterA);
+        final BiPredicate<GridView<GridResource>, GridResource> previousFilter2 = view.setFilterAndSort(filterB);
 
         // Assert
         assertThat(previousFilter1).isNotNull();
@@ -187,7 +189,7 @@ class GridViewImplTest {
     @Test
     void shouldNotInsertNewResourceWhenFilteringProhibitsIt() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 15, null)
             .withResource(D, 10, null)
             .build();
@@ -214,7 +216,7 @@ class GridViewImplTest {
     @Test
     void shouldNotInsertNewAutocraftableResourceWhenFilteringProhibitsIt() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withAutocraftableResource(A)
             .withResource(B, 15, null)
             .withResource(D, 10, null)
@@ -235,7 +237,7 @@ class GridViewImplTest {
     @Test
     void shouldCallListenerWhenSorting() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 6, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -255,7 +257,7 @@ class GridViewImplTest {
     @Test
     void shouldUpdateExistingResource() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 6, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -291,7 +293,7 @@ class GridViewImplTest {
     @Test
     void shouldNotUpdateExistingResourceWhenFilteringProhibitsIt() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 6, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -326,7 +328,7 @@ class GridViewImplTest {
     @Test
     void shouldNotReorderExistingResourceWhenPreventingSorting() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 6, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -387,7 +389,7 @@ class GridViewImplTest {
     @SuppressWarnings("AssertBetweenInconvertibleTypes")
     void shouldUpdateTrackedResourceAfterReceivingChange() {
         // Act
-        final GridView view = viewBuilder.build();
+        final GridView<GridResource> view = viewBuilder.build();
 
         view.onChange(A, 1, new TrackedResource("Raoul", 1));
         view.onChange(A, 1, new TrackedResource("RaoulA", 2));
@@ -410,7 +412,7 @@ class GridViewImplTest {
     @Test
     void shouldUpdateExistingResourceWhenPerformingPartialRemoval() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 20, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -446,7 +448,7 @@ class GridViewImplTest {
     @Test
     void shouldNotUpdateExistingResourceWhenPerformingPartialRemovalAndFilteringProhibitsIt() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 20, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -474,7 +476,7 @@ class GridViewImplTest {
     @Test
     void shouldNotReorderExistingResourceWhenPerformingPartialRemovalAndPreventingSorting() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 20, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -516,7 +518,7 @@ class GridViewImplTest {
     @Test
     void shouldNotRemoveNonExistentResource() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 20, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -545,7 +547,7 @@ class GridViewImplTest {
     @Test
     void shouldRemoveExistingResourceCompletely() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(B, 20, null)
             .withResource(A, 15, null)
             .withResource(D, 10, null)
@@ -579,7 +581,7 @@ class GridViewImplTest {
     @Test
     void shouldNotReorderWhenRemovingExistingResourceCompletelyAndPreventingSorting() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, null)
             .withResource(B, 20, null)
             .withResource(D, 10, null)
@@ -631,7 +633,7 @@ class GridViewImplTest {
     @Test
     void shouldReuseExistingResourceWhenPreventingSortingAndRemovingExistingResourceCompletelyAndThenReinserting() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, null)
             .withResource(B, 20, null)
             .withResource(D, 10, null)
@@ -684,7 +686,7 @@ class GridViewImplTest {
     @Test
     void shouldClear() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, new TrackedResource("Source", 0))
             .withResource(B, 20, new TrackedResource("Source", 0))
             .withResource(D, 10, new TrackedResource("Source", 0))
@@ -707,7 +709,7 @@ class GridViewImplTest {
     @Test
     void shouldIncludeAutocraftableResourceInViewList() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, null)
             .withAutocraftableResource(B)
             .build();
@@ -731,7 +733,7 @@ class GridViewImplTest {
     @Test
     void shouldIncludeAutocraftableResourceInViewListEvenIfItIsInTheBackingList() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, null)
             .withAutocraftableResource(A)
             .build();
@@ -753,7 +755,7 @@ class GridViewImplTest {
     @Test
     void shouldNotRemoveAutocraftableResource() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, null)
             .withAutocraftableResource(A)
             .build();
@@ -775,7 +777,7 @@ class GridViewImplTest {
     @Test
     void shouldNotRemoveAutocraftableResourceEvenWhenPreventingSorting() {
         // Arrange
-        final GridView view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(A, 15, null)
             .withAutocraftableResource(A)
             .build();

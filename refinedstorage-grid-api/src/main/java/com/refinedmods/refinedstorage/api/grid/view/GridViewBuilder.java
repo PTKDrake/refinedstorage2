@@ -11,7 +11,7 @@ import org.apiguardian.api.API;
  * Constructs a grid view, based on an initial set of resources.
  */
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.4")
-public interface GridViewBuilder {
+public interface GridViewBuilder<T> {
     /**
      * Adds a resource in the backing and view list.
      *
@@ -20,7 +20,7 @@ public interface GridViewBuilder {
      * @param trackedResource the tracked resource, can be null
      * @return this builder
      */
-    GridViewBuilder withResource(ResourceKey resource, long amount, @Nullable TrackedResource trackedResource);
+    GridViewBuilder<T> withResource(ResourceKey resource, long amount, @Nullable TrackedResource trackedResource);
 
     /**
      * Adds a resource into the view and marks it as autocraftable.
@@ -28,10 +28,10 @@ public interface GridViewBuilder {
      * @param resource the resource
      * @return this builder
      */
-    GridViewBuilder withAutocraftableResource(ResourceKey resource);
+    GridViewBuilder<T> withAutocraftableResource(ResourceKey resource);
 
     /**
      * @return a {@link GridView} with the specified resources
      */
-    GridView build();
+    GridView<T> build();
 }

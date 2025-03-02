@@ -27,13 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GridQueryParserImplTest {
-    private final GridQueryParser queryParser = new GridQueryParserImpl(
+    private final GridQueryParser<GridResource> queryParser = new GridQueryParserImpl<GridResource>(
         LexerTokenMappings.DEFAULT_MAPPINGS,
         ParserOperatorMappings.DEFAULT_MAPPINGS,
         GridResourceAttributeKeys.UNARY_OPERATOR_TO_ATTRIBUTE_KEY_MAPPING
     );
 
-    private final GridView view = new GridViewImpl(
+    private final GridView<GridResource> view = new GridViewImpl<>(
         GridResourceImpl::new,
         MutableResourceListImpl.create(),
         new HashMap<>(),

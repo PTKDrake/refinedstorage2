@@ -17,9 +17,11 @@ import org.apiguardian.api.API;
  * The backing list is the logical view of the grid without any filtering or sorting applied. It's the source of truth.
  * The view list has filtering and sorting rules applied and is in sync with the backing list (depending on the view
  * being in "prevent sorting" mode).
+ *
+ * @param <T> the view type
  */
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
-public interface GridView {
+public interface GridView<T> {
     /**
      * Sets a listener that is called when the grid view changes.
      *
@@ -32,13 +34,13 @@ public interface GridView {
      *
      * @param sortingType the sorting type
      */
-    void setSortingType(GridSortingType sortingType);
+    void setSortingType(GridSortingType<T> sortingType);
 
     /**
-     * @param predicate the filter
+     * @param filter the filter
      * @return the previous filtering predicate
      */
-    BiPredicate<GridView, GridResource> setFilterAndSort(BiPredicate<GridView, GridResource> predicate);
+    BiPredicate<GridView<T>, T> setFilterAndSort(BiPredicate<GridView<T>, T> filter);
 
     /**
      * Preventing sorting means that the changes will still arrive at the backing list and view list, but,
@@ -46,10 +48,10 @@ public interface GridView {
      * again.
      * This still requires a call to {@link #sort()} when preventing sorting is disabled again.
      *
-     * @param changedPreventSorting whether the view should prevent sorting on changes
+     * @param preventSorting whether the view should prevent sorting on changes
      * @return whether prevent sorting has changed
      */
-    boolean setPreventSorting(boolean changedPreventSorting);
+    boolean setPreventSorting(boolean preventSorting);
 
     /**
      * Changing the sorting direction still requires a call to {@link #sort()}.
@@ -95,7 +97,7 @@ public interface GridView {
     /**
      * @return the view list
      */
-    List<GridResource> getViewList();
+    List<T> getViewList();
 
     /**
      * @return a copy of the backing list
