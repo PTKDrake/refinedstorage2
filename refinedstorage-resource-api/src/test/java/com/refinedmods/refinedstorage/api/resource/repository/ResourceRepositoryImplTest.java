@@ -6,6 +6,7 @@ import com.refinedmods.refinedstorage.api.resource.list.ResourceList;
 
 import java.util.Comparator;
 
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +17,7 @@ import static com.refinedmods.refinedstorage.api.resource.TestResource.B;
 import static com.refinedmods.refinedstorage.api.resource.TestResource.C;
 import static com.refinedmods.refinedstorage.api.resource.TestResource.D;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -244,6 +246,26 @@ class ResourceRepositoryImplTest {
         assertThat(sut.getAmount(A)).isEqualTo(15);
         assertThat(sut.getAmount(B)).isEqualTo(11);
         assertThat(sut.getAmount(D)).isEqualTo(10);
+    }
+
+    @Test
+    void shouldNotUpdateResourceWithInvalidAmount() {
+        // Arrange
+        final ResourceRepository<ResourceKey> sut = builder.addResource(A, 10).build();
+
+        sut.sort();
+
+        final Runnable listener = mock(Runnable.class);
+        sut.setListener(listener);
+
+        // Act
+        final ThrowableAssert.ThrowingCallable action = () -> sut.onChange(B, 0);
+
+        // Assert
+        assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class).hasMessage("Amount must be non-zero");
+        assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
+        verify(listener, never()).run();
+        assertThat(sut.getAmount(A)).isEqualTo(10);
     }
 
     @Test

@@ -94,6 +94,9 @@ public class ResourceRepositoryImpl<T> implements ResourceRepository<T> {
 
     @Override
     public void onChange(final ResourceKey resource, final long amount) {
+        if (amount == 0) {
+            throw new IllegalArgumentException("Amount must be non-zero");
+        }
         final MutableResourceList.OperationResult backingListResult = updateBackingList(resource, amount);
         if (backingListResult == null) {
             LOGGER.warn("Failed to update backing list for {} {}", amount, resource);
