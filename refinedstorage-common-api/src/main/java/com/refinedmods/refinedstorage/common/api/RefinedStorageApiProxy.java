@@ -2,7 +2,7 @@ package com.refinedmods.refinedstorage.common.api;
 
 import com.refinedmods.refinedstorage.api.autocrafting.Pattern;
 import com.refinedmods.refinedstorage.api.core.component.ComponentMapFactory;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.NetworkComponent;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
@@ -190,14 +190,14 @@ public class RefinedStorageApiProxy implements RefinedStorageApi {
     }
 
     @Override
-    public GridResourceFactory<GridResource> getGridResourceFactory() {
-        return ensureLoaded().getGridResourceFactory();
+    public ResourceRepositoryMapper<GridResource> getGridResourceRepositoryMapper() {
+        return ensureLoaded().getGridResourceRepositoryMapper();
     }
 
     @Override
-    public void addGridResourceFactory(final Class<? extends ResourceKey> resourceClass,
-                                       final GridResourceFactory<GridResource> factory) {
-        ensureLoaded().addGridResourceFactory(resourceClass, factory);
+    public void addGridResourceRepositoryMapper(final Class<? extends ResourceKey> resourceClass,
+                                                final ResourceRepositoryMapper<GridResource> mapper) {
+        ensureLoaded().addGridResourceRepositoryMapper(resourceClass, mapper);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.neoforge.grid.view;
 
-import com.refinedmods.refinedstorage.common.grid.view.AbstractFluidGridResourceFactory;
+import com.refinedmods.refinedstorage.common.grid.view.AbstractFluidGridResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
 
 import net.neoforged.fml.ModList;
@@ -8,7 +8,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 
 import static com.refinedmods.refinedstorage.neoforge.support.resource.VariantUtil.toFluidStack;
 
-public class ForgeFluidGridResourceFactory extends AbstractFluidGridResourceFactory {
+public class ForgeFluidResourceRepositoryMapper extends AbstractFluidGridResourceRepositoryMapper {
     @Override
     protected String getTooltip(final FluidResource resource) {
         return getName(resource);

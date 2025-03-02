@@ -2,9 +2,9 @@ package com.refinedmods.refinedstorage.common.grid.screen;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
@@ -108,7 +108,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         }
         getMenu().setSearchBox(searchField);
 
-        getMenu().getView().setListener(this::updateScrollbar);
+        getMenu().getRepository().setListener(this::updateScrollbar);
         updateScrollbar();
 
         addWidget(searchField);
@@ -161,7 +161,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private void updateScrollbar() {
-        this.totalRows = (int) Math.ceil((float) getMenu().getView().getViewList().size() / (float) COLUMNS);
+        this.totalRows = (int) Math.ceil((float) getMenu().getRepository().getViewList().size() / (float) COLUMNS);
         updateScrollbar(totalRows);
     }
 
@@ -236,13 +236,13 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                             final int rowY,
                             final int idx,
                             final int column) {
-        final GridView<GridResource> view = getMenu().getView();
+        final ResourceRepository<GridResource> repository = getMenu().getRepository();
         final int slotX = rowX + 1 + (column * ROW_SIZE);
         final int slotY = rowY + 1;
         if (!getMenu().isActive()) {
             renderDisabledSlot(graphics, slotX, slotY);
         } else {
-            renderSlot(graphics, mouseX, mouseY, idx, view, slotX, slotY);
+            renderSlot(graphics, mouseX, mouseY, idx, repository, slotX, slotY);
         }
     }
 
@@ -266,7 +266,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                             final int mouseX,
                             final int mouseY,
                             final int idx,
-                            final GridView<GridResource> view,
+                            final ResourceRepository<GridResource> repository,
                             final int slotX,
                             final int slotY) {
         final boolean inBounds = mouseX >= slotX
@@ -274,8 +274,8 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             && mouseX <= slotX + 16
             && mouseY <= slotY + 16;
         GridResource resource = null;
-        if (idx < view.getViewList().size()) {
-            resource = view.getViewList().get(idx);
+        if (idx < repository.getViewList().size()) {
+            resource = repository.getViewList().get(idx);
             renderResourceWithAmount(graphics, slotX, slotY, resource);
         }
         if (inBounds && isOverStorageArea(mouseX, mouseY)) {
@@ -300,7 +300,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                                           final int slotX,
                                           final int slotY,
                                           final GridResource resource) {
-        if (resource.isAutocraftable(getMenu().getView())) {
+        if (resource.isAutocraftable(getMenu().getRepository())) {
             renderSlotBackground(
                 graphics,
                 slotX,
@@ -308,7 +308,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                 false,
                 AutocraftableResourceHint.AUTOCRAFTABLE.getColor()
             );
-        } else if (resource.getAmount(getMenu().getView()) == 0) {
+        } else if (resource.getAmount(getMenu().getRepository()) == 0) {
             renderSlotBackground(
                 graphics,
                 slotX,
@@ -340,7 +340,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                               final int slotX,
                               final int slotY,
                               final GridResource resource) {
-        final long amount = resource.getAmount(getMenu().getView());
+        final long amount = resource.getAmount(getMenu().getRepository());
         final String text = getAmountText(resource, amount);
         final int color = getAmountColor(resource, amount);
         final boolean large = (minecraft != null && minecraft.isEnforceUnicode())
@@ -350,7 +350,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
 
     private int getAmountColor(final GridResource resource, final long amount) {
         if (amount == 0) {
-            if (resource.isAutocraftable(getMenu().getView())) {
+            if (resource.isAutocraftable(getMenu().getRepository())) {
                 return 0xFFFFFF;
             }
             return 0xFF5555;
@@ -359,10 +359,10 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private String getAmountText(final GridResource resource, final long amount) {
-        if (amount == 0 && resource.isAutocraftable(getMenu().getView())) {
+        if (amount == 0 && resource.isAutocraftable(getMenu().getRepository())) {
             return I18n.get(createTranslationKey("gui", "grid.craft"));
         }
-        return resource.getDisplayedAmount(getMenu().getView());
+        return resource.getDisplayedAmount(getMenu().getRepository());
     }
 
     private void renderDisabledSlot(final GuiGraphics graphics, final int slotX, final int slotY) {
@@ -406,7 +406,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     private void renderOverStorageAreaTooltip(final GuiGraphics graphics, final int x, final int y) {
         final GridResource gridResource = getCurrentGridResource();
         if (gridResource != null) {
-            renderHoveredResourceTooltip(graphics, x, y, menu.getView(), gridResource);
+            renderHoveredResourceTooltip(graphics, x, y, gridResource);
             return;
         }
         final ItemStack carried = getMenu().getCarried();
@@ -421,7 +421,6 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     private void renderHoveredResourceTooltip(final GuiGraphics graphics,
                                               final int mouseX,
                                               final int mouseY,
-                                              final GridView<GridResource> view,
                                               final GridResource resource) {
         final ItemStack stackContext = resource instanceof ItemGridResource itemResource
             ? itemResource.getItemStack()
@@ -434,25 +433,23 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             resource.getTooltipImage(),
             lines
         );
-        final long amount = resource.getAmount(getMenu().getView());
+        final long amount = resource.getAmount(getMenu().getRepository());
         if (amount > 0 && Platform.INSTANCE.getConfig().getGrid().isDetailedTooltip()) {
-            addDetailedTooltip(view, resource, processedLines);
+            addDetailedTooltip(resource, processedLines);
         }
-        if (resource.isAutocraftable(getMenu().getView())) {
+        if (resource.isAutocraftable(getMenu().getRepository())) {
             processedLines.add(amount == 0
                 ? AutocraftableClientTooltipComponent.empty()
                 : AutocraftableClientTooltipComponent.existing());
         }
         if (amount > 0) {
-            processedLines.addAll(resource.getExtractionHints(getMenu().getCarried(), getMenu().getView()));
+            processedLines.addAll(resource.getExtractionHints(getMenu().getCarried(), getMenu().getRepository()));
         }
         Platform.INSTANCE.renderTooltip(graphics, processedLines, mouseX, mouseY);
     }
 
-    private void addDetailedTooltip(final GridView<GridResource> view,
-                                    final GridResource resource,
-                                    final List<ClientTooltipComponent> lines) {
-        final String amountInTooltip = resource.getAmountInTooltip(getMenu().getView());
+    private void addDetailedTooltip(final GridResource resource, final List<ClientTooltipComponent> lines) {
+        final String amountInTooltip = resource.getAmountInTooltip(getMenu().getRepository());
         lines.add(new SmallTextClientTooltipComponent(
             createTranslation("misc", "total", amountInTooltip).withStyle(ChatFormatting.GRAY)
         ));
@@ -495,7 +492,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         if (currentGridSlotIndex < 0) {
             return null;
         }
-        final List<GridResource> viewList = menu.getView().getViewList();
+        final List<GridResource> viewList = menu.getRepository().getViewList();
         if (currentGridSlotIndex >= viewList.size()) {
             return null;
         }
@@ -522,14 +519,14 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             mouseClickedInGrid(clickedButton);
             return true;
         }
-        if (resource != null && resource.isAutocraftable(getMenu().getView()) && tryStartAutocrafting(resource)) {
+        if (resource != null && resource.isAutocraftable(getMenu().getRepository()) && tryStartAutocrafting(resource)) {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, clickedButton);
     }
 
     private boolean canExtract(@Nullable final GridResource resource, final ItemStack carriedStack) {
-        return resource != null && resource.canExtract(carriedStack, getMenu().getView()) && !hasControlDown();
+        return resource != null && resource.canExtract(carriedStack, getMenu().getRepository()) && !hasControlDown();
     }
 
     private boolean canInsert(final int mouseX,
@@ -594,7 +591,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private void mouseScrolledInInventory(final boolean up, final Slot slot) {
-        getMenu().getView().setPreventSorting(true);
+        getMenu().getRepository().setPreventSorting(true);
         final int slotIndex = slot.getContainerSlot();
         mouseScrolledInInventory(up, slot.getItem(), slotIndex);
     }
@@ -608,7 +605,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private void mouseScrolledInGrid(final boolean up, final GridResource resource) {
-        getMenu().getView().setPreventSorting(true);
+        getMenu().getRepository().setPreventSorting(true);
         final GridScrollMode scrollMode = getScrollModeWhenScrollingOnGridArea(up);
         if (scrollMode == null) {
             return;
@@ -663,7 +660,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         // First check if we have to prevent sorting.
         // Order matters. In auto-selected mode, the search field will swallow the SHIFT key.
         if (Screen.hasShiftDown() && Platform.INSTANCE.getConfig().getGrid().isPreventSortingWhileShiftIsDown()) {
-            getMenu().getView().setPreventSorting(true);
+            getMenu().getRepository().setPreventSorting(true);
         }
 
         if (searchField != null && searchField.keyPressed(key, scanCode, modifiers)) {
@@ -675,8 +672,8 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
 
     @Override
     public boolean keyReleased(final int key, final int scanCode, final int modifiers) {
-        if (getMenu().getView().setPreventSorting(false)) {
-            getMenu().getView().sort();
+        if (getMenu().getRepository().setPreventSorting(false)) {
+            getMenu().getRepository().sort();
         }
 
         return super.keyReleased(key, scanCode, modifiers);

@@ -2,7 +2,7 @@ package com.refinedmods.refinedstorage.common;
 
 import com.refinedmods.refinedstorage.api.autocrafting.Pattern;
 import com.refinedmods.refinedstorage.api.core.component.ComponentMapFactory;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.NetworkBuilder;
 import com.refinedmods.refinedstorage.api.network.NetworkComponent;
@@ -58,7 +58,7 @@ import com.refinedmods.refinedstorage.common.grid.NoopGridSynchronizer;
 import com.refinedmods.refinedstorage.common.grid.strategy.CompositeGridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.CompositeGridInsertionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.CompositeGridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.grid.view.CompositeGridResourceFactory;
+import com.refinedmods.refinedstorage.common.grid.view.GridResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.networking.CompositeWirelessTransmitterRangeModifier;
 import com.refinedmods.refinedstorage.common.storage.ClientStorageRepository;
 import com.refinedmods.refinedstorage.common.storage.StorageContainerItemHelperImpl;
@@ -142,7 +142,7 @@ public class RefinedStorageApiImpl implements RefinedStorageApi {
     private final PlatformRegistry<StorageType> storageTypeRegistry = new PlatformRegistryImpl<>();
     private final PlatformRegistry<ResourceType> resourceTypeRegistry = new PlatformRegistryImpl<>();
     private final PlatformRegistry<GridSynchronizer> gridSynchronizerRegistry = new PlatformRegistryImpl<>();
-    private final CompositeGridResourceFactory gridResourceFactory = new CompositeGridResourceFactory();
+    private final GridResourceRepositoryMapper gridResourceRepositoryMapper = new GridResourceRepositoryMapper();
     private final PlatformRegistry<ImporterTransferStrategyFactory> importerTransferStrategyRegistry =
         new PlatformRegistryImpl<>();
     private final PlatformRegistry<ExporterTransferStrategyFactory> exporterTransferStrategyRegistry =
@@ -299,14 +299,14 @@ public class RefinedStorageApiImpl implements RefinedStorageApi {
     }
 
     @Override
-    public GridResourceFactory<GridResource> getGridResourceFactory() {
-        return gridResourceFactory;
+    public ResourceRepositoryMapper<GridResource> getGridResourceRepositoryMapper() {
+        return gridResourceRepositoryMapper;
     }
 
     @Override
-    public void addGridResourceFactory(final Class<? extends ResourceKey> resourceClass,
-                                       final GridResourceFactory<GridResource> factory) {
-        gridResourceFactory.addFactory(resourceClass, factory);
+    public void addGridResourceRepositoryMapper(final Class<? extends ResourceKey> resourceClass,
+                                                final ResourceRepositoryMapper<GridResource> mapper) {
+        gridResourceRepositoryMapper.addFactory(resourceClass, mapper);
     }
 
     @Override

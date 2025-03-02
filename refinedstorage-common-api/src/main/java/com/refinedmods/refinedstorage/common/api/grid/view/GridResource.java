@@ -1,9 +1,9 @@
 package com.refinedmods.refinedstorage.common.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
@@ -29,15 +29,15 @@ public interface GridResource {
     @Nullable
     TrackedResource getTrackedResource(Function<ResourceKey, TrackedResource> trackedResourceProvider);
 
-    long getAmount(GridView<GridResource> view);
+    long getAmount(ResourceRepository<GridResource> repository);
 
     String getName();
 
     Set<String> getAttribute(GridResourceAttributeKey key);
 
-    boolean isAutocraftable(GridView<GridResource> view);
+    boolean isAutocraftable(ResourceRepository<GridResource> repository);
 
-    boolean canExtract(ItemStack carriedStack, GridView<GridResource> view);
+    boolean canExtract(ItemStack carriedStack, ResourceRepository<GridResource> repository);
 
     void onExtract(GridExtractMode extractMode,
                    boolean cursor,
@@ -48,9 +48,9 @@ public interface GridResource {
 
     void render(GuiGraphics graphics, int x, int y);
 
-    String getDisplayedAmount(GridView<GridResource> view);
+    String getDisplayedAmount(ResourceRepository<GridResource> repository);
 
-    String getAmountInTooltip(GridView<GridResource> view);
+    String getAmountInTooltip(ResourceRepository<GridResource> repository);
 
     boolean belongsToResourceType(ResourceType resourceType);
 
@@ -60,7 +60,8 @@ public interface GridResource {
 
     int getRegistryId();
 
-    List<ClientTooltipComponent> getExtractionHints(ItemStack carriedStack, GridView<GridResource> view);
+    List<ClientTooltipComponent> getExtractionHints(ItemStack carriedStack,
+                                                    ResourceRepository<GridResource> repository);
 
     @Nullable
     ResourceAmount getAutocraftingRequest();

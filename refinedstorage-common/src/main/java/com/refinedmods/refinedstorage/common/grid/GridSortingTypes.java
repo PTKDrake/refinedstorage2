@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.grid;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 
@@ -23,16 +23,16 @@ public enum GridSortingTypes {
         return Long.compare(lastModifiedA, lastModifiedB);
     });
 
-    private final Function<TrackedResourceProvider, Function<GridView<GridResource>, Comparator<GridResource>>>
+    private final Function<TrackedResourceProvider, Function<ResourceRepository<GridResource>, Comparator<GridResource>>>
         comparator;
 
     GridSortingTypes(
-        final Function<TrackedResourceProvider, Function<GridView<GridResource>, Comparator<GridResource>>> comparator
+        final Function<TrackedResourceProvider, Function<ResourceRepository<GridResource>, Comparator<GridResource>>> comparator
     ) {
         this.comparator = comparator;
     }
 
-    public Function<GridView<GridResource>, Comparator<GridResource>> apply(final TrackedResourceProvider context) {
+    public Function<ResourceRepository<GridResource>, Comparator<GridResource>> apply(final TrackedResourceProvider context) {
         return comparator.apply(context);
     }
 

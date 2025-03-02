@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.neoforge.grid.view;
 
-import com.refinedmods.refinedstorage.common.grid.view.AbstractItemGridResourceFactory;
+import com.refinedmods.refinedstorage.common.grid.view.AbstractItemGridResourceRepositoryMapper;
 
 import java.util.Optional;
 
@@ -9,7 +9,7 @@ import net.neoforged.fml.ModList;
 
 import static java.util.Objects.requireNonNullElse;
 
-public class ForgeItemGridResourceFactory extends AbstractItemGridResourceFactory {
+public class ForgeItemResourceRepositoryMapper extends AbstractItemGridResourceRepositoryMapper {
     @Override
     public Optional<String> getModName(final String modId) {
         return ModList.get()

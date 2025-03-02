@@ -1,7 +1,7 @@
 package com.refinedmods.refinedstorage.neoforge;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.AbstractPlatform;
@@ -14,8 +14,8 @@ import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.util.CustomBlockPlaceContext;
 import com.refinedmods.refinedstorage.neoforge.api.RefinedStorageNeoForgeApi;
 import com.refinedmods.refinedstorage.neoforge.grid.strategy.ItemGridInsertionStrategy;
-import com.refinedmods.refinedstorage.neoforge.grid.view.ForgeFluidGridResourceFactory;
-import com.refinedmods.refinedstorage.neoforge.grid.view.ForgeItemGridResourceFactory;
+import com.refinedmods.refinedstorage.neoforge.grid.view.ForgeFluidResourceRepositoryMapper;
+import com.refinedmods.refinedstorage.neoforge.grid.view.ForgeItemResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.neoforge.support.containermenu.ContainerTransferDestination;
 import com.refinedmods.refinedstorage.neoforge.support.containermenu.MenuOpenerImpl;
 import com.refinedmods.refinedstorage.neoforge.support.energy.EnergyStorageAdapter;
@@ -122,13 +122,13 @@ public final class PlatformImpl extends AbstractPlatform {
     }
 
     @Override
-    public GridResourceFactory getItemGridResourceFactory() {
-        return new ForgeItemGridResourceFactory();
+    public ResourceRepositoryMapper getItemGridResourceFactory() {
+        return new ForgeItemResourceRepositoryMapper();
     }
 
     @Override
-    public GridResourceFactory getFluidGridResourceFactory() {
-        return new ForgeFluidGridResourceFactory();
+    public ResourceRepositoryMapper getFluidGridResourceFactory() {
+        return new ForgeFluidResourceRepositoryMapper();
     }
 
     @Override

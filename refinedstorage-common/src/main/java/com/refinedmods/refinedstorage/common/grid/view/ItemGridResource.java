@@ -2,7 +2,7 @@ package com.refinedmods.refinedstorage.common.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
@@ -68,8 +68,8 @@ public class ItemGridResource extends AbstractGridResource<ItemResource> {
 
     @Override
     public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
-                                                           final GridView<GridResource> view) {
-        final long amount = getAmount(view);
+                                                           final ResourceRepository<GridResource> repository) {
+        final long amount = getAmount(repository);
         final long extractableAmount = Math.min(amount, itemStack.getMaxStackSize());
         final long halfExtractionAmount = extractableAmount == 1 ? 1 : extractableAmount / 2;
         return List.of(
@@ -93,8 +93,8 @@ public class ItemGridResource extends AbstractGridResource<ItemResource> {
     }
 
     @Override
-    public boolean canExtract(final ItemStack carriedStack, final GridView<GridResource> view) {
-        return getAmount(view) > 0 && carriedStack.isEmpty();
+    public boolean canExtract(final ItemStack carriedStack, final ResourceRepository<GridResource> repository) {
+        return getAmount(repository) > 0 && carriedStack.isEmpty();
     }
 
     @Override
@@ -121,13 +121,13 @@ public class ItemGridResource extends AbstractGridResource<ItemResource> {
     }
 
     @Override
-    public String getDisplayedAmount(final GridView<GridResource> view) {
-        return formatWithUnits(getAmount(view));
+    public String getDisplayedAmount(final ResourceRepository<GridResource> repository) {
+        return formatWithUnits(getAmount(repository));
     }
 
     @Override
-    public String getAmountInTooltip(final GridView<GridResource> view) {
-        return format(getAmount(view));
+    public String getAmountInTooltip(final ResourceRepository<GridResource> repository) {
+        return format(getAmount(repository));
     }
 
     @Override

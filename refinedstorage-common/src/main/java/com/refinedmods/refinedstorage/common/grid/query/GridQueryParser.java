@@ -1,9 +1,9 @@
 package com.refinedmods.refinedstorage.common.grid.query;
 
-import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
-import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryFilter;
 import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.query.lexer.Lexer;
 import com.refinedmods.refinedstorage.query.lexer.LexerException;
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 
 public class GridQueryParser {
-    private static final Map<String, Set<GridResourceAttributeKey>> ATTRIBUTE_MAPPING =  Map.of(
+    private static final Map<String, Set<GridResourceAttributeKey>> ATTRIBUTE_MAPPING = Map.of(
         "@", Set.of(GridResourceAttributeKeys.MOD_ID, GridResourceAttributeKeys.MOD_NAME),
         "$", Set.of(GridResourceAttributeKeys.TAGS),
         "#", Set.of(GridResourceAttributeKeys.TOOLTIP)
@@ -45,7 +45,7 @@ public class GridQueryParser {
 
     public ResourceRepositoryFilter<GridResource> parse(final String query) throws GridQueryParserException {
         if (query.trim().isEmpty()) {
-            return (view, resource) -> true;
+            return (repository, resource) -> true;
         }
         final List<Token> tokens = getTokens(query);
         final List<Node> nodes = getNodes(tokens);
@@ -159,14 +159,14 @@ public class GridQueryParser {
             throw new GridQueryParserException("Count filtering expects an integer number", null);
         }
         final long wantedCount = Long.parseLong(((LiteralNode) node).token().content());
-        return (view, resource) -> predicate.test(resource.getAmount(view), wantedCount);
+        return (repository, resource) -> predicate.test(resource.getAmount(repository), wantedCount);
     }
 
     private static ResourceRepositoryFilter<GridResource> attributeMatch(
         final Set<GridResourceAttributeKey> keys,
         final String query
     ) {
-        return (view, resource) -> keys
+        return (repository, resource) -> keys
             .stream()
             .map(resource::getAttribute)
             .flatMap(Collection::stream)
@@ -178,15 +178,15 @@ public class GridQueryParser {
     }
 
     private static ResourceRepositoryFilter<GridResource> parseLiteral(final LiteralNode node) {
-        return (view, resource) -> normalize(resource.getName()).contains(normalize(node.token().content()));
+        return (repository, resource) -> normalize(resource.getName()).contains(normalize(node.token().content()));
     }
 
     private static ResourceRepositoryFilter<GridResource> and(
         final List<ResourceRepositoryFilter<GridResource>> chain
     ) {
-        return (view, resource) -> {
+        return (repository, resource) -> {
             for (final ResourceRepositoryFilter<GridResource> predicate : chain) {
-                if (!predicate.test(view, resource)) {
+                if (!predicate.test(repository, resource)) {
                     return false;
                 }
             }
@@ -194,12 +194,10 @@ public class GridQueryParser {
         };
     }
 
-    private static ResourceRepositoryFilter<GridResource> or(
-        final List<ResourceRepositoryFilter<GridResource>> chain
-    ) {
-        return (view, resource) -> {
+    private static ResourceRepositoryFilter<GridResource> or(final List<ResourceRepositoryFilter<GridResource>> chain) {
+        return (repository, resource) -> {
             for (final ResourceRepositoryFilter<GridResource> predicate : chain) {
-                if (predicate.test(view, resource)) {
+                if (predicate.test(repository, resource)) {
                     return true;
                 }
             }
@@ -207,9 +205,7 @@ public class GridQueryParser {
         };
     }
 
-    private static ResourceRepositoryFilter<GridResource> not(
-        final ResourceRepositoryFilter<GridResource> predicate
-    ) {
-        return (view, resource) -> !predicate.test(view, resource);
+    private static ResourceRepositoryFilter<GridResource> not(final ResourceRepositoryFilter<GridResource> predicate) {
+        return (repository, resource) -> !predicate.test(repository, resource);
     }
 }

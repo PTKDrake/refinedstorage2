@@ -2,7 +2,7 @@ package com.refinedmods.refinedstorage.common.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageClientApi;
@@ -53,7 +53,7 @@ public class FluidGridResource extends AbstractGridResource<FluidResource> {
 
     @Override
     public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
-                                                           final GridView<GridResource> view) {
+                                                           final ResourceRepository<GridResource> repository) {
         return tryFillFluidContainer(carriedStack)
             .filter(result -> result.amount() > 0)
             .map(result -> MouseClientTooltipComponent.item(
@@ -77,14 +77,14 @@ public class FluidGridResource extends AbstractGridResource<FluidResource> {
     }
 
     @Override
-    public boolean canExtract(final ItemStack carriedStack, final GridView<GridResource> view) {
-        if (getAmount(view) == 0) {
+    public boolean canExtract(final ItemStack carriedStack, final ResourceRepository<GridResource> repository) {
+        if (getAmount(repository) == 0) {
             return false;
         }
         if (carriedStack.isEmpty()) {
             return true;
         }
-        final ResourceAmount toFill = new ResourceAmount(resource, view.getAmount(resource));
+        final ResourceAmount toFill = new ResourceAmount(resource, repository.getAmount(resource));
         return Platform.INSTANCE.fillContainer(carriedStack, toFill)
             .map(result -> result.amount() > 0)
             .orElse(false);
@@ -108,13 +108,13 @@ public class FluidGridResource extends AbstractGridResource<FluidResource> {
     }
 
     @Override
-    public String getDisplayedAmount(final GridView<GridResource> view) {
-        return rendering.formatAmount(getAmount(view), true);
+    public String getDisplayedAmount(final ResourceRepository<GridResource> repository) {
+        return rendering.formatAmount(getAmount(repository), true);
     }
 
     @Override
-    public String getAmountInTooltip(final GridView<GridResource> view) {
-        return rendering.formatAmount(getAmount(view));
+    public String getAmountInTooltip(final ResourceRepository<GridResource> repository) {
+        return rendering.formatAmount(getAmount(repository));
     }
 
     @Override

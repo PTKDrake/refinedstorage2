@@ -40,7 +40,6 @@ class GridOperationsImplTest {
     class InsertTest {
         @ParameterizedTest
         @EnumSource(GridInsertMode.class)
-        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void shouldInsertIntoDestination(final GridInsertMode insertMode) {
             // Arrange
             final Storage source = new LimitedStorageImpl(100);
@@ -120,7 +119,6 @@ class GridOperationsImplTest {
     @Nested
     class InsertEntireResourceTest {
         @Test
-        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void shouldInsertIntoDestinationWithRemainder() {
             // Arrange
             final Storage source = new LimitedStorageImpl(100);
@@ -193,7 +191,6 @@ class GridOperationsImplTest {
     class ExtractTest {
         @ParameterizedTest
         @EnumSource(GridExtractMode.class)
-        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void shouldExtractFromSourceToDestination(final GridExtractMode extractMode) {
             // Arrange
             final Storage destination = new LimitedStorageImpl(100);
@@ -274,7 +271,6 @@ class GridOperationsImplTest {
     @Nested
     class ExtractEntireResourceTest {
         @Test
-        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void shouldExtractEntireResourceFromSourceToDestinationIfResourceIsLessThanMaxCount() {
             // Arrange
             final Storage destination = new LimitedStorageImpl(100);
@@ -299,7 +295,6 @@ class GridOperationsImplTest {
         }
 
         @Test
-        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void shouldExtractEntireResourceWithRemainderFromSourceToDestinationIfThereIsNotEnoughSpaceInDestination() {
             // Arrange
             final Storage destination = new LimitedStorageImpl(MAX_COUNT - 1);
@@ -329,7 +324,6 @@ class GridOperationsImplTest {
     @Nested
     class ExtractHalfResourceTest {
         @Test
-        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void shouldExtractSingleAmountIfResourceHasSingleAmountWhenExtractingHalfResourceFromSourceToDestination() {
             // Arrange
             final Storage destination = new LimitedStorageImpl(MAX_COUNT);

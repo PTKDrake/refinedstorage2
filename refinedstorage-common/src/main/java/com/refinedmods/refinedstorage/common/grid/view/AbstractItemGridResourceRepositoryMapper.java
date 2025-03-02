@@ -1,7 +1,7 @@
 package com.refinedmods.refinedstorage.common.grid.view;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
@@ -20,8 +20,8 @@ import net.minecraft.world.item.TooltipFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractItemGridResourceFactory implements GridResourceFactory<GridResource> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractItemGridResourceFactory.class);
+public abstract class AbstractItemGridResourceRepositoryMapper implements ResourceRepositoryMapper<GridResource> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractItemGridResourceRepositoryMapper.class);
 
     @Override
     public GridResource apply(final ResourceKey resource) {

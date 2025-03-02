@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.api.grid.view;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
@@ -34,8 +34,8 @@ public abstract class AbstractGridResource<T extends PlatformResourceKey> implem
     }
 
     @Override
-    public long getAmount(final GridView<GridResource> view) {
-        return view.getAmount(resource);
+    public long getAmount(final ResourceRepository<GridResource> repository) {
+        return repository.getAmount(resource);
     }
 
     @Override
@@ -49,8 +49,8 @@ public abstract class AbstractGridResource<T extends PlatformResourceKey> implem
     }
 
     @Override
-    public boolean isAutocraftable(final GridView<GridResource> view) {
-        return view.isAutocraftable(resource);
+    public boolean isAutocraftable(final ResourceRepository<GridResource> repository) {
+        return repository.isSticky(resource);
     }
 
     @Nullable

@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.grid.screen;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
+import com.refinedmods.refinedstorage.api.resource.repository.SortingDirection;
 import com.refinedmods.refinedstorage.common.grid.AbstractGridContainerMenu;
 import com.refinedmods.refinedstorage.common.support.widget.AbstractSideButtonWidget;
 
@@ -35,15 +35,15 @@ class SortingDirectionSideButtonWidget extends AbstractSideButtonWidget {
         return btn -> menu.setSortingDirection(toggle(menu.getSortingDirection()));
     }
 
-    private static GridSortingDirection toggle(final GridSortingDirection sortingDirection) {
-        return sortingDirection == GridSortingDirection.ASCENDING
-            ? GridSortingDirection.DESCENDING
-            : GridSortingDirection.ASCENDING;
+    private static SortingDirection toggle(final SortingDirection sortingDirection) {
+        return sortingDirection == SortingDirection.ASCENDING
+            ? SortingDirection.DESCENDING
+            : SortingDirection.ASCENDING;
     }
 
     @Override
     protected ResourceLocation getSprite() {
-        return menu.getSortingDirection() == GridSortingDirection.ASCENDING ? ASCENDING : DESCENDING;
+        return menu.getSortingDirection() == SortingDirection.ASCENDING ? ASCENDING : DESCENDING;
     }
 
     @Override

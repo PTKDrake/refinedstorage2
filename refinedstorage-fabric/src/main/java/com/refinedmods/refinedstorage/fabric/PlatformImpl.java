@@ -1,7 +1,6 @@
 package com.refinedmods.refinedstorage.fabric;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.AbstractPlatform;
@@ -14,8 +13,6 @@ import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.util.CustomBlockPlaceContext;
 import com.refinedmods.refinedstorage.fabric.api.RefinedStorageFabricApi;
 import com.refinedmods.refinedstorage.fabric.grid.strategy.ItemGridInsertionStrategy;
-import com.refinedmods.refinedstorage.fabric.grid.view.FabricFluidGridResourceFactory;
-import com.refinedmods.refinedstorage.fabric.grid.view.FabricItemGridResourceFactory;
 import com.refinedmods.refinedstorage.fabric.mixin.EditBoxAccessor;
 import com.refinedmods.refinedstorage.fabric.mixin.KeyMappingAccessor;
 import com.refinedmods.refinedstorage.fabric.support.containermenu.ContainerTransferDestination;
@@ -138,16 +135,6 @@ public final class PlatformImpl extends AbstractPlatform {
             Minecraft.getInstance().getWindow().getWindow(),
             ((KeyMappingAccessor) keyMapping).getKey().getValue()
         );
-    }
-
-    @Override
-    public GridResourceFactory getItemGridResourceFactory() {
-        return new FabricItemGridResourceFactory();
-    }
-
-    @Override
-    public GridResourceFactory getFluidGridResourceFactory() {
-        return new FabricFluidGridResourceFactory();
     }
 
     @Override

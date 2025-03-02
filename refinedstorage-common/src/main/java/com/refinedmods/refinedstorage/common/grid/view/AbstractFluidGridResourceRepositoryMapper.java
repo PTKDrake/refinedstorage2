@@ -1,7 +1,7 @@
 package com.refinedmods.refinedstorage.common.grid.view;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
@@ -14,7 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.material.Fluid;
 
-public abstract class AbstractFluidGridResourceFactory implements GridResourceFactory<GridResource> {
+public abstract class AbstractFluidGridResourceRepositoryMapper implements ResourceRepositoryMapper<GridResource> {
     @Override
     public GridResource apply(final ResourceKey resource) {
         final FluidResource fluidResource = (FluidResource) resource;

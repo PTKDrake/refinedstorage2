@@ -1,18 +1,20 @@
 package com.refinedmods.refinedstorage.common.grid;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
-import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
-import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilder;
-import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilderImpl;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryBuilder;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryBuilderImpl;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
+import com.refinedmods.refinedstorage.api.resource.repository.SortingDirection;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.SetupMinecraft;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
-import com.refinedmods.refinedstorage.common.grid.view.AbstractItemGridResourceFactory;
+import com.refinedmods.refinedstorage.common.grid.view.AbstractItemGridResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Function;
 
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.ItemStack;
@@ -27,27 +29,28 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SetupMinecraft.class)
 class GridSortingTypesTest {
-    private static final GridResourceFactory<GridResource> FACTORY = new AbstractItemGridResourceFactory() {
-        @Override
-        public String getModId(final ItemStack itemStack) {
-            return "";
-        }
+    private static final ResourceRepositoryMapper<GridResource> MAPPER =
+        new AbstractItemGridResourceRepositoryMapper() {
+            @Override
+            public String getModId(final ItemStack itemStack) {
+                return "";
+            }
 
-        @Override
-        public Optional<String> getModName(final String modId) {
-            return Optional.empty();
-        }
-    };
+            @Override
+            public Optional<String> getModName(final String modId) {
+                return Optional.empty();
+            }
+        };
 
-    private GridViewBuilder<GridResource> viewBuilder;
+    private ResourceRepositoryBuilder<GridResource> builder;
     private ItemResource dirt;
     private ItemResource stone;
     private ItemResource gold;
 
     @BeforeEach
     void setUp() {
-        viewBuilder = new GridViewBuilderImpl<>(
-            FACTORY,
+        builder = new ResourceRepositoryBuilderImpl<>(
+            MAPPER,
             view -> Comparator.comparing(GridResource::getName),
             view -> Comparator.comparingLong(resource -> resource.getAmount(view))
         );
@@ -60,43 +63,49 @@ class GridSortingTypesTest {
     @EnumSource(GridSortingTypes.class)
     void testSortingAscending(final GridSortingTypes sortingType) {
         // Arrange
-        final GridView<GridResource> view = viewBuilder
-            .withResource(dirt, 10, null)
-            .withResource(dirt, 5, new TrackedResource("Raoul", 3))
-            .withResource(stone, 1, new TrackedResource("VdB", 2))
-            .withResource(gold, 2, null)
+        final ResourceRepository<GridResource> repository = builder
+            .addResource(dirt, 10)
+            .addResource(dirt, 5)
+            .addResource(stone, 1)
+            .addResource(gold, 2)
             .build();
 
-        view.setSortingType(sortingType);
-        view.setSortingDirection(GridSortingDirection.ASCENDING);
+        final Function<ResourceKey, TrackedResource> trackedResourceProvider =
+            resource -> resource == dirt ? new TrackedResource("Raoul", 3)
+                : (resource == stone ? new TrackedResource("Raoul2", 2) : null);
+
+        repository.setSort(sortingType
+                .apply(gridResource ->
+                    gridResource.getTrackedResource(trackedResourceProvider)).apply(repository),
+            SortingDirection.ASCENDING);
 
         // Act
-        view.sort();
+        repository.sort();
 
         // Assert
         switch (sortingType) {
-            case QUANTITY -> assertThat(view.getViewList())
+            case QUANTITY -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Stone",
                     "Gold Ingot",
                     "Dirt"
                 );
-            case NAME -> assertThat(view.getViewList())
+            case NAME -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Dirt",
                     "Gold Ingot",
                     "Stone"
                 );
-            case ID -> assertThat(view.getViewList())
+            case ID -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Stone",
                     "Dirt",
                     "Gold Ingot"
                 );
-            case LAST_MODIFIED -> assertThat(view.getViewList())
+            case LAST_MODIFIED -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Gold Ingot",
@@ -111,43 +120,49 @@ class GridSortingTypesTest {
     @EnumSource(GridSortingTypes.class)
     void testSortingDescending(final GridSortingTypes sortingType) {
         // Arrange
-        final GridView<GridResource> view = viewBuilder
-            .withResource(dirt, 10, null)
-            .withResource(dirt, 5, new TrackedResource("Raoul", 3))
-            .withResource(stone, 1, new TrackedResource("VDB", 2))
-            .withResource(gold, 2, null)
+        final ResourceRepository<GridResource> repository = builder
+            .addResource(dirt, 10)
+            .addResource(dirt, 5)
+            .addResource(stone, 1)
+            .addResource(gold, 2)
             .build();
 
-        view.setSortingType(sortingType);
-        view.setSortingDirection(GridSortingDirection.DESCENDING);
+        final Function<ResourceKey, TrackedResource> trackedResourceProvider =
+            resource -> resource == dirt ? new TrackedResource("Raoul", 3)
+                : (resource == stone ? new TrackedResource("Raoul2", 2) : null);
+
+        repository.setSort(sortingType
+                .apply(gridResource ->
+                    gridResource.getTrackedResource(trackedResourceProvider)).apply(repository),
+            SortingDirection.DESCENDING);
 
         // Act
-        view.sort();
+        repository.sort();
 
         // Assert
         switch (sortingType) {
-            case QUANTITY -> assertThat(view.getViewList())
+            case QUANTITY -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Dirt",
                     "Gold Ingot",
                     "Stone"
                 );
-            case NAME -> assertThat(view.getViewList())
+            case NAME -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Stone",
                     "Gold Ingot",
                     "Dirt"
                 );
-            case ID -> assertThat(view.getViewList())
+            case ID -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Gold Ingot",
                     "Dirt",
                     "Stone"
                 );
-            case LAST_MODIFIED -> assertThat(view.getViewList())
+            case LAST_MODIFIED -> assertThat(repository.getViewList())
                 .extracting(GridResource::getName)
                 .containsExactly(
                     "Dirt",

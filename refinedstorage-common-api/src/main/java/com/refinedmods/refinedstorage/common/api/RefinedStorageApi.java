@@ -2,13 +2,13 @@ package com.refinedmods.refinedstorage.common.api;
 
 import com.refinedmods.refinedstorage.api.autocrafting.Pattern;
 import com.refinedmods.refinedstorage.api.core.component.ComponentMapFactory;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.NetworkComponent;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.api.network.security.SecurityPolicy;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.api.autocrafting.PatternProviderExternalPatternSinkFactory;
 import com.refinedmods.refinedstorage.common.api.constructordestructor.ConstructorStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.constructordestructor.DestructorStrategyFactory;
@@ -119,10 +119,10 @@ public interface RefinedStorageApi {
 
     PlatformRegistry<GridSynchronizer> getGridSynchronizerRegistry();
 
-    GridResourceFactory<GridResource> getGridResourceFactory();
+    ResourceRepositoryMapper<GridResource> getGridResourceRepositoryMapper();
 
-    void addGridResourceFactory(Class<? extends ResourceKey> resourceClass,
-                                GridResourceFactory<GridResource> factory);
+    void addGridResourceRepositoryMapper(Class<? extends ResourceKey> resourceClass,
+                                         ResourceRepositoryMapper<GridResource> mapper);
 
     UpgradeRegistry getUpgradeRegistry();
 

@@ -1,4 +1,4 @@
-package com.refinedmods.refinedstorage.api.grid.view;
+package com.refinedmods.refinedstorage.api.resource.repository;
 
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
@@ -10,41 +10,37 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 
 /**
- * Represents a grid view.
- * The grid view internally has a backing list and a view list.
- * The backing list is the logical view of the grid without any filtering or sorting applied. It's the source of truth.
- * The view list has filtering and sorting rules applied and is in sync with the backing list (depending on the view
- * being in "prevent sorting" mode).
+ * Represents a view over a {@link com.refinedmods.refinedstorage.api.resource.list.ResourceList}.
+ * The {@link com.refinedmods.refinedstorage.api.resource.list.ResourceList} contained in this repository
+ * is the backing list.
+ * The view list is a sorted and filtered version of the backing list.
+ * The resources from the backing list are mapped through a {@link ResourceRepositoryMapper} when inserted into
+ * the view list.
  *
- * @param <T> the view type
+ * @param <T> the mapped type
  */
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
-public interface GridView<T> {
+public interface ResourceRepository<T> {
     /**
-     * Sets a listener that is called when the grid view changes.
+     * Sets a listener that is called when the view list changes.
      *
      * @param listener the listener, can be null
      */
     void setListener(@Nullable Runnable listener);
 
     /**
-     * Changing the sorting type still requires a call to {@link #sort()}.
+     * After changing the sort, you still need to call {@link #sort()}.
      *
-     * @param sortingType the sorting type
+     * @param sort      the sort
+     * @param direction the direction
      */
-    void setSortingType(Comparator<T> sortingType);
-
-    /**
-     * @param filter the filter
-     * @return the previous filtering predicate
-     */
-    ResourceRepositoryFilter<T> setFilterAndSort(ResourceRepositoryFilter<T> filter);
+    void setSort(Comparator<T> sort, SortingDirection direction);
 
     /**
      * Preventing sorting means that the changes will still arrive at the backing list and view list, but,
-     * the view list won't be resorted and if a resource is zeroed, will stay in view until sorting is enabled
-     * again.
-     * This still requires a call to {@link #sort()} when preventing sorting is disabled again.
+     * the view list won't be resorted and if a resource is completely removed,
+     * it will stay in the view list until sorting is enabled again.
+     * When disabling prevent sorting, you still need to call {@link #sort()}.
      *
      * @param preventSorting whether the view should prevent sorting on changes
      * @return whether prevent sorting has changed
@@ -52,11 +48,10 @@ public interface GridView<T> {
     boolean setPreventSorting(boolean preventSorting);
 
     /**
-     * Changing the sorting direction still requires a call to {@link #sort()}.
-     *
-     * @param sortingDirection the sorting direction
+     * @param filter the filter
+     * @return the previous filter
      */
-    void setSortingDirection(GridSortingDirection sortingDirection);
+    ResourceRepositoryFilter<T> setFilterAndSort(ResourceRepositoryFilter<T> filter);
 
     /**
      * @param resource the resource
@@ -66,9 +61,9 @@ public interface GridView<T> {
 
     /**
      * @param resource the resource
-     * @return whether its autocraftable
+     * @return whether the resource is sticky
      */
-    boolean isAutocraftable(ResourceKey resource);
+    boolean isSticky(ResourceKey resource);
 
     /**
      * Sorts the view list.
@@ -96,7 +91,7 @@ public interface GridView<T> {
     MutableResourceList copyBackingList();
 
     /**
-     * Clears the backing list, view list and tracked resources index.
+     * Clears the backing list and view list.
      */
     void clear();
 }

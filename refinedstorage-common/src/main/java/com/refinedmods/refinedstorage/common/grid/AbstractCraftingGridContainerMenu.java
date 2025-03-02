@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.grid;
 
-import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryFilter;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
@@ -117,7 +117,7 @@ public abstract class AbstractCraftingGridContainerMenu extends AbstractGridCont
 
     @API(status = API.Status.INTERNAL)
     public MutableResourceList getAvailableListForRecipeTransfer() {
-        final MutableResourceList available = getView().copyBackingList();
+        final MutableResourceList available = getRepository().copyBackingList();
         addContainerToList(craftingGrid.getCraftingMatrix(), available);
         addContainerToList(gridPlayer.getInventory(), available);
         return available;
@@ -139,7 +139,7 @@ public abstract class AbstractCraftingGridContainerMenu extends AbstractGridCont
 
     public void filterBasedOnCraftingMatrixItems() {
         final Set<ItemResource> craftingMatrixItems = getCraftingMatrixItems();
-        filterBeforeFilteringBasedOnCraftingMatrixItems = getView().setFilterAndSort(
+        filterBeforeFilteringBasedOnCraftingMatrixItems = getRepository().setFilterAndSort(
             (view, resource) -> resource instanceof ItemGridResource itemResource
                 && craftingMatrixItems.contains(itemResource.getItemResource())
         );
@@ -161,7 +161,7 @@ public abstract class AbstractCraftingGridContainerMenu extends AbstractGridCont
         if (filterBeforeFilteringBasedOnCraftingMatrixItems == null) {
             return;
         }
-        getView().setFilterAndSort(filterBeforeFilteringBasedOnCraftingMatrixItems);
+        getRepository().setFilterAndSort(filterBeforeFilteringBasedOnCraftingMatrixItems);
         filterBeforeFilteringBasedOnCraftingMatrixItems = null;
     }
 

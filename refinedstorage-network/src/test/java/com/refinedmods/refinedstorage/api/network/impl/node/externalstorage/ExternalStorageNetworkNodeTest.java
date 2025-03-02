@@ -466,7 +466,6 @@ class ExternalStorageNetworkNodeTest {
         assertThat(networkStorage.getAll()).isEmpty();
     }
 
-    @SuppressWarnings("AssertBetweenInconvertibleTypes") // intellij bug
     @ParameterizedTest
     @EnumSource(Action.class)
     void shouldTrackChangesWhenExtracting(
@@ -527,7 +526,6 @@ class ExternalStorageNetworkNodeTest {
         assertThat(trackedResource).isEmpty();
     }
 
-    @SuppressWarnings("AssertBetweenInconvertibleTypes") // intellij bug
     @ParameterizedTest
     @EnumSource(Action.class)
     void shouldTrackChangesWhenInserting(

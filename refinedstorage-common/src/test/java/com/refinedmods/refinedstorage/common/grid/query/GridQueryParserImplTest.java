@@ -1,29 +1,30 @@
 package com.refinedmods.refinedstorage.common.grid.query;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
-import com.refinedmods.refinedstorage.api.grid.view.GridViewImpl;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceListImpl;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryImpl;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
 import com.refinedmods.refinedstorage.query.parser.ParserOperatorMappings;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -45,12 +46,11 @@ class GridQueryParserImplTest {
         ParserOperatorMappings.DEFAULT_MAPPINGS
     );
 
-    private final GridView<GridResource> view = new GridViewImpl<>(
+    private final ResourceRepository<GridResource> repository = new ResourceRepositoryImpl<>(
         resource -> {
             throw new UnsupportedOperationException();
         },
         MutableResourceListImpl.create(),
-        new HashMap<>(),
         new HashSet<>(),
         v -> Comparator.comparing(GridResource::getName),
         v -> Comparator.comparingLong(resource -> resource.getAmount(v))
@@ -63,8 +63,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse(query);
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isTrue();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isTrue();
     }
 
     @ParameterizedTest
@@ -74,8 +74,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse(query);
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isFalse();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isFalse();
     }
 
     @ParameterizedTest
@@ -85,8 +85,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse(query);
 
         // Assert
-        assertThat(predicate.test(view, new R("Sponge", 1, "rs", "Refined Storage", Set.of()))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isFalse();
+        assertThat(predicate.test(repository, new R("Sponge", 1, "rs", "Refined Storage", Set.of()))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isFalse();
     }
 
     @ParameterizedTest
@@ -96,9 +96,9 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse(query);
 
         // Assert
-        assertThat(predicate.test(view,
+        assertThat(predicate.test(repository,
             new R("Sponge", 1, "mc", "Minecraft", Set.of("underwater", "unrelated")))).isTrue();
-        assertThat(predicate.test(view, new R("Dirt", 1, "mc", "Minecraft", Set.of("transparent")))).isFalse();
+        assertThat(predicate.test(repository, new R("Dirt", 1, "mc", "Minecraft", Set.of("transparent")))).isFalse();
     }
 
     @Test
@@ -117,8 +117,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("DirT di RT");
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isFalse();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isFalse();
     }
 
     @Test
@@ -127,9 +127,9 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("(DirT di RT) || (sto stone)");
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isFalse();
-        assertThat(predicate.test(view, new R("Stone"))).isTrue();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isFalse();
+        assertThat(predicate.test(repository, new R("Stone"))).isTrue();
     }
 
     @Test
@@ -138,10 +138,10 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("@minecraft >5");
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt", 6, "minecraft", "Minecraft", Set.of()))).isTrue();
-        assertThat(predicate.test(view, new R("Glass", 5, "minecraft", "Minecraft", Set.of()))).isFalse();
-        assertThat(predicate.test(view, new R("Sponge", 5, "rs", "Refined Storage", Set.of()))).isFalse();
-        assertThat(predicate.test(view, new R("Cobblestone", 6, "rs", "Refined Storage", Set.of()))).isFalse();
+        assertThat(predicate.test(repository, new R("Dirt", 6, "minecraft", "Minecraft", Set.of()))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 5, "minecraft", "Minecraft", Set.of()))).isFalse();
+        assertThat(predicate.test(repository, new R("Sponge", 5, "rs", "Refined Storage", Set.of()))).isFalse();
+        assertThat(predicate.test(repository, new R("Cobblestone", 6, "rs", "Refined Storage", Set.of()))).isFalse();
     }
 
     @Test
@@ -150,8 +150,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("DirT && di && RT");
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isFalse();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isFalse();
     }
 
     @Test
@@ -160,13 +160,13 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("dir || glass || StoNe");
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isTrue();
-        assertThat(predicate.test(view, new R("Stone"))).isTrue();
-        assertThat(predicate.test(view, new R("Cobblestone"))).isTrue();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isTrue();
+        assertThat(predicate.test(repository, new R("Stone"))).isTrue();
+        assertThat(predicate.test(repository, new R("Cobblestone"))).isTrue();
 
-        assertThat(predicate.test(view, new R("Sponge"))).isFalse();
-        assertThat(predicate.test(view, new R("Furnace"))).isFalse();
+        assertThat(predicate.test(repository, new R("Sponge"))).isFalse();
+        assertThat(predicate.test(repository, new R("Furnace"))).isFalse();
     }
 
     @Test
@@ -175,11 +175,11 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("!stone");
 
         // Assert
-        assertThat(predicate.test(view, new R("Dirt"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isTrue();
+        assertThat(predicate.test(repository, new R("Dirt"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isTrue();
 
-        assertThat(predicate.test(view, new R("Stone"))).isFalse();
-        assertThat(predicate.test(view, new R("Cobblestone"))).isFalse();
+        assertThat(predicate.test(repository, new R("Stone"))).isFalse();
+        assertThat(predicate.test(repository, new R("Cobblestone"))).isFalse();
     }
 
     @Test
@@ -188,11 +188,11 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("!(stone || dirt)");
 
         // Assert
-        assertThat(predicate.test(view, new R("Sponge"))).isTrue();
-        assertThat(predicate.test(view, new R("Glass"))).isTrue();
+        assertThat(predicate.test(repository, new R("Sponge"))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass"))).isTrue();
 
-        assertThat(predicate.test(view, new R("Stone"))).isFalse();
-        assertThat(predicate.test(view, new R("Dirt"))).isFalse();
+        assertThat(predicate.test(repository, new R("Stone"))).isFalse();
+        assertThat(predicate.test(repository, new R("Dirt"))).isFalse();
     }
 
     @Test
@@ -203,12 +203,12 @@ class GridQueryParserImplTest {
         );
 
         // Assert
-        assertThat(predicate.test(view, new R("Sponge", 1, "rs", "Refined Storage", Set.of()))).isTrue();
-        assertThat(predicate.test(view, new R("Bucket", 1, "rs", "Refined Storage", Set.of()))).isTrue();
-        assertThat(predicate.test(view, new R("Saddle", 1, "rs", "Refined Storage", Set.of()))).isFalse();
+        assertThat(predicate.test(repository, new R("Sponge", 1, "rs", "Refined Storage", Set.of()))).isTrue();
+        assertThat(predicate.test(repository, new R("Bucket", 1, "rs", "Refined Storage", Set.of()))).isTrue();
+        assertThat(predicate.test(repository, new R("Saddle", 1, "rs", "Refined Storage", Set.of()))).isFalse();
 
-        assertThat(predicate.test(view, new R("Glass", 1, "mc", "Minecraft", Set.of()))).isTrue();
-        assertThat(predicate.test(view, new R("Furnace", 1, "mc", "Minecraft", Set.of()))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 1, "mc", "Minecraft", Set.of()))).isTrue();
+        assertThat(predicate.test(repository, new R("Furnace", 1, "mc", "Minecraft", Set.of()))).isFalse();
     }
 
     @Test
@@ -217,8 +217,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("<5");
 
         // Assert
-        assertThat(predicate.test(view, new R("Glass", 5))).isFalse();
-        assertThat(predicate.test(view, new R("Glass", 4))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 5))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 4))).isTrue();
     }
 
     @Test
@@ -227,9 +227,9 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("<=5");
 
         // Assert
-        assertThat(predicate.test(view, new R("Glass", 6))).isFalse();
-        assertThat(predicate.test(view, new R("Glass", 5))).isTrue();
-        assertThat(predicate.test(view, new R("Glass", 4))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 6))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 5))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 4))).isTrue();
     }
 
     @Test
@@ -238,8 +238,8 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse(">5");
 
         // Assert
-        assertThat(predicate.test(view, new R("Glass", 5))).isFalse();
-        assertThat(predicate.test(view, new R("Glass", 6))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 5))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 6))).isTrue();
     }
 
     @Test
@@ -248,9 +248,9 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse(">=5");
 
         // Assert
-        assertThat(predicate.test(view, new R("Glass", 4))).isFalse();
-        assertThat(predicate.test(view, new R("Glass", 5))).isTrue();
-        assertThat(predicate.test(view, new R("Glass", 6))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 4))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 5))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 6))).isTrue();
     }
 
     @Test
@@ -259,9 +259,9 @@ class GridQueryParserImplTest {
         final var predicate = sut.parse("=5");
 
         // Assert
-        assertThat(predicate.test(view, new R("Glass", 4))).isFalse();
-        assertThat(predicate.test(view, new R("Glass", 5))).isTrue();
-        assertThat(predicate.test(view, new R("Glass", 6))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 4))).isFalse();
+        assertThat(predicate.test(repository, new R("Glass", 5))).isTrue();
+        assertThat(predicate.test(repository, new R("Glass", 6))).isFalse();
     }
 
     @ParameterizedTest
@@ -318,12 +318,15 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public Optional<TrackedResource> getTrackedResource(final GridView<GridResource> view) {
-            return Optional.empty();
+        @Nullable
+        public TrackedResource getTrackedResource(
+            final Function<ResourceKey, TrackedResource> trackedResourceProvider
+        ) {
+            return null;
         }
 
         @Override
-        public long getAmount(final GridView<GridResource> view) {
+        public long getAmount(final ResourceRepository<GridResource> repository) {
             return amount;
         }
 
@@ -338,12 +341,12 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public boolean isAutocraftable(final GridView<GridResource> view) {
+        public boolean isAutocraftable(final ResourceRepository<GridResource> repository) {
             return false;
         }
 
         @Override
-        public boolean canExtract(final ItemStack carriedStack, final GridView<GridResource> view) {
+        public boolean canExtract(final ItemStack carriedStack, final ResourceRepository<GridResource> repository) {
             return false;
         }
 
@@ -367,12 +370,12 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public String getDisplayedAmount(final GridView<GridResource> view) {
+        public String getDisplayedAmount(final ResourceRepository<GridResource> repository) {
             return "";
         }
 
         @Override
-        public String getAmountInTooltip(final GridView<GridResource> view) {
+        public String getAmountInTooltip(final ResourceRepository<GridResource> repository) {
             return "";
         }
 
@@ -398,7 +401,7 @@ class GridQueryParserImplTest {
 
         @Override
         public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
-                                                               final GridView<GridResource> view) {
+                                                               final ResourceRepository<GridResource> repository) {
             return List.of();
         }
 
