@@ -2,7 +2,7 @@ package com.refinedmods.refinedstorage.api.grid.query;
 
 import com.refinedmods.refinedstorage.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
 import com.refinedmods.refinedstorage.query.lexer.Lexer;
 import com.refinedmods.refinedstorage.query.lexer.LexerException;
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
@@ -44,7 +44,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
     }
 
     @Override
-    public BiPredicate<GridView<T>, T> parse(final String query) throws GridQueryParserException {
+    public ResourceRepositoryFilter<T> parse(final String query) throws GridQueryParserException {
         if (query.trim().isEmpty()) {
             return (view, resource) -> true;
         }
@@ -73,15 +73,15 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         }
     }
 
-    private BiPredicate<GridView<T>, T> implicitAnd(final List<Node> nodes) throws GridQueryParserException {
-        final List<BiPredicate<GridView<T>, T>> conditions = new ArrayList<>();
+    private ResourceRepositoryFilter<T> implicitAnd(final List<Node> nodes) throws GridQueryParserException {
+        final List<ResourceRepositoryFilter<T>> conditions = new ArrayList<>();
         for (final Node node : nodes) {
             conditions.add(parseNode(node));
         }
         return and(conditions);
     }
 
-    private BiPredicate<GridView<T>, T> parseNode(final Node node) throws GridQueryParserException {
+    private ResourceRepositoryFilter<T> parseNode(final Node node) throws GridQueryParserException {
         return switch (node) {
             case LiteralNode literalNode -> parseLiteral(literalNode);
             case UnaryOpNode unaryOpNode -> parseUnaryOp(unaryOpNode);
@@ -91,7 +91,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         };
     }
 
-    private BiPredicate<GridView<T>, T> parseBinOp(final BinOpNode node) throws GridQueryParserException {
+    private ResourceRepositoryFilter<T> parseBinOp(final BinOpNode node) throws GridQueryParserException {
         final String operator = node.binOp().content();
         if ("&&".equals(operator)) {
             return parseAndBinOpNode(node);
@@ -102,7 +102,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         }
     }
 
-    private BiPredicate<GridView<T>, T> parseAndBinOpNode(final BinOpNode node)
+    private ResourceRepositoryFilter<T> parseAndBinOpNode(final BinOpNode node)
         throws GridQueryParserException {
         return and(Arrays.asList(
             parseNode(node.left()),
@@ -110,7 +110,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         ));
     }
 
-    private BiPredicate<GridView<T>, T> parseOrBinOpNode(final BinOpNode node)
+    private ResourceRepositoryFilter<T> parseOrBinOpNode(final BinOpNode node)
         throws GridQueryParserException {
         return or(Arrays.asList(
             parseNode(node.left()),
@@ -118,10 +118,10 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         ));
     }
 
-    private BiPredicate<GridView<T>, T> parseUnaryOp(final UnaryOpNode node) throws GridQueryParserException {
+    private ResourceRepositoryFilter<T> parseUnaryOp(final UnaryOpNode node) throws GridQueryParserException {
         final String operator = node.operator().content();
         final Node content = node.node();
-        final BiPredicate<GridView<T>, T> predicate;
+        final ResourceRepositoryFilter<T> predicate;
 
         if ("!".equals(operator)) {
             predicate = not(parseNode(content));
@@ -148,7 +148,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         return predicate;
     }
 
-    private static <T extends GridResource> BiPredicate<GridView<T>, T> count(final Node node,
+    private static <T extends GridResource> ResourceRepositoryFilter<T> count(final Node node,
                                                                               final BiPredicate<Long, Long> predicate)
         throws GridQueryParserException {
         if (!(node instanceof LiteralNode)) {
@@ -164,7 +164,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         return (view, resource) -> predicate.test(resource.getAmount(view), wantedCount);
     }
 
-    private static <T extends GridResource> BiPredicate<GridView<T>, T> attributeMatch(
+    private static <T extends GridResource> ResourceRepositoryFilter<T> attributeMatch(
         final Set<GridResourceAttributeKey> keys,
         final String query
     ) {
@@ -179,14 +179,14 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         return value.trim().toLowerCase(Locale.ROOT);
     }
 
-    private static <T extends GridResource> BiPredicate<GridView<T>, T> parseLiteral(final LiteralNode node) {
+    private static <T extends GridResource> ResourceRepositoryFilter<T> parseLiteral(final LiteralNode node) {
         return (view, resource) -> normalize(resource.getName()).contains(normalize(node.token().content()));
     }
 
-    private static <T extends GridResource> BiPredicate<GridView<T>, T> and(
-        final List<BiPredicate<GridView<T>, T>> chain) {
+    private static <T extends GridResource> ResourceRepositoryFilter<T> and(
+        final List<ResourceRepositoryFilter<T>> chain) {
         return (view, resource) -> {
-            for (final BiPredicate<GridView<T>, T> predicate : chain) {
+            for (final ResourceRepositoryFilter<T> predicate : chain) {
                 if (!predicate.test(view, resource)) {
                     return false;
                 }
@@ -195,10 +195,10 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         };
     }
 
-    private static <T extends GridResource> BiPredicate<GridView<T>, T> or(
-        final List<BiPredicate<GridView<T>, T>> chain) {
+    private static <T extends GridResource> ResourceRepositoryFilter<T> or(
+        final List<ResourceRepositoryFilter<T>> chain) {
         return (view, resource) -> {
-            for (final BiPredicate<GridView<T>, T> predicate : chain) {
+            for (final ResourceRepositoryFilter<T> predicate : chain) {
                 if (predicate.test(view, resource)) {
                     return true;
                 }
@@ -207,8 +207,8 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         };
     }
 
-    private static <T extends GridResource> BiPredicate<GridView<T>, T> not(
-        final BiPredicate<GridView<T>, T> predicate) {
+    private static <T extends GridResource> ResourceRepositoryFilter<T> not(
+        final ResourceRepositoryFilter<T> predicate) {
         return (view, resource) -> !predicate.test(view, resource);
     }
 }

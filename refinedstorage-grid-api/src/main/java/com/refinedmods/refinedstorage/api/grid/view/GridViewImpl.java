@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiPredicate;
 import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
@@ -30,7 +29,7 @@ public class GridViewImpl<T> implements GridView<T> {
     private ViewList<T> viewList = new ViewList<>();
     private GridSortingType<T> sortingType;
     private GridSortingDirection sortingDirection = GridSortingDirection.ASCENDING;
-    private BiPredicate<GridView<T>, T> filter = (view, resource) -> true;
+    private ResourceRepositoryFilter<T> filter = (view, resource) -> true;
     @Nullable
     private Runnable listener;
     private boolean preventSorting;
@@ -68,8 +67,8 @@ public class GridViewImpl<T> implements GridView<T> {
     }
 
     @Override
-    public BiPredicate<GridView<T>, T> setFilterAndSort(final BiPredicate<GridView<T>, T> f) {
-        final BiPredicate<GridView<T>, T> previousFilter = this.filter;
+    public ResourceRepositoryFilter<T> setFilterAndSort(final ResourceRepositoryFilter<T> f) {
+        final ResourceRepositoryFilter<T> previousFilter = this.filter;
         this.filter = f;
         sort();
         return previousFilter;

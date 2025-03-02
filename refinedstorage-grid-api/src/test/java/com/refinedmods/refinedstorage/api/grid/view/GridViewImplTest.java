@@ -7,7 +7,6 @@ import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -167,14 +166,14 @@ class GridViewImplTest {
             .withResource(B, 10, null)
             .build();
 
-        final BiPredicate<GridView<GridResource>, GridResource> filterA =
+        final ResourceRepositoryFilter<GridResource> filterA =
             (v, resource) -> resource.getName().equals(A.name());
-        final BiPredicate<GridView<GridResource>, GridResource> filterB =
+        final ResourceRepositoryFilter<GridResource> filterB =
             (v, resource) -> resource.getName().equals(B.name());
 
         // Act
-        final BiPredicate<GridView<GridResource>, GridResource> previousFilter1 = view.setFilterAndSort(filterA);
-        final BiPredicate<GridView<GridResource>, GridResource> previousFilter2 = view.setFilterAndSort(filterB);
+        final ResourceRepositoryFilter<GridResource> previousFilter1 = view.setFilterAndSort(filterA);
+        final ResourceRepositoryFilter<GridResource> previousFilter2 = view.setFilterAndSort(filterB);
 
         // Assert
         assertThat(previousFilter1).isNotNull();

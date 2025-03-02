@@ -14,6 +14,7 @@ import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilder;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilderImpl;
+import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
 import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
@@ -47,7 +48,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiPredicate;
 import javax.annotation.Nullable;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -144,11 +144,11 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         initStrategies((ServerPlayer) playerInventory.player);
     }
 
-    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource> createBaseFilter() {
+    private ResourceRepositoryFilter<PlatformGridResource> createBaseFilter() {
         return createResourceTypeFilter().and(createViewTypeFilter());
     }
 
-    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource> createResourceTypeFilter() {
+    private ResourceRepositoryFilter<PlatformGridResource> createResourceTypeFilter() {
         return (v, resource) -> resource instanceof PlatformGridResource platformResource
             && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
             RefinedStorageApi.INSTANCE
@@ -158,7 +158,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         ).orElse(true);
     }
 
-    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource> createViewTypeFilter() {
+    private ResourceRepositoryFilter<PlatformGridResource> createViewTypeFilter() {
         return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
             .accepts(resource.isAutocraftable(v));
     }

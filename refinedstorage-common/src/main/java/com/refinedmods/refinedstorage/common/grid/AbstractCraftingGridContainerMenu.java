@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.grid;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
 import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
@@ -33,8 +32,7 @@ public abstract class AbstractCraftingGridContainerMenu extends AbstractGridCont
     @Nullable
     private Consumer<Boolean> activenessListener;
     @Nullable
-    private BiPredicate<GridView<PlatformGridResource>, PlatformGridResource>
-        filterBeforeFilteringBasedOnCraftingMatrixItems;
+    private ResourceRepositoryFilter<PlatformGridResource> filterBeforeFilteringBasedOnCraftingMatrixItems;
 
     protected AbstractCraftingGridContainerMenu(final MenuType<? extends AbstractGridContainerMenu> menuType,
                                                 final int syncId,
