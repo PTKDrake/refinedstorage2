@@ -43,6 +43,8 @@ import com.refinedmods.refinedstorage.common.support.stretching.ScreenSizeListen
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
 import com.refinedmods.refinedstorage.query.parser.ParserOperatorMappings;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
@@ -60,7 +62,7 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractGridContainerMenu extends AbstractResourceContainerMenu
     implements GridWatcher, GridInsertionStrategy, GridExtractionStrategy, GridScrollingStrategy, ScreenSizeListener,
-    PreviewProvider {
+    PreviewProvider, GridSortingTypes.TrackedResourceProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGridContainerMenu.class);
     private static final GridQueryParser QUERY_PARSER = new GridQueryParser(
         LexerTokenMappings.DEFAULT_MAPPINGS,
@@ -73,6 +75,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     private final GridView<GridResource> view;
     private final PatternRepository playerInventoryPatterns = new PatternRepositoryImpl();
+    private final Map<ResourceKey, TrackedResource> trackedResources = new HashMap<>();
     @Nullable
     private Grid grid;
     @Nullable
@@ -98,17 +101,16 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
         this.active = gridData.active();
 
-        final GridViewBuilder<GridResource> viewBuilder = createViewBuilder();
+        final GridViewBuilder<GridResource> viewBuilder = createViewBuilder(this);
         gridData.resources().forEach(resource -> viewBuilder.withResource(
             resource.resourceAmount().resource(),
-            resource.resourceAmount().amount(),
-            resource.trackedResource().orElse(null)
+            resource.resourceAmount().amount()
         ));
         gridData.autocraftableResources().forEach(viewBuilder::withAutocraftableResource);
 
         this.view = viewBuilder.build();
         this.view.setSortingDirection(Platform.INSTANCE.getConfig().getGrid().getSortingDirection());
-        this.view.setSortingType(Platform.INSTANCE.getConfig().getGrid().getSortingType());
+        this.view.setSortingType(Platform.INSTANCE.getConfig().getGrid().getSortingType().apply(this).apply(view));
         this.view.setFilterAndSort(createBaseFilter());
 
         this.synchronizer = loadSynchronizer();
@@ -126,7 +128,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
     ) {
         super(menuType, syncId, playerInventory.player);
 
-        this.view = createViewBuilder().build();
+        this.view = createViewBuilder(this).build();
 
         this.playerInventory = playerInventory;
         this.grid = grid;
@@ -155,11 +157,13 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
             .accepts(resource.isAutocraftable(v));
     }
 
-    private static GridViewBuilder<GridResource> createViewBuilder() {
+    private static GridViewBuilder<GridResource> createViewBuilder(
+        final GridSortingTypes.TrackedResourceProvider sortingContext
+    ) {
         return new GridViewBuilderImpl<>(
             RefinedStorageApi.INSTANCE.getGridResourceFactory(),
-            GridSortingTypes.NAME,
-            GridSortingTypes.QUANTITY
+            GridSortingTypes.NAME.apply(sortingContext),
+            GridSortingTypes.QUANTITY.apply(sortingContext)
         );
     }
 
@@ -167,7 +171,28 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
                                  final long amount,
                                  @Nullable final TrackedResource trackedResource) {
         LOGGER.debug("{} got updated with {}", resource, amount);
-        view.onChange(resource, amount, trackedResource);
+        view.onChange(resource, amount);
+        updateOrRemoveTrackedResource(resource, trackedResource);
+    }
+
+    @Override
+    @Nullable
+    public TrackedResource getTrackedResource(final GridResource resource) {
+        return resource.getTrackedResource(this::getTrackedResource);
+    }
+
+    @Nullable
+    public TrackedResource getTrackedResource(final ResourceKey resource) {
+        return trackedResources.get(resource);
+    }
+
+    private void updateOrRemoveTrackedResource(final ResourceKey resource,
+                                               @Nullable final TrackedResource trackedResource) {
+        if (trackedResource == null) {
+            trackedResources.remove(resource);
+        } else {
+            trackedResources.put(resource, trackedResource);
+        }
     }
 
     public GridSortingDirection getSortingDirection() {
@@ -186,7 +211,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     public void setSortingType(final GridSortingTypes sortingType) {
         Platform.INSTANCE.getConfig().getGrid().setSortingType(sortingType);
-        view.setSortingType(sortingType);
+        view.setSortingType(sortingType.apply(this).apply(view));
         view.sort();
     }
 
@@ -424,6 +449,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     public void onClear() {
         view.clear();
+        trackedResources.clear();
     }
 
     @Nullable

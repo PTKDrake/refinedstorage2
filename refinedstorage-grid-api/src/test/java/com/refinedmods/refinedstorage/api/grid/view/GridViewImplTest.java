@@ -3,10 +3,8 @@ package com.refinedmods.refinedstorage.api.grid.view;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.ResourceList;
-import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 
 import java.util.Comparator;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,8 +52,8 @@ class GridViewImplTest {
         final GridView<WrappedGridResource> view = builder.build();
 
         // Act
-        view.onChange(new WrappedResourceKey(A, 1), 1, null);
-        view.onChange(new WrappedResourceKey(A, 2), 1, null);
+        view.onChange(new WrappedResourceKey(A, 1), 1);
+        view.onChange(new WrappedResourceKey(A, 2), 1);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(
@@ -71,43 +69,37 @@ class GridViewImplTest {
         view.setSortingDirection(GridSortingDirection.DESCENDING);
 
         // Act & assert
-        view.onChange(A, 10, null);
-        view.onChange(A, 5, null);
-        view.onChange(B, 15, null);
-        view.onChange(C, 2, null);
+        view.onChange(A, 10);
+        view.onChange(A, 5);
+        view.onChange(B, 15);
+        view.onChange(C, 2);
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B, A, C);
 
-        view.onChange(A, -15, null);
-        view.onChange(A, 15, null);
+        view.onChange(A, -15);
+        view.onChange(A, 15);
 
-        view.onChange(B, -15, null);
-        view.onChange(B, 15, null);
+        view.onChange(B, -15);
+        view.onChange(B, 15);
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B, A, C);
     }
 
     @Test
-    void shouldLoadResourcesAndRetrieveTrackedResourcesProperly() {
+    void shouldLoadResources() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 1, new TrackedResource("Raoul", 1))
-            .withResource(A, 1, new TrackedResource("RaoulA", 2))
-            .withResource(B, 1, new TrackedResource("VDB", 3))
-            .withResource(B, 1, null)
-            .withResource(D, 1, null)
+            .withResource(A, 1)
+            .withResource(A, 1)
+            .withResource(B, 1)
+            .withResource(B, 1)
+            .withResource(D, 1)
             .build();
 
         // Act
-        final Optional<TrackedResource> a = view.getTrackedResource(A);
-        final Optional<TrackedResource> b = view.getTrackedResource(B);
-        final Optional<TrackedResource> d = view.getTrackedResource(D);
         final ResourceList backingList = view.copyBackingList();
 
         // Assert
-        assertThat(a).get().usingRecursiveComparison().isEqualTo(new TrackedResource("RaoulA", 2));
-        assertThat(b).isEmpty();
-        assertThat(d).isEmpty();
         assertThat(backingList.copyState()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(
             new ResourceAmount(A, 2),
             new ResourceAmount(B, 2),
@@ -123,8 +115,8 @@ class GridViewImplTest {
     void shouldInsertNewResource() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -133,7 +125,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(A, 12, null);
+        view.onChange(A, 12);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -154,8 +146,8 @@ class GridViewImplTest {
     void shouldSetFilterAndSort() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 10, null)
-            .withResource(B, 10, null)
+            .withResource(A, 10)
+            .withResource(B, 10)
             .build();
 
         final ResourceRepositoryFilter<ResourceKey> filterA = (v, resource) -> resource == A;
@@ -177,8 +169,8 @@ class GridViewImplTest {
     @ValueSource(booleans = {true, false})
     void shouldNotInsertNewResourceWhenFilteringProhibitsIt(final boolean autocraftable) {
         // Arrange
-        viewBuilder.withResource(B, 15, null)
-            .withResource(D, 10, null);
+        viewBuilder.withResource(B, 15)
+            .withResource(D, 10);
         if (autocraftable) {
             viewBuilder.withAutocraftableResource(A);
         }
@@ -190,7 +182,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(A, 12, null);
+        view.onChange(A, 12);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, B);
@@ -204,9 +196,9 @@ class GridViewImplTest {
     void shouldCallListenerWhenSorting() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 6, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 6)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         final Runnable listener = mock(Runnable.class);
@@ -224,9 +216,9 @@ class GridViewImplTest {
     void shouldUpdateExistingResource() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 6, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 6)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -235,7 +227,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(B, 5, null);
+        view.onChange(B, 5);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, B, A);
@@ -256,9 +248,9 @@ class GridViewImplTest {
     void shouldNotUpdateExistingResourceWhenFilteringProhibitsIt() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 6, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 6)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.setFilterAndSort((v, resource) -> resource != B);
@@ -267,7 +259,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(B, 5, null);
+        view.onChange(B, 5);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A);
@@ -288,9 +280,9 @@ class GridViewImplTest {
     void shouldNotReorderExistingResourceWhenPreventingSorting() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 6, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 6)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -306,7 +298,7 @@ class GridViewImplTest {
         final boolean changed2 = view.setPreventSorting(true);
         assertThat(changed2).isFalse();
 
-        view.onChange(B, 5, null);
+        view.onChange(B, 5);
         verify(listener, never()).run();
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B, D, A);
@@ -333,35 +325,12 @@ class GridViewImplTest {
     }
 
     @Test
-    void shouldUpdateTrackedResourceAfterReceivingChange() {
-        // Act
-        final GridView<ResourceKey> view = viewBuilder.build();
-
-        view.onChange(A, 1, new TrackedResource("Raoul", 1));
-        view.onChange(A, 1, new TrackedResource("RaoulA", 2));
-
-        view.onChange(B, 1, new TrackedResource("VDB", 3));
-        view.onChange(B, 1, null);
-
-        view.onChange(D, 1, null);
-
-        // Assert
-        final Optional<TrackedResource> a = view.getTrackedResource(A);
-        final Optional<TrackedResource> b = view.getTrackedResource(B);
-        final Optional<TrackedResource> c = view.getTrackedResource(D);
-
-        assertThat(a).get().usingRecursiveComparison().isEqualTo(new TrackedResource("RaoulA", 2));
-        assertThat(b).isEmpty();
-        assertThat(c).isEmpty();
-    }
-
-    @Test
     void shouldUpdateExistingResourceWhenPerformingPartialRemoval() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 20, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 20)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -370,7 +339,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(B, -7, null);
+        view.onChange(B, -7);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, B, A);
@@ -391,9 +360,9 @@ class GridViewImplTest {
     void shouldNotUpdateExistingResourceWhenPerformingPartialRemovalAndFilteringProhibitsIt() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 20, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 20)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.setFilterAndSort((v, resource) -> resource != B);
@@ -402,7 +371,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(B, -7, null);
+        view.onChange(B, -7);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A);
@@ -416,9 +385,9 @@ class GridViewImplTest {
     void shouldNotReorderExistingResourceWhenPerformingPartialRemovalAndPreventingSorting() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 20, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 20)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -431,7 +400,7 @@ class GridViewImplTest {
 
         view.setPreventSorting(true);
 
-        view.onChange(B, -7, null);
+        view.onChange(B, -7);
         verify(listener, never()).run();
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -446,9 +415,9 @@ class GridViewImplTest {
     void shouldNotRemoveNonExistentResource() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 20, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 20)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -457,7 +426,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(C, -7, null);
+        view.onChange(C, -7);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -471,9 +440,9 @@ class GridViewImplTest {
     void shouldRemoveExistingResourceCompletely() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(B, 20, null)
-            .withResource(A, 15, null)
-            .withResource(D, 10, null)
+            .withResource(B, 20)
+            .withResource(A, 15)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -482,7 +451,7 @@ class GridViewImplTest {
         view.setListener(listener);
 
         // Act
-        view.onChange(B, -20, null);
+        view.onChange(B, -20);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A);
@@ -502,9 +471,9 @@ class GridViewImplTest {
     void shouldNotReorderWhenRemovingExistingResourceCompletelyAndPreventingSorting() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, null)
-            .withResource(B, 20, null)
-            .withResource(D, 10, null)
+            .withResource(A, 15)
+            .withResource(B, 20)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -516,7 +485,7 @@ class GridViewImplTest {
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
 
         view.setPreventSorting(true);
-        view.onChange(B, -20, null);
+        view.onChange(B, -20);
         verify(listener, never()).run();
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -543,9 +512,9 @@ class GridViewImplTest {
     void shouldReuseExistingResourceWhenPreventingSortingAndRemovingExistingResourceCompletelyAndThenReinserting() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, null)
-            .withResource(B, 20, null)
-            .withResource(D, 10, null)
+            .withResource(A, 15)
+            .withResource(B, 20)
+            .withResource(D, 10)
             .build();
 
         view.sort();
@@ -558,19 +527,19 @@ class GridViewImplTest {
 
         // Delete the item
         view.setPreventSorting(true);
-        view.onChange(B, -20, null);
+        view.onChange(B, -20);
         verify(listener, never()).run();
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
 
         // Re-insert the item
-        view.onChange(B, 5, null);
+        view.onChange(B, 5);
         verify(listener, never()).run();
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
 
         // Re-insert the item again
-        view.onChange(B, 3, null);
+        view.onChange(B, 3);
         verify(listener, never()).run();
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -580,9 +549,9 @@ class GridViewImplTest {
     void shouldClear() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, new TrackedResource("Source", 0))
-            .withResource(B, 20, new TrackedResource("Source", 0))
-            .withResource(D, 10, new TrackedResource("Source", 0))
+            .withResource(A, 15)
+            .withResource(B, 20)
+            .withResource(D, 10)
             .build();
 
         // Act
@@ -591,9 +560,6 @@ class GridViewImplTest {
         // Assert
         assertThat(view.getViewList()).isEmpty();
         assertThat(view.copyBackingList().copyState()).isEmpty();
-        assertThat(view.getTrackedResource(A)).isEmpty();
-        assertThat(view.getTrackedResource(B)).isEmpty();
-        assertThat(view.getTrackedResource(D)).isEmpty();
         assertThat(view.getAmount(A)).isZero();
         assertThat(view.getAmount(B)).isZero();
         assertThat(view.getAmount(D)).isZero();
@@ -603,7 +569,7 @@ class GridViewImplTest {
     void shouldIncludeAutocraftableResourceInViewList() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, null)
+            .withResource(A, 15)
             .withAutocraftableResource(B)
             .build();
 
@@ -624,7 +590,7 @@ class GridViewImplTest {
     void shouldIncludeAutocraftableResourceInViewListEvenIfItIsInTheBackingList() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, null)
+            .withResource(A, 15)
             .withAutocraftableResource(A)
             .build();
 
@@ -644,14 +610,14 @@ class GridViewImplTest {
     void shouldNotRemoveAutocraftableResource() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, null)
+            .withResource(A, 15)
             .withAutocraftableResource(A)
             .build();
 
         view.sort();
 
         // Act
-        view.onChange(A, -15, null);
+        view.onChange(A, -15);
 
         // Assert
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
@@ -664,7 +630,7 @@ class GridViewImplTest {
     void shouldNotRemoveAutocraftableResourceEvenWhenPreventingSorting() {
         // Arrange
         final GridView<ResourceKey> view = viewBuilder
-            .withResource(A, 15, null)
+            .withResource(A, 15)
             .withAutocraftableResource(A)
             .build();
 
@@ -672,14 +638,14 @@ class GridViewImplTest {
         view.setPreventSorting(true);
 
         // Act & assert
-        view.onChange(A, -15, null);
+        view.onChange(A, -15);
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
         assertThat(view.isAutocraftable(A)).isTrue();
         assertThat(view.getAmount(A)).isZero();
         assertThat(view.copyBackingList().copyState()).isEmpty();
 
-        view.onChange(A, 1, null);
+        view.onChange(A, 1);
 
         assertThat(view.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
         assertThat(view.isAutocraftable(A)).isTrue();

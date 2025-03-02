@@ -456,9 +456,12 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         lines.add(new SmallTextClientTooltipComponent(
             createTranslation("misc", "total", amountInTooltip).withStyle(ChatFormatting.GRAY)
         ));
-        resource.getTrackedResource(view).ifPresent(entry -> lines.add(new SmallTextClientTooltipComponent(
-            getLastModifiedText(entry).withStyle(ChatFormatting.GRAY)
-        )));
+        final TrackedResource trackedResource = resource.getTrackedResource(getMenu()::getTrackedResource);
+        if (trackedResource != null) {
+            lines.add(new SmallTextClientTooltipComponent(
+                getLastModifiedText(trackedResource).withStyle(ChatFormatting.GRAY)
+            ));
+        }
     }
 
     private MutableComponent getLastModifiedText(final TrackedResource trackedResource) {

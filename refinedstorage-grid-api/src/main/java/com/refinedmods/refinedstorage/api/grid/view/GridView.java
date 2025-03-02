@@ -2,10 +2,9 @@ package com.refinedmods.refinedstorage.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
-import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
@@ -33,7 +32,7 @@ public interface GridView<T> {
      *
      * @param sortingType the sorting type
      */
-    void setSortingType(GridSortingType<T> sortingType);
+    void setSortingType(Comparator<T> sortingType);
 
     /**
      * @param filter the filter
@@ -61,12 +60,6 @@ public interface GridView<T> {
 
     /**
      * @param resource the resource
-     * @return the tracked resource, if present
-     */
-    Optional<TrackedResource> getTrackedResource(ResourceKey resource);
-
-    /**
-     * @param resource the resource
      * @return the amount in the view, or zero if not present
      */
     long getAmount(ResourceKey resource);
@@ -87,11 +80,10 @@ public interface GridView<T> {
      * Applies a change to a resource. Will update the backing list, and will also update the view list (depending
      * on if the view is preventing sorting).
      *
-     * @param resource        the resource
-     * @param amount          the amount, can be negative or positive
-     * @param trackedResource the tracked resource, can be null
+     * @param resource the resource
+     * @param amount   the amount, can be negative or positive
      */
-    void onChange(ResourceKey resource, long amount, @Nullable TrackedResource trackedResource);
+    void onChange(ResourceKey resource, long amount);
 
     /**
      * @return the view list

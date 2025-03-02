@@ -2,14 +2,11 @@ package com.refinedmods.refinedstorage.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
-import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
@@ -23,11 +20,10 @@ public class GridViewImpl<T> implements GridView<T> {
     private final MutableResourceList backingList;
     private final Comparator<T> identitySort;
     private final GridResourceFactory<T> resourceFactory;
-    private final Map<ResourceKey, TrackedResource> trackedResources = new HashMap<>();
     private final Set<ResourceKey> autocraftableResources;
 
     private ViewList<T> viewList = new ViewList<>();
-    private GridSortingType<T> sortingType;
+    private Comparator<T> sortingType;
     private GridSortingDirection sortingDirection = GridSortingDirection.ASCENDING;
     private ResourceRepositoryFilter<T> filter = (view, resource) -> true;
     @Nullable
@@ -35,24 +31,21 @@ public class GridViewImpl<T> implements GridView<T> {
     private boolean preventSorting;
 
     /**
-     * @param resourceFactory         a factory that transforms a resource amount to a grid resource
-     * @param backingList             the backing list
-     * @param initialTrackedResources initial tracked resources state
-     * @param identitySortingType     a sorting type required to keep a consistent sorting order with quantity sorting
-     * @param defaultSortingType      the default sorting type
-     * @param autocraftableResources  resources which are autocraftable and must stay in the view list
+     * @param resourceFactory        a factory that transforms a resource amount to a grid resource
+     * @param backingList            the backing list
+     * @param identitySortingType    a sorting type required to keep a consistent sorting order with quantity sorting
+     * @param defaultSortingType     the default sorting type
+     * @param autocraftableResources resources which are autocraftable and must stay in the view list
      */
     public GridViewImpl(final GridResourceFactory<T> resourceFactory,
                         final MutableResourceList backingList,
-                        final Map<ResourceKey, TrackedResource> initialTrackedResources,
                         final Set<ResourceKey> autocraftableResources,
-                        final GridSortingType<T> identitySortingType,
-                        final GridSortingType<T> defaultSortingType) {
+                        final Function<GridView<T>, Comparator<T>> identitySortingType,
+                        final Function<GridView<T>, Comparator<T>> defaultSortingType) {
         this.resourceFactory = resourceFactory;
         this.identitySort = identitySortingType.apply(this);
-        this.sortingType = defaultSortingType;
+        this.sortingType = defaultSortingType.apply(this);
         this.backingList = backingList;
-        this.trackedResources.putAll(initialTrackedResources);
         this.autocraftableResources = autocraftableResources;
     }
 
@@ -62,7 +55,7 @@ public class GridViewImpl<T> implements GridView<T> {
     }
 
     @Override
-    public void setSortingType(final GridSortingType<T> sortingType) {
+    public void setSortingType(final Comparator<T> sortingType) {
         this.sortingType = sortingType;
     }
 
@@ -87,11 +80,6 @@ public class GridViewImpl<T> implements GridView<T> {
     }
 
     @Override
-    public Optional<TrackedResource> getTrackedResource(final ResourceKey resource) {
-        return Optional.ofNullable(trackedResources.get(resource));
-    }
-
-    @Override
     public long getAmount(final ResourceKey resource) {
         return backingList.get(resource);
     }
@@ -110,15 +98,12 @@ public class GridViewImpl<T> implements GridView<T> {
     }
 
     @Override
-    public void onChange(final ResourceKey resource,
-                         final long amount,
-                         @Nullable final TrackedResource trackedResource) {
+    public void onChange(final ResourceKey resource, final long amount) {
         final MutableResourceList.OperationResult backingListResult = updateBackingList(resource, amount);
         if (backingListResult == null) {
             LOGGER.warn("Failed to update backing list for {} {}", amount, resource);
             return;
         }
-        updateOrRemoveTrackedResource(resource, trackedResource);
         final T viewListResource = viewList.get(resource);
         if (viewListResource != null) {
             updateExistingResource(resource, !backingListResult.available(), viewListResource);
@@ -133,15 +118,6 @@ public class GridViewImpl<T> implements GridView<T> {
             return backingList.remove(resource, Math.abs(amount));
         }
         return backingList.add(resource, amount);
-    }
-
-    private void updateOrRemoveTrackedResource(final ResourceKey resource,
-                                               @Nullable final TrackedResource trackedResource) {
-        if (trackedResource == null) {
-            trackedResources.remove(resource);
-        } else {
-            trackedResources.put(resource, trackedResource);
-        }
     }
 
     private void updateExistingResource(final ResourceKey resource,
@@ -179,10 +155,11 @@ public class GridViewImpl<T> implements GridView<T> {
         }
     }
 
+    // TODO: cache this
     private Comparator<T> getComparator() {
         // An identity sort is necessary so the order of items is preserved in quantity sorting mode.
         // If two grid resources have the same quantity, their order would otherwise not be preserved.
-        final Comparator<T> comparator = sortingType.apply(this).thenComparing(identitySort);
+        final Comparator<T> comparator = sortingType.thenComparing(identitySort);
         if (sortingDirection == GridSortingDirection.ASCENDING) {
             return comparator;
         }
@@ -203,6 +180,5 @@ public class GridViewImpl<T> implements GridView<T> {
     public void clear() {
         backingList.clear();
         viewList.clear();
-        trackedResources.clear();
     }
 }

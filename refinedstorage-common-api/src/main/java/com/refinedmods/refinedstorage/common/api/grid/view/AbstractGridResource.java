@@ -1,13 +1,14 @@
 package com.refinedmods.refinedstorage.common.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
@@ -27,8 +28,9 @@ public abstract class AbstractGridResource<T extends PlatformResourceKey> implem
     }
 
     @Override
-    public Optional<TrackedResource> getTrackedResource(final GridView<GridResource> view) {
-        return view.getTrackedResource(resource);
+    @Nullable
+    public TrackedResource getTrackedResource(final Function<ResourceKey, TrackedResource> trackedResourceProvider) {
+        return trackedResourceProvider.apply(resource);
     }
 
     @Override

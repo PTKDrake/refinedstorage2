@@ -3,6 +3,7 @@ package com.refinedmods.refinedstorage.common.api.grid.view;
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
@@ -13,6 +14,7 @@ import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,7 +26,8 @@ import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.6")
 public interface GridResource {
-    Optional<TrackedResource> getTrackedResource(GridView<GridResource> view);
+    @Nullable
+    TrackedResource getTrackedResource(Function<ResourceKey, TrackedResource> trackedResourceProvider);
 
     long getAmount(GridView<GridResource> view);
 
