@@ -16,11 +16,13 @@ import static com.refinedmods.refinedstorage.api.resource.TestResource.B;
 import static com.refinedmods.refinedstorage.api.resource.TestResource.C;
 import static com.refinedmods.refinedstorage.api.resource.TestResource.D;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 class ResourceRepositoryImplTest {
     private ResourceRepositoryBuilder<ResourceKey> builder;
@@ -135,6 +137,35 @@ class ResourceRepositoryImplTest {
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B);
         assertThat(sut.getAmount(A)).isEqualTo(10);
         assertThat(sut.getAmount(B)).isEqualTo(10);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldReuseExistingResourcesFromCacheWhenSorting() {
+        // Arrange
+        final ResourceRepositoryMapper<ResourceKey> mapper = mock(ResourceRepositoryMapper.class);
+        when(mapper.apply(A)).thenReturn(A);
+        when(mapper.apply(B)).thenReturn(B);
+        builder = new ResourceRepositoryBuilderImpl<>(
+            mapper,
+            repository -> Comparator.comparing(ResourceKey::toString),
+            repository -> Comparator.comparingLong(repository::getAmount)
+        );
+        builder.addResource(A, 15).addResource(B, 20);
+        final ResourceRepository<ResourceKey> sut = builder.build();
+
+        // Act & assert
+        sut.setFilterAndSort((v, resource) -> true);
+        verify(mapper, times(1)).apply(A);
+        verify(mapper, times(1)).apply(B);
+        verifyNoMoreInteractions(mapper);
+        clearInvocations(mapper);
+
+        sut.setFilterAndSort((v, resource) -> false);
+        verifyNoMoreInteractions(mapper);
+
+        sut.setFilterAndSort((v, resource) -> true);
+        verifyNoMoreInteractions(mapper);
     }
 
     @ParameterizedTest

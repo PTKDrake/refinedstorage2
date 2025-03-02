@@ -1,9 +1,9 @@
 package com.refinedmods.refinedstorage.neoforge;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.AbstractPlatform;
 import com.refinedmods.refinedstorage.common.Config;
 import com.refinedmods.refinedstorage.common.api.support.network.NetworkNodeContainerProvider;
@@ -119,16 +119,6 @@ public final class PlatformImpl extends AbstractPlatform {
             Minecraft.getInstance().getWindow().getWindow(),
             keyMapping.getKey().getValue()
         );
-    }
-
-    @Override
-    public ResourceRepositoryMapper getItemGridResourceFactory() {
-        return new ForgeItemResourceRepositoryMapper();
-    }
-
-    @Override
-    public ResourceRepositoryMapper getFluidGridResourceFactory() {
-        return new ForgeFluidResourceRepositoryMapper();
     }
 
     @Override

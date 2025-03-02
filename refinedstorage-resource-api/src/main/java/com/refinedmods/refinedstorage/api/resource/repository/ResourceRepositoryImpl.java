@@ -43,9 +43,9 @@ public class ResourceRepositoryImpl<T> implements ResourceRepository<T> {
                                   final Set<ResourceKey> stickyResources,
                                   final Function<ResourceRepository<T>, Comparator<T>> identitySortingType,
                                   final Function<ResourceRepository<T>, Comparator<T>> defaultSortingType) {
-        this.mapper = mapper;
+        this.mapper = new CachingResourceRepositoryMapper<>(mapper);
         this.identitySort = identitySortingType.apply(this);
-        this.sort = createComparator(defaultSortingType.apply(this), identitySort, SortingDirection.ASCENDING);
+        this.sort = createSort(defaultSortingType.apply(this), identitySort, SortingDirection.ASCENDING);
         this.backingList = backingList;
         this.stickyResources = stickyResources;
     }
@@ -57,7 +57,7 @@ public class ResourceRepositoryImpl<T> implements ResourceRepository<T> {
 
     @Override
     public void setSort(final Comparator<T> theSort, final SortingDirection direction) {
-        this.sort = createComparator(theSort, identitySort, direction);
+        this.sort = createSort(theSort, identitySort, direction);
     }
 
     @Override
@@ -166,9 +166,9 @@ public class ResourceRepositoryImpl<T> implements ResourceRepository<T> {
         viewList.clear();
     }
 
-    private static <T> Comparator<T> createComparator(final Comparator<T> sort,
-                                                      final Comparator<T> identitySort,
-                                                      final SortingDirection direction) {
+    private static <T> Comparator<T> createSort(final Comparator<T> sort,
+                                                final Comparator<T> identitySort,
+                                                final SortingDirection direction) {
         // An identity sort is necessary so the order of items is preserved in quantity sorting mode.
         // If two grid resources have the same quantity, their order would otherwise not be preserved.
         final Comparator<T> comparator = sort.thenComparing(identitySort);

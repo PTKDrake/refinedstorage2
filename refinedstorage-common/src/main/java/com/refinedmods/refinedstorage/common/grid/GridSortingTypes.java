@@ -23,16 +23,18 @@ public enum GridSortingTypes {
         return Long.compare(lastModifiedA, lastModifiedB);
     });
 
-    private final Function<TrackedResourceProvider, Function<ResourceRepository<GridResource>, Comparator<GridResource>>>
-        comparator;
+    private final Function<TrackedResourceProvider, Function<ResourceRepository<GridResource>,
+        Comparator<GridResource>>> comparator;
 
     GridSortingTypes(
-        final Function<TrackedResourceProvider, Function<ResourceRepository<GridResource>, Comparator<GridResource>>> comparator
+        final Function<TrackedResourceProvider, Function<ResourceRepository<GridResource>, Comparator<GridResource>>> c
     ) {
-        this.comparator = comparator;
+        this.comparator = c;
     }
 
-    public Function<ResourceRepository<GridResource>, Comparator<GridResource>> apply(final TrackedResourceProvider context) {
+    public Function<ResourceRepository<GridResource>, Comparator<GridResource>> apply(
+        final TrackedResourceProvider context
+    ) {
         return comparator.apply(context);
     }
 
