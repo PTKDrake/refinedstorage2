@@ -3,7 +3,7 @@ package com.refinedmods.refinedstorage.common.grid;
 import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceList;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.grid.view.ItemGridResource;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
@@ -32,7 +32,7 @@ public abstract class AbstractCraftingGridContainerMenu extends AbstractGridCont
     @Nullable
     private Consumer<Boolean> activenessListener;
     @Nullable
-    private ResourceRepositoryFilter<PlatformGridResource> filterBeforeFilteringBasedOnCraftingMatrixItems;
+    private ResourceRepositoryFilter<GridResource> filterBeforeFilteringBasedOnCraftingMatrixItems;
 
     protected AbstractCraftingGridContainerMenu(final MenuType<? extends AbstractGridContainerMenu> menuType,
                                                 final int syncId,

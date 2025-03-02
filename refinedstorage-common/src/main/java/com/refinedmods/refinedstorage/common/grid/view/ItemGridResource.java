@@ -1,14 +1,14 @@
 package com.refinedmods.refinedstorage.common.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.api.grid.view.AbstractPlatformGridResource;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.AbstractGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.format;
 import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.formatWithUnits;
 
-public class ItemGridResource extends AbstractPlatformGridResource<ItemResource> {
+public class ItemGridResource extends AbstractGridResource<ItemResource> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemGridResource.class);
 
     private final int id;
@@ -68,7 +68,7 @@ public class ItemGridResource extends AbstractPlatformGridResource<ItemResource>
 
     @Override
     public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
-                                                           final GridView<PlatformGridResource> view) {
+                                                           final GridView<GridResource> view) {
         final long amount = getAmount(view);
         final long extractableAmount = Math.min(amount, itemStack.getMaxStackSize());
         final long halfExtractionAmount = extractableAmount == 1 ? 1 : extractableAmount / 2;
@@ -93,7 +93,7 @@ public class ItemGridResource extends AbstractPlatformGridResource<ItemResource>
     }
 
     @Override
-    public boolean canExtract(final ItemStack carriedStack, final GridView<PlatformGridResource> view) {
+    public boolean canExtract(final ItemStack carriedStack, final GridView<GridResource> view) {
         return getAmount(view) > 0 && carriedStack.isEmpty();
     }
 
@@ -121,12 +121,12 @@ public class ItemGridResource extends AbstractPlatformGridResource<ItemResource>
     }
 
     @Override
-    public String getDisplayedAmount(final GridView<PlatformGridResource> view) {
+    public String getDisplayedAmount(final GridView<GridResource> view) {
         return formatWithUnits(getAmount(view));
     }
 
     @Override
-    public String getAmountInTooltip(final GridView<PlatformGridResource> view) {
+    public String getAmountInTooltip(final GridView<GridResource> view) {
         return format(getAmount(view));
     }
 

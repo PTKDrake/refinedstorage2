@@ -21,7 +21,7 @@ import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStra
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategyFactory;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.importer.ImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.security.PlatformPermission;
 import com.refinedmods.refinedstorage.common.api.storage.StorageBlockData;
@@ -119,10 +119,10 @@ public interface RefinedStorageApi {
 
     PlatformRegistry<GridSynchronizer> getGridSynchronizerRegistry();
 
-    GridResourceFactory<PlatformGridResource> getGridResourceFactory();
+    GridResourceFactory<GridResource> getGridResourceFactory();
 
     void addGridResourceFactory(Class<? extends ResourceKey> resourceClass,
-                                GridResourceFactory<PlatformGridResource> factory);
+                                GridResourceFactory<GridResource> factory);
 
     UpgradeRegistry getUpgradeRegistry();
 

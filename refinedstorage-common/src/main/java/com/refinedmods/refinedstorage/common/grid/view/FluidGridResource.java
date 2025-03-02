@@ -1,7 +1,7 @@
 package com.refinedmods.refinedstorage.common.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.Platform;
@@ -9,8 +9,8 @@ import com.refinedmods.refinedstorage.common.api.RefinedStorageClientApi;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.api.grid.view.AbstractPlatformGridResource;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.AbstractGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.FluidOperationResult;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceRendering;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
@@ -32,7 +32,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class FluidGridResource extends AbstractPlatformGridResource<FluidResource> {
+public class FluidGridResource extends AbstractGridResource<FluidResource> {
     private static final ItemStack EMPTY_BUCKET = new ItemStack(Items.BUCKET);
 
     private final int id;
@@ -53,7 +53,7 @@ public class FluidGridResource extends AbstractPlatformGridResource<FluidResourc
 
     @Override
     public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
-                                                           final GridView<PlatformGridResource> view) {
+                                                           final GridView<GridResource> view) {
         return tryFillFluidContainer(carriedStack)
             .filter(result -> result.amount() > 0)
             .map(result -> MouseClientTooltipComponent.item(
@@ -77,7 +77,7 @@ public class FluidGridResource extends AbstractPlatformGridResource<FluidResourc
     }
 
     @Override
-    public boolean canExtract(final ItemStack carriedStack, final GridView<PlatformGridResource> view) {
+    public boolean canExtract(final ItemStack carriedStack, final GridView<GridResource> view) {
         if (getAmount(view) == 0) {
             return false;
         }
@@ -108,12 +108,12 @@ public class FluidGridResource extends AbstractPlatformGridResource<FluidResourc
     }
 
     @Override
-    public String getDisplayedAmount(final GridView<PlatformGridResource> view) {
+    public String getDisplayedAmount(final GridView<GridResource> view) {
         return rendering.formatAmount(getAmount(view), true);
     }
 
     @Override
-    public String getAmountInTooltip(final GridView<PlatformGridResource> view) {
+    public String getAmountInTooltip(final GridView<GridResource> view) {
         return rendering.formatAmount(getAmount(view));
     }
 

@@ -1,7 +1,6 @@
 package com.refinedmods.refinedstorage.common.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
@@ -24,18 +23,18 @@ import net.minecraft.world.item.ItemStack;
 import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.6")
-public interface PlatformGridResource {
-    Optional<TrackedResource> getTrackedResource(GridView<PlatformGridResource> view);
+public interface GridResource {
+    Optional<TrackedResource> getTrackedResource(GridView<GridResource> view);
 
-    long getAmount(GridView<PlatformGridResource> view);
+    long getAmount(GridView<GridResource> view);
 
     String getName();
 
     Set<String> getAttribute(GridResourceAttributeKey key);
 
-    boolean isAutocraftable(GridView<PlatformGridResource> view);
+    boolean isAutocraftable(GridView<GridResource> view);
 
-    boolean canExtract(ItemStack carriedStack, GridView<PlatformGridResource> view);
+    boolean canExtract(ItemStack carriedStack, GridView<GridResource> view);
 
     void onExtract(GridExtractMode extractMode,
                    boolean cursor,
@@ -46,9 +45,9 @@ public interface PlatformGridResource {
 
     void render(GuiGraphics graphics, int x, int y);
 
-    String getDisplayedAmount(GridView<PlatformGridResource> view);
+    String getDisplayedAmount(GridView<GridResource> view);
 
-    String getAmountInTooltip(GridView<PlatformGridResource> view);
+    String getAmountInTooltip(GridView<GridResource> view);
 
     boolean belongsToResourceType(ResourceType resourceType);
 
@@ -58,7 +57,7 @@ public interface PlatformGridResource {
 
     int getRegistryId();
 
-    List<ClientTooltipComponent> getExtractionHints(ItemStack carriedStack, GridView<PlatformGridResource> view);
+    List<ClientTooltipComponent> getExtractionHints(ItemStack carriedStack, GridView<GridResource> view);
 
     @Nullable
     ResourceAmount getAutocraftingRequest();

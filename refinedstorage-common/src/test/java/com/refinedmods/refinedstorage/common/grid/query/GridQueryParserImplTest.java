@@ -1,7 +1,7 @@
 package com.refinedmods.refinedstorage.common.grid.query;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewImpl;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
@@ -11,7 +11,7 @@ import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
@@ -45,14 +45,14 @@ class GridQueryParserImplTest {
         ParserOperatorMappings.DEFAULT_MAPPINGS
     );
 
-    private final GridView<PlatformGridResource> view = new GridViewImpl<>(
+    private final GridView<GridResource> view = new GridViewImpl<>(
         resource -> {
             throw new UnsupportedOperationException();
         },
         MutableResourceListImpl.create(),
         new HashMap<>(),
         new HashSet<>(),
-        v -> Comparator.comparing(PlatformGridResource::getName),
+        v -> Comparator.comparing(GridResource::getName),
         v -> Comparator.comparingLong(resource -> resource.getAmount(v))
     );
 
@@ -286,7 +286,7 @@ class GridQueryParserImplTest {
         assertThat(e.getMessage()).isEqualTo("Count filtering expects an integer number");
     }
 
-    private static class R implements PlatformGridResource {
+    private static class R implements GridResource {
         private final String name;
         private final long amount;
         private final Map<GridResourceAttributeKey, Set<String>> attributes;
@@ -318,12 +318,12 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public Optional<TrackedResource> getTrackedResource(final GridView<PlatformGridResource> view) {
+        public Optional<TrackedResource> getTrackedResource(final GridView<GridResource> view) {
             return Optional.empty();
         }
 
         @Override
-        public long getAmount(final GridView<PlatformGridResource> view) {
+        public long getAmount(final GridView<GridResource> view) {
             return amount;
         }
 
@@ -338,12 +338,12 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public boolean isAutocraftable(final GridView<PlatformGridResource> view) {
+        public boolean isAutocraftable(final GridView<GridResource> view) {
             return false;
         }
 
         @Override
-        public boolean canExtract(final ItemStack carriedStack, final GridView<PlatformGridResource> view) {
+        public boolean canExtract(final ItemStack carriedStack, final GridView<GridResource> view) {
             return false;
         }
 
@@ -367,12 +367,12 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public String getDisplayedAmount(final GridView<PlatformGridResource> view) {
+        public String getDisplayedAmount(final GridView<GridResource> view) {
             return "";
         }
 
         @Override
-        public String getAmountInTooltip(final GridView<PlatformGridResource> view) {
+        public String getAmountInTooltip(final GridView<GridResource> view) {
             return "";
         }
 
@@ -398,7 +398,7 @@ class GridQueryParserImplTest {
 
         @Override
         public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
-                                                               final GridView<PlatformGridResource> view) {
+                                                               final GridView<GridResource> view) {
             return List.of();
         }
 

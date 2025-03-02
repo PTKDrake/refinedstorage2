@@ -7,7 +7,7 @@ import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilder;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilderImpl;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.SetupMinecraft;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.grid.view.AbstractItemGridResourceFactory;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SetupMinecraft.class)
 class GridSortingTypesTest {
-    private static final GridResourceFactory<PlatformGridResource> FACTORY = new AbstractItemGridResourceFactory() {
+    private static final GridResourceFactory<GridResource> FACTORY = new AbstractItemGridResourceFactory() {
         @Override
         public String getModId(final ItemStack itemStack) {
             return "";
@@ -39,7 +39,7 @@ class GridSortingTypesTest {
         }
     };
 
-    private GridViewBuilder<PlatformGridResource> viewBuilder;
+    private GridViewBuilder<GridResource> viewBuilder;
     private ItemResource dirt;
     private ItemResource stone;
     private ItemResource gold;
@@ -48,7 +48,7 @@ class GridSortingTypesTest {
     void setUp() {
         viewBuilder = new GridViewBuilderImpl<>(
             FACTORY,
-            view -> Comparator.comparing(PlatformGridResource::getName),
+            view -> Comparator.comparing(GridResource::getName),
             view -> Comparator.comparingLong(resource -> resource.getAmount(view))
         );
         dirt = new ItemResource(Items.DIRT, DataComponentPatch.EMPTY);
@@ -60,7 +60,7 @@ class GridSortingTypesTest {
     @EnumSource(GridSortingTypes.class)
     void testSortingAscending(final GridSortingTypes sortingType) {
         // Arrange
-        final GridView<PlatformGridResource> view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(dirt, 10, null)
             .withResource(dirt, 5, new TrackedResource("Raoul", 3))
             .withResource(stone, 1, new TrackedResource("VdB", 2))
@@ -76,28 +76,28 @@ class GridSortingTypesTest {
         // Assert
         switch (sortingType) {
             case QUANTITY -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Stone",
                     "Gold Ingot",
                     "Dirt"
                 );
             case NAME -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Dirt",
                     "Gold Ingot",
                     "Stone"
                 );
             case ID -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Stone",
                     "Dirt",
                     "Gold Ingot"
                 );
             case LAST_MODIFIED -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Gold Ingot",
                     "Stone",
@@ -111,7 +111,7 @@ class GridSortingTypesTest {
     @EnumSource(GridSortingTypes.class)
     void testSortingDescending(final GridSortingTypes sortingType) {
         // Arrange
-        final GridView<PlatformGridResource> view = viewBuilder
+        final GridView<GridResource> view = viewBuilder
             .withResource(dirt, 10, null)
             .withResource(dirt, 5, new TrackedResource("Raoul", 3))
             .withResource(stone, 1, new TrackedResource("VDB", 2))
@@ -127,28 +127,28 @@ class GridSortingTypesTest {
         // Assert
         switch (sortingType) {
             case QUANTITY -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Dirt",
                     "Gold Ingot",
                     "Stone"
                 );
             case NAME -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Stone",
                     "Gold Ingot",
                     "Dirt"
                 );
             case ID -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Gold Ingot",
                     "Dirt",
                     "Stone"
                 );
             case LAST_MODIFIED -> assertThat(view.getViewList())
-                .extracting(PlatformGridResource::getName)
+                .extracting(GridResource::getName)
                 .containsExactly(
                     "Dirt",
                     "Stone",

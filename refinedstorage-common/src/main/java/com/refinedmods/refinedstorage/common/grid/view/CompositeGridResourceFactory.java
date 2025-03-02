@@ -2,7 +2,7 @@ package com.refinedmods.refinedstorage.common.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 
@@ -12,16 +12,16 @@ import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-public class CompositeGridResourceFactory implements GridResourceFactory<PlatformGridResource> {
-    private final Map<Class<? extends ResourceKey>, GridResourceFactory<PlatformGridResource>> strategies =
+public class CompositeGridResourceFactory implements GridResourceFactory<GridResource> {
+    private final Map<Class<? extends ResourceKey>, GridResourceFactory<GridResource>> strategies =
         new HashMap<>();
     @Nullable
-    private GridResourceFactory<PlatformGridResource> itemFactory;
+    private GridResourceFactory<GridResource> itemFactory;
     @Nullable
-    private GridResourceFactory<PlatformGridResource> fluidFactory;
+    private GridResourceFactory<GridResource> fluidFactory;
 
     public void addFactory(final Class<? extends ResourceKey> resourceClass,
-                           final GridResourceFactory<PlatformGridResource> factory) {
+                           final GridResourceFactory<GridResource> factory) {
         if (resourceClass == ItemResource.class) {
             this.itemFactory = factory;
         } else if (resourceClass == FluidResource.class) {
@@ -32,14 +32,14 @@ public class CompositeGridResourceFactory implements GridResourceFactory<Platfor
     }
 
     @Override
-    public PlatformGridResource apply(final ResourceKey resource) {
+    public GridResource apply(final ResourceKey resource) {
         final Class<? extends ResourceKey> resourceClass = resource.getClass();
         if (resourceClass == ItemResource.class && itemFactory != null) {
             return itemFactory.apply(resource);
         } else if (resourceClass == FluidResource.class && fluidFactory != null) {
             return fluidFactory.apply(resource);
         }
-        final GridResourceFactory<PlatformGridResource> factory = requireNonNull(
+        final GridResourceFactory<GridResource> factory = requireNonNull(
             strategies.get(resourceClass),
             "No factory for " + resourceClass
         );

@@ -26,7 +26,7 @@ import com.refinedmods.refinedstorage.common.api.grid.GridSynchronizer;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.storage.PlayerActor;
 import com.refinedmods.refinedstorage.common.api.support.registry.PlatformRegistry;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
@@ -71,7 +71,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     protected final Inventory playerInventory;
 
-    private final GridView<PlatformGridResource> view;
+    private final GridView<GridResource> view;
     private final PatternRepository playerInventoryPatterns = new PatternRepositoryImpl();
     @Nullable
     private Grid grid;
@@ -98,7 +98,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
         this.active = gridData.active();
 
-        final GridViewBuilder<PlatformGridResource> viewBuilder = createViewBuilder();
+        final GridViewBuilder<GridResource> viewBuilder = createViewBuilder();
         gridData.resources().forEach(resource -> viewBuilder.withResource(
             resource.resourceAmount().resource(),
             resource.resourceAmount().amount(),
@@ -136,12 +136,12 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         initStrategies((ServerPlayer) playerInventory.player);
     }
 
-    private ResourceRepositoryFilter<PlatformGridResource> createBaseFilter() {
+    private ResourceRepositoryFilter<GridResource> createBaseFilter() {
         return createResourceTypeFilter().and(createViewTypeFilter());
     }
 
-    private ResourceRepositoryFilter<PlatformGridResource> createResourceTypeFilter() {
-        return (v, resource) -> resource instanceof PlatformGridResource platformResource
+    private ResourceRepositoryFilter<GridResource> createResourceTypeFilter() {
+        return (v, resource) -> resource instanceof GridResource platformResource
             && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
             RefinedStorageApi.INSTANCE
                 .getResourceTypeRegistry()
@@ -150,12 +150,12 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         ).orElse(true);
     }
 
-    private ResourceRepositoryFilter<PlatformGridResource> createViewTypeFilter() {
+    private ResourceRepositoryFilter<GridResource> createViewTypeFilter() {
         return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
             .accepts(resource.isAutocraftable(v));
     }
 
-    private static GridViewBuilder<PlatformGridResource> createViewBuilder() {
+    private static GridViewBuilder<GridResource> createViewBuilder() {
         return new GridViewBuilderImpl<>(
             RefinedStorageApi.INSTANCE.getGridResourceFactory(),
             GridSortingTypes.NAME,
@@ -249,7 +249,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         });
     }
 
-    public GridView<PlatformGridResource> getView() {
+    public GridView<GridResource> getView() {
         return view;
     }
 
