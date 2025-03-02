@@ -4,7 +4,9 @@ import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.ExtractableStorage;
 import com.refinedmods.refinedstorage.api.storage.InsertableStorage;
 
-public class NoopGridOperations implements GridOperations {
+public enum EmptyGridOperations implements GridOperations {
+    INSTANCE;
+
     @Override
     public boolean extract(final ResourceKey resource,
                            final GridExtractMode extractMode,

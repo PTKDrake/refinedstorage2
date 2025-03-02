@@ -255,10 +255,11 @@ public class ModInitializer extends AbstractModInitializer {
     private void registerGridResourceRepositoryMappers() {
         RefinedStorageApi.INSTANCE.addGridResourceRepositoryMapper(
             ItemResource.class,
-                new ForgeItemResourceRepositoryMapper()
+            new ForgeItemResourceRepositoryMapper()
         );
         RefinedStorageApi.INSTANCE.addGridResourceRepositoryMapper(
-            FluidResource.class, new ForgeFluidResourceRepositoryMapper()
+            FluidResource.class,
+            new ForgeFluidResourceRepositoryMapper()
         );
     }
 
