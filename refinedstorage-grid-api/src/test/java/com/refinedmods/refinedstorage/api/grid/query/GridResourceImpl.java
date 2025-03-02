@@ -1,5 +1,8 @@
-package com.refinedmods.refinedstorage.api.grid.view;
+package com.refinedmods.refinedstorage.api.grid.query;
 
+import com.refinedmods.refinedstorage.api.grid.view.GridResource;
+import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
+import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 
@@ -8,11 +11,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class GridResourceImpl implements GridResource {
+class GridResourceImpl implements GridResource {
     private final ResourceKey resource;
     private final Map<GridResourceAttributeKey, Set<String>> attributes;
 
-    public GridResourceImpl(final ResourceKey resource) {
+    GridResourceImpl(final ResourceKey resource) {
         this.resource = resource;
         this.attributes = Map.of(
             GridResourceAttributeKeys.MOD_ID, Set.of(resource.toString()),

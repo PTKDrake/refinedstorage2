@@ -1,9 +1,11 @@
-package com.refinedmods.refinedstorage.api.grid.view;
+package com.refinedmods.refinedstorage.api.grid.query;
+
+import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
 
 import java.util.Map;
 import java.util.Set;
 
-public enum GridResourceAttributeKeys implements GridResourceAttributeKey {
+enum GridResourceAttributeKeys implements GridResourceAttributeKey {
     MOD_ID,
     MOD_NAME,
     TAGS;

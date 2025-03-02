@@ -2,8 +2,6 @@ package com.refinedmods.refinedstorage.api.grid.query;
 
 import com.refinedmods.refinedstorage.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKeys;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceImpl;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewImpl;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceListImpl;
