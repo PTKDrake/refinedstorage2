@@ -2,7 +2,6 @@ package com.refinedmods.refinedstorage.common.grid.screen;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
@@ -237,7 +236,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                             final int rowY,
                             final int idx,
                             final int column) {
-        final GridView view = getMenu().getView();
+        final GridView<PlatformGridResource> view = getMenu().getView();
         final int slotX = rowX + 1 + (column * ROW_SIZE);
         final int slotY = rowY + 1;
         if (!getMenu().isActive()) {
@@ -300,7 +299,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     private void renderResourceWithAmount(final GuiGraphics graphics,
                                           final int slotX,
                                           final int slotY,
-                                          final GridResource resource) {
+                                          final PlatformGridResource resource) {
         if (resource.isAutocraftable(getMenu().getView())) {
             renderSlotBackground(
                 graphics,
@@ -318,9 +317,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                 0x66FF0000
             );
         }
-        if (resource instanceof PlatformGridResource platformResource) {
-            platformResource.render(graphics, slotX, slotY);
-        }
+        resource.render(graphics, slotX, slotY);
         renderAmount(graphics, slotX, slotY, resource);
     }
 
@@ -342,19 +339,16 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     private void renderAmount(final GuiGraphics graphics,
                               final int slotX,
                               final int slotY,
-                              final GridResource resource) {
-        if (!(resource instanceof PlatformGridResource platformResource)) {
-            return;
-        }
-        final long amount = platformResource.getAmount(getMenu().getView());
-        final String text = getAmountText(resource, platformResource, amount);
+                              final PlatformGridResource resource) {
+        final long amount = resource.getAmount(getMenu().getView());
+        final String text = getAmountText(resource, amount);
         final int color = getAmountColor(resource, amount);
         final boolean large = (minecraft != null && minecraft.isEnforceUnicode())
             || Platform.INSTANCE.getConfig().getGrid().isLargeFont();
         ResourceSlotRendering.renderAmount(graphics, slotX, slotY, text, color, large);
     }
 
-    private int getAmountColor(final GridResource resource, final long amount) {
+    private int getAmountColor(final PlatformGridResource resource, final long amount) {
         if (amount == 0) {
             if (resource.isAutocraftable(getMenu().getView())) {
                 return 0xFFFFFF;
@@ -364,13 +358,11 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         return 0xFFFFFF;
     }
 
-    private String getAmountText(final GridResource resource,
-                                 final PlatformGridResource platformResource,
-                                 final long amount) {
+    private String getAmountText(final PlatformGridResource resource, final long amount) {
         if (amount == 0 && resource.isAutocraftable(getMenu().getView())) {
             return I18n.get(createTranslationKey("gui", "grid.craft"));
         }
-        return platformResource.getDisplayedAmount(getMenu().getView());
+        return resource.getDisplayedAmount(getMenu().getView());
     }
 
     private void renderDisabledSlot(final GuiGraphics graphics, final int slotX, final int slotY) {
@@ -429,42 +421,42 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     private void renderHoveredResourceTooltip(final GuiGraphics graphics,
                                               final int mouseX,
                                               final int mouseY,
-                                              final GridView view,
-                                              final PlatformGridResource gridResource) {
-        final ItemStack stackContext = gridResource instanceof ItemGridResource itemGridResource
-            ? itemGridResource.getItemStack()
+                                              final GridView<PlatformGridResource> view,
+                                              final PlatformGridResource resource) {
+        final ItemStack stackContext = resource instanceof ItemGridResource itemResource
+            ? itemResource.getItemStack()
             : ItemStack.EMPTY;
-        final List<Component> lines = gridResource.getTooltip();
+        final List<Component> lines = resource.getTooltip();
         final List<ClientTooltipComponent> processedLines = Platform.INSTANCE.processTooltipComponents(
             stackContext,
             graphics,
             mouseX,
-            gridResource.getTooltipImage(),
+            resource.getTooltipImage(),
             lines
         );
-        final long amount = gridResource.getAmount(getMenu().getView());
+        final long amount = resource.getAmount(getMenu().getView());
         if (amount > 0 && Platform.INSTANCE.getConfig().getGrid().isDetailedTooltip()) {
-            addDetailedTooltip(view, gridResource, processedLines);
+            addDetailedTooltip(view, resource, processedLines);
         }
-        if (gridResource.isAutocraftable(getMenu().getView())) {
+        if (resource.isAutocraftable(getMenu().getView())) {
             processedLines.add(amount == 0
                 ? AutocraftableClientTooltipComponent.empty()
                 : AutocraftableClientTooltipComponent.existing());
         }
         if (amount > 0) {
-            processedLines.addAll(gridResource.getExtractionHints(getMenu().getCarried(), getMenu().getView()));
+            processedLines.addAll(resource.getExtractionHints(getMenu().getCarried(), getMenu().getView()));
         }
         Platform.INSTANCE.renderTooltip(graphics, processedLines, mouseX, mouseY);
     }
 
-    private void addDetailedTooltip(final GridView view,
-                                    final PlatformGridResource platformResource,
+    private void addDetailedTooltip(final GridView<PlatformGridResource> view,
+                                    final PlatformGridResource resource,
                                     final List<ClientTooltipComponent> lines) {
-        final String amountInTooltip = platformResource.getAmountInTooltip(getMenu().getView());
+        final String amountInTooltip = resource.getAmountInTooltip(getMenu().getView());
         lines.add(new SmallTextClientTooltipComponent(
             createTranslation("misc", "total", amountInTooltip).withStyle(ChatFormatting.GRAY)
         ));
-        platformResource.getTrackedResource(view).ifPresent(entry -> lines.add(new SmallTextClientTooltipComponent(
+        resource.getTrackedResource(view).ifPresent(entry -> lines.add(new SmallTextClientTooltipComponent(
             getLastModifiedText(entry).withStyle(ChatFormatting.GRAY)
         )));
     }

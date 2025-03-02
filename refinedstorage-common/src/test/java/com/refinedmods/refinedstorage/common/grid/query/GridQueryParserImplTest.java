@@ -1,21 +1,36 @@
-package com.refinedmods.refinedstorage.api.grid.query;
+package com.refinedmods.refinedstorage.common.grid.query;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
+import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
 import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.grid.view.GridViewImpl;
+import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.list.MutableResourceListImpl;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
+import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
+import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
+import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
+import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
+import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
+import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
 import com.refinedmods.refinedstorage.query.parser.ParserOperatorMappings;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,18 +40,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GridQueryParserImplTest {
-    private final GridQueryParser<GridResource> queryParser = new GridQueryParserImpl<GridResource>(
+    private final GridQueryParser sut = new GridQueryParser(
         LexerTokenMappings.DEFAULT_MAPPINGS,
-        ParserOperatorMappings.DEFAULT_MAPPINGS,
-        GridResourceAttributeKeys.UNARY_OPERATOR_TO_ATTRIBUTE_KEY_MAPPING
+        ParserOperatorMappings.DEFAULT_MAPPINGS
     );
 
-    private final GridView<GridResource> view = new GridViewImpl<>(
-        GridResourceImpl::new,
+    private final GridView<PlatformGridResource> view = new GridViewImpl<>(
+        resource -> {
+            throw new UnsupportedOperationException();
+        },
         MutableResourceListImpl.create(),
         new HashMap<>(),
         new HashSet<>(),
-        v -> Comparator.comparing(GridResource::getName),
+        v -> Comparator.comparing(PlatformGridResource::getName),
         v -> Comparator.comparingLong(resource -> resource.getAmount(v))
     );
 
@@ -44,7 +60,7 @@ class GridQueryParserImplTest {
     @ValueSource(strings = {"", "   "})
     void testEmptyQuery(final String query) throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(query);
+        final var predicate = sut.parse(query);
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -55,7 +71,7 @@ class GridQueryParserImplTest {
     @ValueSource(strings = {"dirt", "Dirt", "DiRt", "Di", "irt"})
     void testNameQuery(final String query) throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(query);
+        final var predicate = sut.parse(query);
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -66,7 +82,7 @@ class GridQueryParserImplTest {
     @ValueSource(strings = {"@refined", "@\"Refined Storage\"", "@ReFiNe", "@Storage", "@rs", "@RS"})
     void testModQuery(final String query) throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(query);
+        final var predicate = sut.parse(query);
 
         // Assert
         assertThat(predicate.test(view, new R("Sponge", 1, "rs", "Refined Storage", Set.of()))).isTrue();
@@ -77,7 +93,7 @@ class GridQueryParserImplTest {
     @ValueSource(strings = {"$underwater", "$UnDerWate", "$water", "$unrelated", "$UNREL", "$laTed"})
     void testTagQuery(final String query) throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(query);
+        final var predicate = sut.parse(query);
 
         // Assert
         assertThat(predicate.test(view,
@@ -88,7 +104,7 @@ class GridQueryParserImplTest {
     @Test
     void testAttributeQueryWithInvalidNode() {
         // Act
-        final Executable action = () -> queryParser.parse("@!true");
+        final Executable action = () -> sut.parse("@!true");
 
         // Assert
         final GridQueryParserException e = assertThrows(GridQueryParserException.class, action);
@@ -98,7 +114,7 @@ class GridQueryParserImplTest {
     @Test
     void testImplicitAndQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("DirT di RT");
+        final var predicate = sut.parse("DirT di RT");
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -108,7 +124,7 @@ class GridQueryParserImplTest {
     @Test
     void testImplicitAndQueryInParenthesis() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("(DirT di RT) || (sto stone)");
+        final var predicate = sut.parse("(DirT di RT) || (sto stone)");
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -119,7 +135,7 @@ class GridQueryParserImplTest {
     @Test
     void testImplicitAndQueryWithUnaryOperator() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("@minecraft >5");
+        final var predicate = sut.parse("@minecraft >5");
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt", 6, "minecraft", "Minecraft", Set.of()))).isTrue();
@@ -131,7 +147,7 @@ class GridQueryParserImplTest {
     @Test
     void testAndQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("DirT && di && RT");
+        final var predicate = sut.parse("DirT && di && RT");
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -141,7 +157,7 @@ class GridQueryParserImplTest {
     @Test
     void testOrQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("dir || glass || StoNe");
+        final var predicate = sut.parse("dir || glass || StoNe");
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -156,7 +172,7 @@ class GridQueryParserImplTest {
     @Test
     void testSimpleNotQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("!stone");
+        final var predicate = sut.parse("!stone");
 
         // Assert
         assertThat(predicate.test(view, new R("Dirt"))).isTrue();
@@ -169,7 +185,7 @@ class GridQueryParserImplTest {
     @Test
     void testNotQueryWithMultipleOrParts() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("!(stone || dirt)");
+        final var predicate = sut.parse("!(stone || dirt)");
 
         // Assert
         assertThat(predicate.test(view, new R("Sponge"))).isTrue();
@@ -182,7 +198,7 @@ class GridQueryParserImplTest {
     @Test
     void testComplexModQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(
+        final var predicate = sut.parse(
             "((spo || buck) && @refined) || (glass && @mine)"
         );
 
@@ -198,7 +214,7 @@ class GridQueryParserImplTest {
     @Test
     void testLessThanUnaryCountQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("<5");
+        final var predicate = sut.parse("<5");
 
         // Assert
         assertThat(predicate.test(view, new R("Glass", 5))).isFalse();
@@ -208,7 +224,7 @@ class GridQueryParserImplTest {
     @Test
     void testLessThanEqualsUnaryCountQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("<=5");
+        final var predicate = sut.parse("<=5");
 
         // Assert
         assertThat(predicate.test(view, new R("Glass", 6))).isFalse();
@@ -219,7 +235,7 @@ class GridQueryParserImplTest {
     @Test
     void testGreaterThanUnaryCountQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(">5");
+        final var predicate = sut.parse(">5");
 
         // Assert
         assertThat(predicate.test(view, new R("Glass", 5))).isFalse();
@@ -229,7 +245,7 @@ class GridQueryParserImplTest {
     @Test
     void testGreaterThanEqualsUnaryCountQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse(">=5");
+        final var predicate = sut.parse(">=5");
 
         // Assert
         assertThat(predicate.test(view, new R("Glass", 4))).isFalse();
@@ -240,7 +256,7 @@ class GridQueryParserImplTest {
     @Test
     void testEqualsUnaryCountQuery() throws GridQueryParserException {
         // Act
-        final var predicate = queryParser.parse("=5");
+        final var predicate = sut.parse("=5");
 
         // Assert
         assertThat(predicate.test(view, new R("Glass", 4))).isFalse();
@@ -253,7 +269,7 @@ class GridQueryParserImplTest {
     void testInvalidNodeInUnaryCountQuery(final String operator) {
         // Act
         final GridQueryParserException e =
-            assertThrows(GridQueryParserException.class, () -> queryParser.parse(operator + "(1 && 1)"));
+            assertThrows(GridQueryParserException.class, () -> sut.parse(operator + "(1 && 1)"));
 
         // Assert
         assertThat(e.getMessage()).isEqualTo("Count filtering expects a literal");
@@ -264,13 +280,13 @@ class GridQueryParserImplTest {
     void testInvalidTokenInUnaryCountQuery(final String operator) {
         // Act
         final GridQueryParserException e =
-            assertThrows(GridQueryParserException.class, () -> queryParser.parse(operator + "hello"));
+            assertThrows(GridQueryParserException.class, () -> sut.parse(operator + "hello"));
 
         // Assert
         assertThat(e.getMessage()).isEqualTo("Count filtering expects an integer number");
     }
 
-    private static class R implements GridResource {
+    private static class R implements PlatformGridResource {
         private final String name;
         private final long amount;
         private final Map<GridResourceAttributeKey, Set<String>> attributes;
@@ -302,12 +318,12 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public Optional<TrackedResource> getTrackedResource(final GridView view) {
+        public Optional<TrackedResource> getTrackedResource(final GridView<PlatformGridResource> view) {
             return Optional.empty();
         }
 
         @Override
-        public long getAmount(final GridView view) {
+        public long getAmount(final GridView<PlatformGridResource> view) {
             return amount;
         }
 
@@ -322,8 +338,80 @@ class GridQueryParserImplTest {
         }
 
         @Override
-        public boolean isAutocraftable(final GridView view) {
+        public boolean isAutocraftable(final GridView<PlatformGridResource> view) {
             return false;
+        }
+
+        @Override
+        public boolean canExtract(final ItemStack carriedStack, final GridView<PlatformGridResource> view) {
+            return false;
+        }
+
+        @Override
+        public void onExtract(final GridExtractMode extractMode,
+                              final boolean cursor,
+                              final GridExtractionStrategy extractionStrategy) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void onScroll(final GridScrollMode scrollMode, final GridScrollingStrategy scrollingStrategy) {
+
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void render(final GuiGraphics graphics, final int x, final int y) {
+
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getDisplayedAmount(final GridView<PlatformGridResource> view) {
+            return "";
+        }
+
+        @Override
+        public String getAmountInTooltip(final GridView<PlatformGridResource> view) {
+            return "";
+        }
+
+        @Override
+        public boolean belongsToResourceType(final ResourceType resourceType) {
+            return false;
+        }
+
+        @Override
+        public List<Component> getTooltip() {
+            return List.of();
+        }
+
+        @Override
+        public Optional<TooltipComponent> getTooltipImage() {
+            return Optional.empty();
+        }
+
+        @Override
+        public int getRegistryId() {
+            return 0;
+        }
+
+        @Override
+        public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
+                                                               final GridView<PlatformGridResource> view) {
+            return List.of();
+        }
+
+        @Override
+        @Nullable
+        public ResourceAmount getAutocraftingRequest() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        @Nullable
+        public PlatformResourceKey getResourceForRecipeMods() {
+            throw new UnsupportedOperationException();
         }
     }
 }

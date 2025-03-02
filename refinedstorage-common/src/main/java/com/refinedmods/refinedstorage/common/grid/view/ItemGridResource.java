@@ -8,6 +8,7 @@ import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.view.AbstractPlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
@@ -66,7 +67,8 @@ public class ItemGridResource extends AbstractPlatformGridResource<ItemResource>
     }
 
     @Override
-    public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack, final GridView view) {
+    public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
+                                                           final GridView<PlatformGridResource> view) {
         final long amount = getAmount(view);
         final long extractableAmount = Math.min(amount, itemStack.getMaxStackSize());
         final long halfExtractionAmount = extractableAmount == 1 ? 1 : extractableAmount / 2;
@@ -91,7 +93,7 @@ public class ItemGridResource extends AbstractPlatformGridResource<ItemResource>
     }
 
     @Override
-    public boolean canExtract(final ItemStack carriedStack, final GridView view) {
+    public boolean canExtract(final ItemStack carriedStack, final GridView<PlatformGridResource> view) {
         return getAmount(view) > 0 && carriedStack.isEmpty();
     }
 
@@ -119,12 +121,12 @@ public class ItemGridResource extends AbstractPlatformGridResource<ItemResource>
     }
 
     @Override
-    public String getDisplayedAmount(final GridView view) {
+    public String getDisplayedAmount(final GridView<PlatformGridResource> view) {
         return formatWithUnits(getAmount(view));
     }
 
     @Override
-    public String getAmountInTooltip(final GridView view) {
+    public String getAmountInTooltip(final GridView<PlatformGridResource> view) {
         return format(getAmount(view));
     }
 

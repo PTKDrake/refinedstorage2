@@ -10,6 +10,7 @@ import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.view.AbstractPlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
 import com.refinedmods.refinedstorage.common.api.support.resource.FluidOperationResult;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceRendering;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
@@ -51,7 +52,8 @@ public class FluidGridResource extends AbstractPlatformGridResource<FluidResourc
     }
 
     @Override
-    public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack, final GridView view) {
+    public List<ClientTooltipComponent> getExtractionHints(final ItemStack carriedStack,
+                                                           final GridView<PlatformGridResource> view) {
         return tryFillFluidContainer(carriedStack)
             .filter(result -> result.amount() > 0)
             .map(result -> MouseClientTooltipComponent.item(
@@ -75,7 +77,7 @@ public class FluidGridResource extends AbstractPlatformGridResource<FluidResourc
     }
 
     @Override
-    public boolean canExtract(final ItemStack carriedStack, final GridView view) {
+    public boolean canExtract(final ItemStack carriedStack, final GridView<PlatformGridResource> view) {
         if (getAmount(view) == 0) {
             return false;
         }
@@ -106,12 +108,12 @@ public class FluidGridResource extends AbstractPlatformGridResource<FluidResourc
     }
 
     @Override
-    public String getDisplayedAmount(final GridView view) {
+    public String getDisplayedAmount(final GridView<PlatformGridResource> view) {
         return rendering.formatAmount(getAmount(view), true);
     }
 
     @Override
-    public String getAmountInTooltip(final GridView view) {
+    public String getAmountInTooltip(final GridView<PlatformGridResource> view) {
         return rendering.formatAmount(getAmount(view));
     }
 

@@ -1,9 +1,10 @@
 package com.refinedmods.refinedstorage.common.api.grid.view;
 
 import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
+import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
@@ -12,6 +13,7 @@ import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -22,8 +24,18 @@ import net.minecraft.world.item.ItemStack;
 import org.apiguardian.api.API;
 
 @API(status = API.Status.STABLE, since = "2.0.0-milestone.2.6")
-public interface PlatformGridResource extends GridResource {
-    boolean canExtract(ItemStack carriedStack, GridView view);
+public interface PlatformGridResource {
+    Optional<TrackedResource> getTrackedResource(GridView<PlatformGridResource> view);
+
+    long getAmount(GridView<PlatformGridResource> view);
+
+    String getName();
+
+    Set<String> getAttribute(GridResourceAttributeKey key);
+
+    boolean isAutocraftable(GridView<PlatformGridResource> view);
+
+    boolean canExtract(ItemStack carriedStack, GridView<PlatformGridResource> view);
 
     void onExtract(GridExtractMode extractMode,
                    boolean cursor,
@@ -34,9 +46,9 @@ public interface PlatformGridResource extends GridResource {
 
     void render(GuiGraphics graphics, int x, int y);
 
-    String getDisplayedAmount(GridView view);
+    String getDisplayedAmount(GridView<PlatformGridResource> view);
 
-    String getAmountInTooltip(GridView view);
+    String getAmountInTooltip(GridView<PlatformGridResource> view);
 
     boolean belongsToResourceType(ResourceType resourceType);
 
@@ -46,7 +58,7 @@ public interface PlatformGridResource extends GridResource {
 
     int getRegistryId();
 
-    List<ClientTooltipComponent> getExtractionHints(ItemStack carriedStack, GridView view);
+    List<ClientTooltipComponent> getExtractionHints(ItemStack carriedStack, GridView<PlatformGridResource> view);
 
     @Nullable
     ResourceAmount getAutocraftingRequest();

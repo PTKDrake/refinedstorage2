@@ -1,8 +1,9 @@
-package com.refinedmods.refinedstorage.api.grid.query;
+package com.refinedmods.refinedstorage.common.grid.query;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
 import com.refinedmods.refinedstorage.api.grid.view.ResourceRepositoryFilter;
+import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
+import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
 import com.refinedmods.refinedstorage.query.lexer.Lexer;
 import com.refinedmods.refinedstorage.query.lexer.LexerException;
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
@@ -27,24 +28,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
-import org.apiguardian.api.API;
+public class GridQueryParser {
+    private static final Map<String, Set<GridResourceAttributeKey>> ATTRIBUTE_MAPPING =  Map.of(
+        "@", Set.of(GridResourceAttributeKeys.MOD_ID, GridResourceAttributeKeys.MOD_NAME),
+        "$", Set.of(GridResourceAttributeKeys.TAGS),
+        "#", Set.of(GridResourceAttributeKeys.TOOLTIP)
+    );
 
-@API(status = API.Status.STABLE, since = "2.0.0-milestone.1.0")
-public class GridQueryParserImpl<T extends GridResource> implements GridQueryParser<T> {
     private final LexerTokenMappings tokenMappings;
     private final ParserOperatorMappings operatorMappings;
-    private final Map<String, Set<GridResourceAttributeKey>> unaryOperatorToAttributeKeyMapping;
 
-    public GridQueryParserImpl(final LexerTokenMappings tokenMappings,
-                               final ParserOperatorMappings operatorMappings,
-                               final Map<String, Set<GridResourceAttributeKey>> unaryOperatorToAttributeKeyMapping) {
+    public GridQueryParser(final LexerTokenMappings tokenMappings, final ParserOperatorMappings operatorMappings) {
         this.tokenMappings = tokenMappings;
         this.operatorMappings = operatorMappings;
-        this.unaryOperatorToAttributeKeyMapping = unaryOperatorToAttributeKeyMapping;
     }
 
-    @Override
-    public ResourceRepositoryFilter<T> parse(final String query) throws GridQueryParserException {
+    public ResourceRepositoryFilter<PlatformGridResource> parse(final String query) throws GridQueryParserException {
         if (query.trim().isEmpty()) {
             return (view, resource) -> true;
         }
@@ -73,15 +72,16 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         }
     }
 
-    private ResourceRepositoryFilter<T> implicitAnd(final List<Node> nodes) throws GridQueryParserException {
-        final List<ResourceRepositoryFilter<T>> conditions = new ArrayList<>();
+    private ResourceRepositoryFilter<PlatformGridResource> implicitAnd(final List<Node> nodes)
+        throws GridQueryParserException {
+        final List<ResourceRepositoryFilter<PlatformGridResource>> conditions = new ArrayList<>();
         for (final Node node : nodes) {
             conditions.add(parseNode(node));
         }
         return and(conditions);
     }
 
-    private ResourceRepositoryFilter<T> parseNode(final Node node) throws GridQueryParserException {
+    private ResourceRepositoryFilter<PlatformGridResource> parseNode(final Node node) throws GridQueryParserException {
         return switch (node) {
             case LiteralNode literalNode -> parseLiteral(literalNode);
             case UnaryOpNode unaryOpNode -> parseUnaryOp(unaryOpNode);
@@ -91,7 +91,8 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         };
     }
 
-    private ResourceRepositoryFilter<T> parseBinOp(final BinOpNode node) throws GridQueryParserException {
+    private ResourceRepositoryFilter<PlatformGridResource> parseBinOp(final BinOpNode node)
+        throws GridQueryParserException {
         final String operator = node.binOp().content();
         if ("&&".equals(operator)) {
             return parseAndBinOpNode(node);
@@ -102,7 +103,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         }
     }
 
-    private ResourceRepositoryFilter<T> parseAndBinOpNode(final BinOpNode node)
+    private ResourceRepositoryFilter<PlatformGridResource> parseAndBinOpNode(final BinOpNode node)
         throws GridQueryParserException {
         return and(Arrays.asList(
             parseNode(node.left()),
@@ -110,7 +111,7 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         ));
     }
 
-    private ResourceRepositoryFilter<T> parseOrBinOpNode(final BinOpNode node)
+    private ResourceRepositoryFilter<PlatformGridResource> parseOrBinOpNode(final BinOpNode node)
         throws GridQueryParserException {
         return or(Arrays.asList(
             parseNode(node.left()),
@@ -118,15 +119,15 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         ));
     }
 
-    private ResourceRepositoryFilter<T> parseUnaryOp(final UnaryOpNode node) throws GridQueryParserException {
+    private ResourceRepositoryFilter<PlatformGridResource> parseUnaryOp(final UnaryOpNode node)
+        throws GridQueryParserException {
         final String operator = node.operator().content();
         final Node content = node.node();
-        final ResourceRepositoryFilter<T> predicate;
-
+        final ResourceRepositoryFilter<PlatformGridResource> predicate;
         if ("!".equals(operator)) {
             predicate = not(parseNode(content));
-        } else if (unaryOperatorToAttributeKeyMapping.containsKey(operator)) {
-            final Set<GridResourceAttributeKey> keys = unaryOperatorToAttributeKeyMapping.get(operator);
+        } else if (ATTRIBUTE_MAPPING.containsKey(operator)) {
+            final Set<GridResourceAttributeKey> keys = ATTRIBUTE_MAPPING.get(operator);
             if (content instanceof LiteralNode(Token token)) {
                 predicate = attributeMatch(keys, token.content());
             } else {
@@ -148,23 +149,20 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         return predicate;
     }
 
-    private static <T extends GridResource> ResourceRepositoryFilter<T> count(final Node node,
-                                                                              final BiPredicate<Long, Long> predicate)
+    private static ResourceRepositoryFilter<PlatformGridResource> count(final Node node,
+                                                                        final BiPredicate<Long, Long> predicate)
         throws GridQueryParserException {
         if (!(node instanceof LiteralNode)) {
             throw new GridQueryParserException("Count filtering expects a literal", null);
         }
-
         if (((LiteralNode) node).token().type() != TokenType.INTEGER_NUMBER) {
             throw new GridQueryParserException("Count filtering expects an integer number", null);
         }
-
         final long wantedCount = Long.parseLong(((LiteralNode) node).token().content());
-
         return (view, resource) -> predicate.test(resource.getAmount(view), wantedCount);
     }
 
-    private static <T extends GridResource> ResourceRepositoryFilter<T> attributeMatch(
+    private static ResourceRepositoryFilter<PlatformGridResource> attributeMatch(
         final Set<GridResourceAttributeKey> keys,
         final String query
     ) {
@@ -179,14 +177,15 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         return value.trim().toLowerCase(Locale.ROOT);
     }
 
-    private static <T extends GridResource> ResourceRepositoryFilter<T> parseLiteral(final LiteralNode node) {
+    private static ResourceRepositoryFilter<PlatformGridResource> parseLiteral(final LiteralNode node) {
         return (view, resource) -> normalize(resource.getName()).contains(normalize(node.token().content()));
     }
 
-    private static <T extends GridResource> ResourceRepositoryFilter<T> and(
-        final List<ResourceRepositoryFilter<T>> chain) {
+    private static ResourceRepositoryFilter<PlatformGridResource> and(
+        final List<ResourceRepositoryFilter<PlatformGridResource>> chain
+    ) {
         return (view, resource) -> {
-            for (final ResourceRepositoryFilter<T> predicate : chain) {
+            for (final ResourceRepositoryFilter<PlatformGridResource> predicate : chain) {
                 if (!predicate.test(view, resource)) {
                     return false;
                 }
@@ -195,10 +194,11 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         };
     }
 
-    private static <T extends GridResource> ResourceRepositoryFilter<T> or(
-        final List<ResourceRepositoryFilter<T>> chain) {
+    private static ResourceRepositoryFilter<PlatformGridResource> or(
+        final List<ResourceRepositoryFilter<PlatformGridResource>> chain
+    ) {
         return (view, resource) -> {
-            for (final ResourceRepositoryFilter<T> predicate : chain) {
+            for (final ResourceRepositoryFilter<PlatformGridResource> predicate : chain) {
                 if (predicate.test(view, resource)) {
                     return true;
                 }
@@ -207,8 +207,9 @@ public class GridQueryParserImpl<T extends GridResource> implements GridQueryPar
         };
     }
 
-    private static <T extends GridResource> ResourceRepositoryFilter<T> not(
-        final ResourceRepositoryFilter<T> predicate) {
+    private static ResourceRepositoryFilter<PlatformGridResource> not(
+        final ResourceRepositoryFilter<PlatformGridResource> predicate
+    ) {
         return (view, resource) -> !predicate.test(view, resource);
     }
 }

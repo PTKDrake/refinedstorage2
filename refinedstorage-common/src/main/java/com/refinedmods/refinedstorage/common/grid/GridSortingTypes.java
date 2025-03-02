@@ -1,6 +1,5 @@
 package com.refinedmods.refinedstorage.common.grid;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.api.grid.view.GridSortingType;
 import com.refinedmods.refinedstorage.api.grid.view.GridView;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
@@ -11,7 +10,7 @@ import java.util.function.Function;
 
 public enum GridSortingTypes implements GridSortingType<PlatformGridResource> {
     QUANTITY(view -> Comparator.comparingLong(value -> value.getAmount(view))),
-    NAME(view -> Comparator.comparing(GridResource::getName)),
+    NAME(view -> Comparator.comparing(PlatformGridResource::getName)),
     ID(view -> (a, b) -> {
         if (a instanceof PlatformGridResource aa && b instanceof PlatformGridResource bb) {
             return Integer.compare(aa.getRegistryId(), bb.getRegistryId());

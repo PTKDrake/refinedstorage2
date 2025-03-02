@@ -28,12 +28,12 @@ public abstract class AbstractPlatformGridResource<T extends PlatformResourceKey
     }
 
     @Override
-    public Optional<TrackedResource> getTrackedResource(final GridView view) {
+    public Optional<TrackedResource> getTrackedResource(final GridView<PlatformGridResource> view) {
         return view.getTrackedResource(resource);
     }
 
     @Override
-    public long getAmount(final GridView view) {
+    public long getAmount(final GridView<PlatformGridResource> view) {
         return view.getAmount(resource);
     }
 
@@ -48,7 +48,7 @@ public abstract class AbstractPlatformGridResource<T extends PlatformResourceKey
     }
 
     @Override
-    public boolean isAutocraftable(final GridView view) {
+    public boolean isAutocraftable(final GridView<PlatformGridResource> view) {
         return view.isAutocraftable(resource);
     }
 
