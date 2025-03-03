@@ -140,25 +140,6 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         initStrategies((ServerPlayer) playerInventory.player);
     }
 
-    private ResourceRepositoryFilter<GridResource> createBaseFilter() {
-        return createResourceTypeFilter().and(createViewTypeFilter());
-    }
-
-    private ResourceRepositoryFilter<GridResource> createResourceTypeFilter() {
-        return (v, resource) -> resource instanceof GridResource platformResource
-            && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
-            RefinedStorageApi.INSTANCE
-                .getResourceTypeRegistry()
-                .get(resourceTypeId)
-                .map(platformResource::belongsToResourceType)
-        ).orElse(true);
-    }
-
-    private ResourceRepositoryFilter<GridResource> createViewTypeFilter() {
-        return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
-            .accepts(resource.isAutocraftable(v));
-    }
-
     private static ResourceRepositoryBuilder<GridResource> createRepositoryBuilder(
         final GridSortingTypes.TrackedResourceProvider sortingContext
     ) {
@@ -173,7 +154,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
                                  final long amount,
                                  @Nullable final TrackedResource trackedResource) {
         LOGGER.debug("{} got updated with {}", resource, amount);
-        repository.onChange(resource, amount);
+        repository.update(resource, amount);
         updateOrRemoveTrackedResource(resource, trackedResource);
     }
 
@@ -245,12 +226,36 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     private boolean onSearchTextChanged(final String text) {
         try {
-            repository.setFilterAndSort(QUERY_PARSER.parse(text).and(createBaseFilter()));
+            repository.setFilterAndSort(andFilter(QUERY_PARSER.parse(text), createBaseFilter()));
             return true;
         } catch (GridQueryParserException e) {
             repository.setFilterAndSort((v, resource) -> false);
             return false;
         }
+    }
+
+    private ResourceRepositoryFilter<GridResource> createBaseFilter() {
+        return andFilter(createResourceTypeFilter(), createViewTypeFilter());
+    }
+
+    private ResourceRepositoryFilter<GridResource> createResourceTypeFilter() {
+        return (v, resource) -> resource instanceof GridResource platformResource
+            && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
+            RefinedStorageApi.INSTANCE
+                .getResourceTypeRegistry()
+                .get(resourceTypeId)
+                .map(platformResource::belongsToResourceType)
+        ).orElse(true);
+    }
+
+    private ResourceRepositoryFilter<GridResource> createViewTypeFilter() {
+        return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
+            .accepts(resource.isAutocraftable(v));
+    }
+
+    private static ResourceRepositoryFilter<GridResource> andFilter(final ResourceRepositoryFilter<GridResource> a,
+                                                                    final ResourceRepositoryFilter<GridResource> b) {
+        return (view, resource) -> a.test(view, resource) && b.test(view, resource);
     }
 
     private static void updateLastSearchQuery(final String text) {

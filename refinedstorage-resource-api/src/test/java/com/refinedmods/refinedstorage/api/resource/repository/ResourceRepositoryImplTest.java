@@ -45,18 +45,18 @@ class ResourceRepositoryImplTest {
         sut.setSort(Comparator.comparingLong(sut::getAmount), SortingDirection.DESCENDING);
 
         // Act & assert
-        sut.onChange(A, 10);
-        sut.onChange(A, 5);
-        sut.onChange(B, 15);
-        sut.onChange(C, 2);
+        sut.update(A, 10);
+        sut.update(A, 5);
+        sut.update(B, 15);
+        sut.update(C, 2);
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B, A, C);
 
-        sut.onChange(A, -15);
-        sut.onChange(A, 15);
+        sut.update(A, -15);
+        sut.update(A, 15);
 
-        sut.onChange(B, -15);
-        sut.onChange(B, 15);
+        sut.update(B, -15);
+        sut.update(B, 15);
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B, A, C);
     }
@@ -101,7 +101,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(A, 12);
+        sut.update(A, 12);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -186,7 +186,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(A, 12);
+        sut.update(A, 12);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, B);
@@ -231,7 +231,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(B, 5);
+        sut.update(B, 5);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, B, A);
@@ -259,7 +259,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        final ThrowableAssert.ThrowingCallable action = () -> sut.onChange(B, 0);
+        final ThrowableAssert.ThrowingCallable action = () -> sut.update(B, 0);
 
         // Assert
         assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class).hasMessage("Amount must be non-zero");
@@ -283,7 +283,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(B, 5);
+        sut.update(B, 5);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A);
@@ -322,7 +322,7 @@ class ResourceRepositoryImplTest {
         final boolean changed2 = sut.setPreventSorting(true);
         assertThat(changed2).isFalse();
 
-        sut.onChange(B, 5);
+        sut.update(B, 5);
         verify(listener, never()).run();
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(B, D, A);
@@ -363,7 +363,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(B, -7);
+        sut.update(B, -7);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, B, A);
@@ -395,7 +395,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(B, -7);
+        sut.update(B, -7);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A);
@@ -424,7 +424,7 @@ class ResourceRepositoryImplTest {
 
         sut.setPreventSorting(true);
 
-        sut.onChange(B, -7);
+        sut.update(B, -7);
         verify(listener, never()).run();
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -450,7 +450,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(C, -7);
+        sut.update(C, -7);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -475,7 +475,7 @@ class ResourceRepositoryImplTest {
         sut.setListener(listener);
 
         // Act
-        sut.onChange(B, -20);
+        sut.update(B, -20);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A);
@@ -509,7 +509,7 @@ class ResourceRepositoryImplTest {
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
 
         sut.setPreventSorting(true);
-        sut.onChange(B, -20);
+        sut.update(B, -20);
         verify(listener, never()).run();
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -551,19 +551,19 @@ class ResourceRepositoryImplTest {
 
         // Delete the item
         sut.setPreventSorting(true);
-        sut.onChange(B, -20);
+        sut.update(B, -20);
         verify(listener, never()).run();
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
 
         // Re-insert the item
-        sut.onChange(B, 5);
+        sut.update(B, 5);
         verify(listener, never()).run();
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
 
         // Re-insert the item again
-        sut.onChange(B, 3);
+        sut.update(B, 3);
         verify(listener, never()).run();
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(D, A, B);
@@ -577,6 +577,8 @@ class ResourceRepositoryImplTest {
             .addResource(B, 20)
             .addResource(D, 10)
             .build();
+
+        sut.sort();
 
         // Act
         sut.clear();
@@ -641,7 +643,7 @@ class ResourceRepositoryImplTest {
         sut.sort();
 
         // Act
-        sut.onChange(A, -15);
+        sut.update(A, -15);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
@@ -662,14 +664,14 @@ class ResourceRepositoryImplTest {
         sut.setPreventSorting(true);
 
         // Act & assert
-        sut.onChange(A, -15);
+        sut.update(A, -15);
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
         assertThat(sut.isSticky(A)).isTrue();
         assertThat(sut.getAmount(A)).isZero();
         assertThat(sut.copyBackingList().copyState()).isEmpty();
 
-        sut.onChange(A, 1);
+        sut.update(A, 1);
 
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(A);
         assertThat(sut.isSticky(A)).isTrue();
@@ -693,8 +695,8 @@ class ResourceRepositoryImplTest {
         final ResourceRepository<WrappedGridResource> sut = wrappedBuilder.build();
 
         // Act
-        sut.onChange(new WrappedResourceKey(A, 1), 1);
-        sut.onChange(new WrappedResourceKey(A, 2), 1);
+        sut.update(new WrappedResourceKey(A, 1), 1);
+        sut.update(new WrappedResourceKey(A, 2), 1);
 
         // Assert
         assertThat(sut.getViewList()).usingRecursiveFieldByFieldElementComparator().containsExactly(

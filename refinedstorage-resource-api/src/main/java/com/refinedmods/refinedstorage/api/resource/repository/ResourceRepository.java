@@ -76,9 +76,9 @@ public interface ResourceRepository<T> {
      * on if the view is preventing sorting).
      *
      * @param resource the resource
-     * @param amount   the amount, can be negative or positive
+     * @param amount   the amount, can be negative or positive, but not zero
      */
-    void onChange(ResourceKey resource, long amount);
+    void update(ResourceKey resource, long amount);
 
     /**
      * @return the view list

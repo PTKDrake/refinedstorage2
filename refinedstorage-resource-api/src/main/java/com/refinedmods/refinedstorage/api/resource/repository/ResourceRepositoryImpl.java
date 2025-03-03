@@ -93,7 +93,7 @@ public class ResourceRepositoryImpl<T> implements ResourceRepository<T> {
     }
 
     @Override
-    public void onChange(final ResourceKey resource, final long amount) {
+    public void update(final ResourceKey resource, final long amount) {
         if (amount == 0) {
             throw new IllegalArgumentException("Amount must be non-zero");
         }
