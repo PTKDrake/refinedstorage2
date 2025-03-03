@@ -6,38 +6,36 @@ import com.refinedmods.refinedstorage.api.autocrafting.PatternRepositoryImpl;
 import com.refinedmods.refinedstorage.api.autocrafting.preview.Preview;
 import com.refinedmods.refinedstorage.api.autocrafting.preview.PreviewProvider;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
-import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
-import com.refinedmods.refinedstorage.api.grid.query.GridQueryParserException;
-import com.refinedmods.refinedstorage.api.grid.query.GridQueryParserImpl;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
-import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
-import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilder;
-import com.refinedmods.refinedstorage.api.grid.view.GridViewBuilderImpl;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridExtractMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridInsertMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryBuilder;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryBuilderImpl;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryFilter;
+import com.refinedmods.refinedstorage.api.resource.repository.SortingDirection;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.Config;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.grid.Grid;
-import com.refinedmods.refinedstorage.common.api.grid.GridResourceAttributeKeys;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.GridSynchronizer;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.storage.PlayerActor;
 import com.refinedmods.refinedstorage.common.api.support.registry.PlatformRegistry;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
+import com.refinedmods.refinedstorage.common.grid.query.GridQueryParser;
+import com.refinedmods.refinedstorage.common.grid.query.GridQueryParserException;
 import com.refinedmods.refinedstorage.common.grid.strategy.ClientGridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.ClientGridInsertionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.ClientGridScrollingStrategy;
-import com.refinedmods.refinedstorage.common.grid.view.CompositeGridResourceFactory;
 import com.refinedmods.refinedstorage.common.support.containermenu.AbstractResourceContainerMenu;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.S2CPackets;
 import com.refinedmods.refinedstorage.common.support.resource.ResourceTypes;
@@ -45,11 +43,10 @@ import com.refinedmods.refinedstorage.common.support.stretching.ScreenSizeListen
 import com.refinedmods.refinedstorage.query.lexer.LexerTokenMappings;
 import com.refinedmods.refinedstorage.query.parser.ParserOperatorMappings;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiPredicate;
 import javax.annotation.Nullable;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -65,24 +62,20 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractGridContainerMenu extends AbstractResourceContainerMenu
     implements GridWatcher, GridInsertionStrategy, GridExtractionStrategy, GridScrollingStrategy, ScreenSizeListener,
-    PreviewProvider {
+    PreviewProvider, GridSortingTypes.TrackedResourceProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGridContainerMenu.class);
-    private static final GridQueryParserImpl QUERY_PARSER = new GridQueryParserImpl(
+    private static final GridQueryParser QUERY_PARSER = new GridQueryParser(
         LexerTokenMappings.DEFAULT_MAPPINGS,
-        ParserOperatorMappings.DEFAULT_MAPPINGS,
-        Map.of(
-            "@", Set.of(GridResourceAttributeKeys.MOD_ID, GridResourceAttributeKeys.MOD_NAME),
-            "$", Set.of(GridResourceAttributeKeys.TAGS),
-            "#", Set.of(GridResourceAttributeKeys.TOOLTIP)
-        )
+        ParserOperatorMappings.DEFAULT_MAPPINGS
     );
 
     private static String lastSearchQuery = "";
 
     protected final Inventory playerInventory;
 
-    private final GridView view;
+    private final ResourceRepository<GridResource> repository;
     private final PatternRepository playerInventoryPatterns = new PatternRepositoryImpl();
+    private final Map<ResourceKey, TrackedResource> trackedResources = new HashMap<>();
     @Nullable
     private Grid grid;
     @Nullable
@@ -108,18 +101,19 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
         this.active = gridData.active();
 
-        final GridViewBuilder viewBuilder = createViewBuilder();
-        gridData.resources().forEach(resource -> viewBuilder.withResource(
+        final ResourceRepositoryBuilder<GridResource> repositoryBuilder = createRepositoryBuilder(this);
+        gridData.resources().forEach(resource -> repositoryBuilder.addResource(
             resource.resourceAmount().resource(),
-            resource.resourceAmount().amount(),
-            resource.trackedResource().orElse(null)
+            resource.resourceAmount().amount()
         ));
-        gridData.autocraftableResources().forEach(viewBuilder::withAutocraftableResource);
+        gridData.autocraftableResources().forEach(repositoryBuilder::addStickyResource);
 
-        this.view = viewBuilder.build();
-        this.view.setSortingDirection(Platform.INSTANCE.getConfig().getGrid().getSortingDirection());
-        this.view.setSortingType(Platform.INSTANCE.getConfig().getGrid().getSortingType());
-        this.view.setFilterAndSort(createBaseFilter());
+        this.repository = repositoryBuilder.build();
+        this.repository.setSort(
+            Platform.INSTANCE.getConfig().getGrid().getSortingType().apply(this).apply(repository),
+            Platform.INSTANCE.getConfig().getGrid().getSortingDirection()
+        );
+        this.repository.setFilterAndSort(createBaseFilter());
 
         this.synchronizer = loadSynchronizer();
         this.resourceTypeFilter = loadResourceType();
@@ -136,7 +130,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
     ) {
         super(menuType, syncId, playerInventory.player);
 
-        this.view = createViewBuilder().build();
+        this.repository = createRepositoryBuilder(this).build();
 
         this.playerInventory = playerInventory;
         this.grid = grid;
@@ -146,30 +140,13 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         initStrategies((ServerPlayer) playerInventory.player);
     }
 
-    private BiPredicate<GridView, GridResource> createBaseFilter() {
-        return createResourceTypeFilter().and(createViewTypeFilter());
-    }
-
-    private BiPredicate<GridView, GridResource> createResourceTypeFilter() {
-        return (v, resource) -> resource instanceof PlatformGridResource platformResource
-            && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
-            RefinedStorageApi.INSTANCE
-                .getResourceTypeRegistry()
-                .get(resourceTypeId)
-                .map(platformResource::belongsToResourceType)
-        ).orElse(true);
-    }
-
-    private BiPredicate<GridView, GridResource> createViewTypeFilter() {
-        return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
-            .accepts(resource.isAutocraftable());
-    }
-
-    private static GridViewBuilder createViewBuilder() {
-        return new GridViewBuilderImpl(
-            new CompositeGridResourceFactory(RefinedStorageApi.INSTANCE.getResourceTypeRegistry()),
-            GridSortingTypes.NAME,
-            GridSortingTypes.QUANTITY
+    private static ResourceRepositoryBuilder<GridResource> createRepositoryBuilder(
+        final GridSortingTypes.TrackedResourceProvider sortingContext
+    ) {
+        return new ResourceRepositoryBuilderImpl<>(
+            RefinedStorageApi.INSTANCE.getGridResourceRepositoryMapper(),
+            GridSortingTypes.NAME.apply(sortingContext),
+            GridSortingTypes.QUANTITY.apply(sortingContext)
         );
     }
 
@@ -177,17 +154,41 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
                                  final long amount,
                                  @Nullable final TrackedResource trackedResource) {
         LOGGER.debug("{} got updated with {}", resource, amount);
-        view.onChange(resource, amount, trackedResource);
+        repository.update(resource, amount);
+        updateOrRemoveTrackedResource(resource, trackedResource);
     }
 
-    public GridSortingDirection getSortingDirection() {
+    @Override
+    @Nullable
+    public TrackedResource getTrackedResource(final GridResource resource) {
+        return resource.getTrackedResource(this::getTrackedResource);
+    }
+
+    @Nullable
+    public TrackedResource getTrackedResource(final ResourceKey resource) {
+        return trackedResources.get(resource);
+    }
+
+    private void updateOrRemoveTrackedResource(final ResourceKey resource,
+                                               @Nullable final TrackedResource trackedResource) {
+        if (trackedResource == null) {
+            trackedResources.remove(resource);
+        } else {
+            trackedResources.put(resource, trackedResource);
+        }
+    }
+
+    public SortingDirection getSortingDirection() {
         return Platform.INSTANCE.getConfig().getGrid().getSortingDirection();
     }
 
-    public void setSortingDirection(final GridSortingDirection sortingDirection) {
+    public void setSortingDirection(final SortingDirection sortingDirection) {
         Platform.INSTANCE.getConfig().getGrid().setSortingDirection(sortingDirection);
-        view.setSortingDirection(sortingDirection);
-        view.sort();
+        repository.setSort(
+            Platform.INSTANCE.getConfig().getGrid().getSortingType().apply(this).apply(repository),
+            sortingDirection
+        );
+        repository.sort();
     }
 
     public GridSortingTypes getSortingType() {
@@ -196,8 +197,11 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     public void setSortingType(final GridSortingTypes sortingType) {
         Platform.INSTANCE.getConfig().getGrid().setSortingType(sortingType);
-        view.setSortingType(sortingType);
-        view.sort();
+        repository.setSort(
+            sortingType.apply(this).apply(repository),
+            Platform.INSTANCE.getConfig().getGrid().getSortingDirection()
+        );
+        repository.sort();
     }
 
     public GridViewType getViewType() {
@@ -206,7 +210,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     public void setViewType(final GridViewType viewType) {
         Platform.INSTANCE.getConfig().getGrid().setViewType(viewType);
-        view.sort();
+        repository.sort();
     }
 
     public void setSearchBox(final GridSearchBox searchBox) {
@@ -222,12 +226,36 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     private boolean onSearchTextChanged(final String text) {
         try {
-            view.setFilterAndSort(QUERY_PARSER.parse(text).and(createBaseFilter()));
+            repository.setFilterAndSort(andFilter(QUERY_PARSER.parse(text), createBaseFilter()));
             return true;
         } catch (GridQueryParserException e) {
-            view.setFilterAndSort((v, resource) -> false);
+            repository.setFilterAndSort((v, resource) -> false);
             return false;
         }
+    }
+
+    private ResourceRepositoryFilter<GridResource> createBaseFilter() {
+        return andFilter(createResourceTypeFilter(), createViewTypeFilter());
+    }
+
+    private ResourceRepositoryFilter<GridResource> createResourceTypeFilter() {
+        return (v, resource) -> resource instanceof GridResource platformResource
+            && Platform.INSTANCE.getConfig().getGrid().getResourceType().flatMap(resourceTypeId ->
+            RefinedStorageApi.INSTANCE
+                .getResourceTypeRegistry()
+                .get(resourceTypeId)
+                .map(platformResource::belongsToResourceType)
+        ).orElse(true);
+    }
+
+    private ResourceRepositoryFilter<GridResource> createViewTypeFilter() {
+        return (v, resource) -> Platform.INSTANCE.getConfig().getGrid().getViewType()
+            .accepts(resource.isAutocraftable(v));
+    }
+
+    private static ResourceRepositoryFilter<GridResource> andFilter(final ResourceRepositoryFilter<GridResource> a,
+                                                                    final ResourceRepositoryFilter<GridResource> b) {
+        return (view, resource) -> a.test(view, resource) && b.test(view, resource);
     }
 
     private static void updateLastSearchQuery(final String text) {
@@ -259,8 +287,8 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
         });
     }
 
-    public GridView getView() {
-        return view;
+    public ResourceRepository<GridResource> getRepository() {
+        return repository;
     }
 
     @Override
@@ -371,7 +399,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
             registry.getId(newResourceType).ifPresent(config::setResourceType);
         }
         this.resourceTypeFilter = newResourceType;
-        this.view.sort();
+        this.repository.sort();
     }
 
     @Override
@@ -433,7 +461,8 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
     }
 
     public void onClear() {
-        view.clear();
+        repository.clear();
+        trackedResources.clear();
     }
 
     @Nullable
@@ -447,7 +476,7 @@ public abstract class AbstractGridContainerMenu extends AbstractResourceContaine
 
     @Nullable
     private AutocraftableResourceHint getAutocraftableResourceHint(final ResourceKey resource) {
-        if (view.isAutocraftable(resource)) {
+        if (repository.isSticky(resource)) {
             return AutocraftableResourceHint.AUTOCRAFTABLE;
         }
         if (playerInventoryPatterns.getOutputs().contains(resource)) {

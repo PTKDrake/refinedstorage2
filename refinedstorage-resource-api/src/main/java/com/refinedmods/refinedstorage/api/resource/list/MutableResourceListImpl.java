@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 
@@ -55,7 +55,8 @@ public class MutableResourceListImpl implements MutableResourceList {
     }
 
     @Override
-    public Optional<OperationResult> remove(final ResourceKey resource, final long amount) {
+    @Nullable
+    public OperationResult remove(final ResourceKey resource, final long amount) {
         ResourceAmount.validate(resource, amount);
         final Entry existing = entries.get(resource);
         if (existing != null) {
@@ -65,22 +66,22 @@ public class MutableResourceListImpl implements MutableResourceList {
                 return removePartly(amount, existing);
             }
         }
-        return Optional.empty();
+        return null;
     }
 
-    private Optional<OperationResult> removePartly(final long amount, final Entry entry) {
+    private OperationResult removePartly(final long amount, final Entry entry) {
         entry.decrement(amount);
-        return Optional.of(new OperationResult(entry.resource, entry.amount, -amount, true));
+        return new OperationResult(entry.resource, entry.amount, -amount, true);
     }
 
-    private Optional<OperationResult> removeCompletely(final Entry entry) {
+    private OperationResult removeCompletely(final Entry entry) {
         entries.remove(entry.resource);
-        return Optional.of(new OperationResult(
+        return new OperationResult(
             entry.resource,
             0,
             -entry.amount,
             false
-        ));
+        );
     }
 
     @Override

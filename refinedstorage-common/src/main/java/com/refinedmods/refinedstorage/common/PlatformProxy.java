@@ -1,7 +1,6 @@
 package com.refinedmods.refinedstorage.common;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategyFactory;
@@ -86,16 +85,6 @@ public class PlatformProxy implements Platform {
     @Override
     public boolean isKeyDown(final KeyMapping keyMapping) {
         return ensureLoaded().isKeyDown(keyMapping);
-    }
-
-    @Override
-    public GridResourceFactory getItemGridResourceFactory() {
-        return ensureLoaded().getItemGridResourceFactory();
-    }
-
-    @Override
-    public GridResourceFactory getFluidGridResourceFactory() {
-        return ensureLoaded().getFluidGridResourceFactory();
     }
 
     @Override

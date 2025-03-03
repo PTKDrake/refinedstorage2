@@ -1,16 +1,12 @@
 package com.refinedmods.refinedstorage.common.support.resource;
 
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperationsImpl;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
-import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.network.impl.node.grid.GridOperationsImpl;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.support.resource.PlatformResourceKey;
 import com.refinedmods.refinedstorage.common.api.support.resource.ResourceType;
-
-import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,11 +20,6 @@ import static com.refinedmods.refinedstorage.common.util.IdentifierUtil.createTr
 class FluidResourceType implements ResourceType {
     private static final MutableComponent TITLE = createTranslation("misc", "resource_type.fluid");
     private static final ResourceLocation SPRITE = createIdentifier("widget/side_button/resource_type/fluid");
-
-    @Override
-    public Optional<GridResource> toGridResource(final ResourceKey resource, final boolean autocraftable) {
-        return Platform.INSTANCE.getFluidGridResourceFactory().apply(resource, autocraftable);
-    }
 
     @Override
     public long normalizeAmount(final double amount) {

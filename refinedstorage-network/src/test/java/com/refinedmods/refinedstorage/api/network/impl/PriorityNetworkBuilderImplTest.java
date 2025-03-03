@@ -1,13 +1,13 @@
 package com.refinedmods.refinedstorage.api.network.impl;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
 import com.refinedmods.refinedstorage.api.network.ConnectionProvider;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.impl.node.container.NetworkNodeContainerPriorities;
 import com.refinedmods.refinedstorage.api.network.impl.node.grid.GridNetworkNode;
 import com.refinedmods.refinedstorage.api.network.impl.node.storage.StorageNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.container.NetworkNodeContainer;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.StorageImpl;

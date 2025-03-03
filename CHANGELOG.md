@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 -   Fixed cables broken with a Wrench not stacking with newly crafted cables.
+-   Fixed slow performance in the Grid when searching.
 
 ## [2.0.0-milestone.4.14] - 2025-02-23
 

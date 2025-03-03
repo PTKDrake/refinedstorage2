@@ -47,7 +47,6 @@ class DefaultExporterNetworkNodeTest extends AbstractExporterNetworkNodeTest {
         return new DefaultSchedulingMode();
     }
 
-    @SuppressWarnings("AssertBetweenInconvertibleTypes") // intellij bug
     @Test
     void shouldTransfer(@InjectNetworkStorageComponent final StorageNetworkComponent storage) {
         // Arrange

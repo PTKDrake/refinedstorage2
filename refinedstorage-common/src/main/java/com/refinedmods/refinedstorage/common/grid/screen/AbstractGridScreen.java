@@ -1,17 +1,16 @@
 package com.refinedmods.refinedstorage.common.grid.screen;
 
-import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
-import com.refinedmods.refinedstorage.api.grid.view.GridView;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridExtractMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridInsertMode;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepository;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedResource;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageClientApi;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
-import com.refinedmods.refinedstorage.common.api.grid.view.PlatformGridResource;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.grid.AbstractGridContainerMenu;
 import com.refinedmods.refinedstorage.common.grid.AutocraftableResourceHint;
 import com.refinedmods.refinedstorage.common.grid.NoopGridSynchronizer;
@@ -109,7 +108,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         }
         getMenu().setSearchBox(searchField);
 
-        getMenu().getView().setListener(this::updateScrollbar);
+        getMenu().getRepository().setListener(this::updateScrollbar);
         updateScrollbar();
 
         addWidget(searchField);
@@ -162,7 +161,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private void updateScrollbar() {
-        this.totalRows = (int) Math.ceil((float) getMenu().getView().getViewList().size() / (float) COLUMNS);
+        this.totalRows = (int) Math.ceil((float) getMenu().getRepository().getViewList().size() / (float) COLUMNS);
         updateScrollbar(totalRows);
     }
 
@@ -237,13 +236,13 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                             final int rowY,
                             final int idx,
                             final int column) {
-        final GridView view = getMenu().getView();
+        final ResourceRepository<GridResource> repository = getMenu().getRepository();
         final int slotX = rowX + 1 + (column * ROW_SIZE);
         final int slotY = rowY + 1;
         if (!getMenu().isActive()) {
             renderDisabledSlot(graphics, slotX, slotY);
         } else {
-            renderSlot(graphics, mouseX, mouseY, idx, view, slotX, slotY);
+            renderSlot(graphics, mouseX, mouseY, idx, repository, slotX, slotY);
         }
     }
 
@@ -267,7 +266,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                             final int mouseX,
                             final int mouseY,
                             final int idx,
-                            final GridView view,
+                            final ResourceRepository<GridResource> repository,
                             final int slotX,
                             final int slotY) {
         final boolean inBounds = mouseX >= slotX
@@ -275,8 +274,8 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             && mouseX <= slotX + 16
             && mouseY <= slotY + 16;
         GridResource resource = null;
-        if (idx < view.getViewList().size()) {
-            resource = view.getViewList().get(idx);
+        if (idx < repository.getViewList().size()) {
+            resource = repository.getViewList().get(idx);
             renderResourceWithAmount(graphics, slotX, slotY, resource);
         }
         if (inBounds && isOverStorageArea(mouseX, mouseY)) {
@@ -301,7 +300,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                                           final int slotX,
                                           final int slotY,
                                           final GridResource resource) {
-        if (resource.isAutocraftable()) {
+        if (resource.isAutocraftable(getMenu().getRepository())) {
             renderSlotBackground(
                 graphics,
                 slotX,
@@ -309,7 +308,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                 false,
                 AutocraftableResourceHint.AUTOCRAFTABLE.getColor()
             );
-        } else if (resource.getAmount(getMenu().getView()) == 0) {
+        } else if (resource.getAmount(getMenu().getRepository()) == 0) {
             renderSlotBackground(
                 graphics,
                 slotX,
@@ -318,9 +317,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                 0x66FF0000
             );
         }
-        if (resource instanceof PlatformGridResource platformResource) {
-            platformResource.render(graphics, slotX, slotY);
-        }
+        resource.render(graphics, slotX, slotY);
         renderAmount(graphics, slotX, slotY, resource);
     }
 
@@ -343,11 +340,8 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
                               final int slotX,
                               final int slotY,
                               final GridResource resource) {
-        if (!(resource instanceof PlatformGridResource platformResource)) {
-            return;
-        }
-        final long amount = platformResource.getAmount(getMenu().getView());
-        final String text = getAmountText(resource, platformResource, amount);
+        final long amount = resource.getAmount(getMenu().getRepository());
+        final String text = getAmountText(resource, amount);
         final int color = getAmountColor(resource, amount);
         final boolean large = (minecraft != null && minecraft.isEnforceUnicode())
             || Platform.INSTANCE.getConfig().getGrid().isLargeFont();
@@ -356,7 +350,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
 
     private int getAmountColor(final GridResource resource, final long amount) {
         if (amount == 0) {
-            if (resource.isAutocraftable()) {
+            if (resource.isAutocraftable(getMenu().getRepository())) {
                 return 0xFFFFFF;
             }
             return 0xFF5555;
@@ -364,13 +358,11 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         return 0xFFFFFF;
     }
 
-    private String getAmountText(final GridResource resource,
-                                 final PlatformGridResource platformResource,
-                                 final long amount) {
-        if (amount == 0 && resource.isAutocraftable()) {
+    private String getAmountText(final GridResource resource, final long amount) {
+        if (amount == 0 && resource.isAutocraftable(getMenu().getRepository())) {
             return I18n.get(createTranslationKey("gui", "grid.craft"));
         }
-        return platformResource.getDisplayedAmount(getMenu().getView());
+        return resource.getDisplayedAmount(getMenu().getRepository());
     }
 
     private void renderDisabledSlot(final GuiGraphics graphics, final int slotX, final int slotY) {
@@ -412,9 +404,9 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private void renderOverStorageAreaTooltip(final GuiGraphics graphics, final int x, final int y) {
-        final PlatformGridResource gridResource = getCurrentGridResource();
+        final GridResource gridResource = getCurrentGridResource();
         if (gridResource != null) {
-            renderHoveredResourceTooltip(graphics, x, y, menu.getView(), gridResource);
+            renderHoveredResourceTooltip(graphics, x, y, gridResource);
             return;
         }
         final ItemStack carried = getMenu().getCarried();
@@ -429,44 +421,44 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     private void renderHoveredResourceTooltip(final GuiGraphics graphics,
                                               final int mouseX,
                                               final int mouseY,
-                                              final GridView view,
-                                              final PlatformGridResource gridResource) {
-        final ItemStack stackContext = gridResource instanceof ItemGridResource itemGridResource
-            ? itemGridResource.getItemStack()
+                                              final GridResource resource) {
+        final ItemStack stackContext = resource instanceof ItemGridResource itemResource
+            ? itemResource.getItemStack()
             : ItemStack.EMPTY;
-        final List<Component> lines = gridResource.getTooltip();
+        final List<Component> lines = resource.getTooltip();
         final List<ClientTooltipComponent> processedLines = Platform.INSTANCE.processTooltipComponents(
             stackContext,
             graphics,
             mouseX,
-            gridResource.getTooltipImage(),
+            resource.getTooltipImage(),
             lines
         );
-        final long amount = gridResource.getAmount(getMenu().getView());
+        final long amount = resource.getAmount(getMenu().getRepository());
         if (amount > 0 && Platform.INSTANCE.getConfig().getGrid().isDetailedTooltip()) {
-            addDetailedTooltip(view, gridResource, processedLines);
+            addDetailedTooltip(resource, processedLines);
         }
-        if (gridResource.isAutocraftable()) {
+        if (resource.isAutocraftable(getMenu().getRepository())) {
             processedLines.add(amount == 0
                 ? AutocraftableClientTooltipComponent.empty()
                 : AutocraftableClientTooltipComponent.existing());
         }
         if (amount > 0) {
-            processedLines.addAll(gridResource.getExtractionHints(getMenu().getCarried(), getMenu().getView()));
+            processedLines.addAll(resource.getExtractionHints(getMenu().getCarried(), getMenu().getRepository()));
         }
         Platform.INSTANCE.renderTooltip(graphics, processedLines, mouseX, mouseY);
     }
 
-    private void addDetailedTooltip(final GridView view,
-                                    final PlatformGridResource platformResource,
-                                    final List<ClientTooltipComponent> lines) {
-        final String amountInTooltip = platformResource.getAmountInTooltip(getMenu().getView());
+    private void addDetailedTooltip(final GridResource resource, final List<ClientTooltipComponent> lines) {
+        final String amountInTooltip = resource.getAmountInTooltip(getMenu().getRepository());
         lines.add(new SmallTextClientTooltipComponent(
             createTranslation("misc", "total", amountInTooltip).withStyle(ChatFormatting.GRAY)
         ));
-        platformResource.getTrackedResource(view).ifPresent(entry -> lines.add(new SmallTextClientTooltipComponent(
-            getLastModifiedText(entry).withStyle(ChatFormatting.GRAY)
-        )));
+        final TrackedResource trackedResource = resource.getTrackedResource(getMenu()::getTrackedResource);
+        if (trackedResource != null) {
+            lines.add(new SmallTextClientTooltipComponent(
+                getLastModifiedText(trackedResource).withStyle(ChatFormatting.GRAY)
+            ));
+        }
     }
 
     private MutableComponent getLastModifiedText(final TrackedResource trackedResource) {
@@ -496,15 +488,15 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
 
     @API(status = API.Status.INTERNAL)
     @Nullable
-    public PlatformGridResource getCurrentGridResource() {
+    public GridResource getCurrentGridResource() {
         if (currentGridSlotIndex < 0) {
             return null;
         }
-        final List<GridResource> viewList = menu.getView().getViewList();
+        final List<GridResource> viewList = menu.getRepository().getViewList();
         if (currentGridSlotIndex >= viewList.size()) {
             return null;
         }
-        return (PlatformGridResource) viewList.get(currentGridSlotIndex);
+        return viewList.get(currentGridSlotIndex);
     }
 
     @Override
@@ -518,7 +510,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int clickedButton) {
         final ItemStack carriedStack = getMenu().getCarried();
-        final PlatformGridResource resource = getCurrentGridResource();
+        final GridResource resource = getCurrentGridResource();
         if (canExtract(resource, carriedStack)) {
             mouseClickedInGrid(clickedButton, resource);
             return true;
@@ -527,14 +519,14 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             mouseClickedInGrid(clickedButton);
             return true;
         }
-        if (resource != null && resource.isAutocraftable() && tryStartAutocrafting(resource)) {
+        if (resource != null && resource.isAutocraftable(getMenu().getRepository()) && tryStartAutocrafting(resource)) {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, clickedButton);
     }
 
-    private boolean canExtract(@Nullable final PlatformGridResource resource, final ItemStack carriedStack) {
-        return resource != null && resource.canExtract(carriedStack, getMenu().getView()) && !hasControlDown();
+    private boolean canExtract(@Nullable final GridResource resource, final ItemStack carriedStack) {
+        return resource != null && resource.canExtract(carriedStack, getMenu().getRepository()) && !hasControlDown();
     }
 
     private boolean canInsert(final int mouseX,
@@ -546,7 +538,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
             && (clickedButton == 0 || clickedButton == 1);
     }
 
-    private boolean tryStartAutocrafting(final PlatformGridResource resource) {
+    private boolean tryStartAutocrafting(final GridResource resource) {
         final ResourceAmount request = resource.getAutocraftingRequest();
         if (request == null) {
             return false;
@@ -563,7 +555,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         getMenu().onInsert(mode, tryAlternatives);
     }
 
-    protected void mouseClickedInGrid(final int clickedButton, final PlatformGridResource resource) {
+    protected void mouseClickedInGrid(final int clickedButton, final GridResource resource) {
         resource.onExtract(
             getExtractMode(clickedButton),
             shouldExtractToCursor(),
@@ -587,7 +579,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         final boolean up = delta > 0;
 
         if (isOverStorageArea((int) x, (int) y)) {
-            final PlatformGridResource resource = getCurrentGridResource();
+            final GridResource resource = getCurrentGridResource();
             if (resource != null) {
                 mouseScrolledInGrid(up, resource);
             }
@@ -599,7 +591,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
     }
 
     private void mouseScrolledInInventory(final boolean up, final Slot slot) {
-        getMenu().getView().setPreventSorting(true);
+        getMenu().getRepository().setPreventSorting(true);
         final int slotIndex = slot.getContainerSlot();
         mouseScrolledInInventory(up, slot.getItem(), slotIndex);
     }
@@ -612,8 +604,8 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         getMenu().onScroll(ItemResource.ofItemStack(stack), scrollMode, slotIndex);
     }
 
-    private void mouseScrolledInGrid(final boolean up, final PlatformGridResource resource) {
-        getMenu().getView().setPreventSorting(true);
+    private void mouseScrolledInGrid(final boolean up, final GridResource resource) {
+        getMenu().getRepository().setPreventSorting(true);
         final GridScrollMode scrollMode = getScrollModeWhenScrollingOnGridArea(up);
         if (scrollMode == null) {
             return;
@@ -668,7 +660,7 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
         // First check if we have to prevent sorting.
         // Order matters. In auto-selected mode, the search field will swallow the SHIFT key.
         if (Screen.hasShiftDown() && Platform.INSTANCE.getConfig().getGrid().isPreventSortingWhileShiftIsDown()) {
-            getMenu().getView().setPreventSorting(true);
+            getMenu().getRepository().setPreventSorting(true);
         }
 
         if (searchField != null && searchField.keyPressed(key, scanCode, modifiers)) {
@@ -680,8 +672,8 @@ public abstract class AbstractGridScreen<T extends AbstractGridContainerMenu> ex
 
     @Override
     public boolean keyReleased(final int key, final int scanCode, final int modifiers) {
-        if (getMenu().getView().setPreventSorting(false)) {
-            getMenu().getView().sort();
+        if (getMenu().getRepository().setPreventSorting(false)) {
+            getMenu().getRepository().sort();
         }
 
         return super.keyReleased(key, scanCode, modifiers);

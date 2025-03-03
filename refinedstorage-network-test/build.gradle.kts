@@ -21,7 +21,6 @@ dependencies {
     api(project(":refinedstorage-storage-api"))
     api(project(":refinedstorage-resource-api"))
     api(project(":refinedstorage-core-api"))
-    api(project(":refinedstorage-grid-api"))
     implementation(libs.junit.api)
     testRuntimeOnly(libs.junit.engine)
     testImplementation(libs.assertj)

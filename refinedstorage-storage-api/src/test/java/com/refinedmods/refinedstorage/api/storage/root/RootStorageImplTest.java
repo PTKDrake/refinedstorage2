@@ -548,7 +548,6 @@ class RootStorageImplTest {
     }
 
     @Test
-    @SuppressWarnings("AssertBetweenInconvertibleTypes")
     void shouldRetrieveTrackedResource() {
         // Arrange
         final Storage storage = new TrackedStorageImpl(

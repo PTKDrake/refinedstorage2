@@ -2,13 +2,13 @@ package com.refinedmods.refinedstorage.common.grid;
 
 import com.refinedmods.refinedstorage.api.autocrafting.preview.Preview;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
-import com.refinedmods.refinedstorage.api.grid.operations.NoopGridOperations;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcherManager;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcherManagerImpl;
 import com.refinedmods.refinedstorage.api.network.autocrafting.AutocraftingNetworkComponent;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyNetworkComponent;
+import com.refinedmods.refinedstorage.api.network.impl.node.grid.GridWatcherManager;
+import com.refinedmods.refinedstorage.api.network.impl.node.grid.GridWatcherManagerImpl;
+import com.refinedmods.refinedstorage.api.network.node.grid.EmptyGridOperations;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
@@ -105,7 +105,7 @@ class WirelessGrid implements Grid {
             .flatMap(rootStorage -> getSecurity()
                 .map(security -> createGridOperations(resourceType, player, rootStorage, security)))
             .map(operations -> (GridOperations) new WirelessGridOperations(operations, context, watchers))
-            .orElseGet(NoopGridOperations::new);
+            .orElse(EmptyGridOperations.INSTANCE);
     }
 
     private GridOperations createGridOperations(final ResourceType resourceType,

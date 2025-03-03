@@ -6,7 +6,6 @@ import com.refinedmods.refinedstorage.api.resource.list.MutableResourceListImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,14 +60,14 @@ class ListenableResourceListTest {
         sut.add(TestResource.A, 10);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result = sut.remove(TestResource.A, 10);
+        final MutableResourceList.OperationResult result = sut.remove(TestResource.A, 10);
 
         // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().change()).isEqualTo(-10);
-        assertThat(result.get().amount()).isZero();
-        assertThat(result.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result.get().available()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.change()).isEqualTo(-10);
+        assertThat(result.amount()).isZero();
+        assertThat(result.resource()).isEqualTo(TestResource.A);
+        assertThat(result.available()).isFalse();
         assertThat(listener.changes).hasSize(2);
     }
 
@@ -78,14 +77,14 @@ class ListenableResourceListTest {
         sut.add(TestResource.A, 10);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result = sut.remove(TestResource.A, 10);
+        final MutableResourceList.OperationResult result = sut.remove(TestResource.A, 10);
 
         // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().change()).isEqualTo(-10);
-        assertThat(result.get().amount()).isZero();
-        assertThat(result.get().resource()).isEqualTo(TestResource.A);
-        assertThat(result.get().available()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.change()).isEqualTo(-10);
+        assertThat(result.amount()).isZero();
+        assertThat(result.resource()).isEqualTo(TestResource.A);
+        assertThat(result.available()).isFalse();
         assertThat(listener.changes).isEmpty();
     }
 
@@ -96,10 +95,10 @@ class ListenableResourceListTest {
         sut.add(TestResource.A, 10);
 
         // Act
-        final Optional<MutableResourceList.OperationResult> result = sut.remove(TestResource.B, 10);
+        final MutableResourceList.OperationResult result = sut.remove(TestResource.B, 10);
 
         // Assert
-        assertThat(result).isEmpty();
+        assertThat(result).isNull();
         assertThat(listener.changes).hasSize(1);
     }
 

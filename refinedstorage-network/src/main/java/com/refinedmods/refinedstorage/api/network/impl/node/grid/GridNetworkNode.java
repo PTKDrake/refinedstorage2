@@ -1,10 +1,8 @@
 package com.refinedmods.refinedstorage.api.network.impl.node.grid;
 
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcherManager;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcherManagerImpl;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.impl.node.AbstractNetworkNode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 

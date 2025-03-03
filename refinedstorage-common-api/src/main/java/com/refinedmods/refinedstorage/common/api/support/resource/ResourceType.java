@@ -1,12 +1,8 @@
 package com.refinedmods.refinedstorage.common.api.support.resource;
 
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
-import com.refinedmods.refinedstorage.api.grid.view.GridResource;
-import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.root.RootStorage;
-
-import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,8 +24,6 @@ public interface ResourceType {
     long normalizeAmount(double amount);
 
     double getDisplayAmount(long amount);
-
-    Optional<GridResource> toGridResource(ResourceKey resource, boolean autocraftable);
 
     long getInterfaceExportLimit();
 

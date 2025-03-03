@@ -43,7 +43,6 @@ class PlatformRegistryImplTest {
     }
 
     @Test
-    @SuppressWarnings("AssertBetweenInconvertibleTypes")
     void shouldRegisterAndRetrieve() {
         // Act
         sut.register(A, 10);

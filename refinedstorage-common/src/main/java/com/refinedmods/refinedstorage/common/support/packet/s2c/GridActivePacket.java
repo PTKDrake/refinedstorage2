@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.support.packet.s2c;
 
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.common.support.packet.PacketContext;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
