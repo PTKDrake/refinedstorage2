@@ -1,0 +1,20 @@
+= Announcing Refined Storage 2
+:type: article
+:description: A new major version of Refined Storage is in the works.
+:date: 2021-05-18
+
+Since October 2020 I've silently been working on and off on a new major version of Refined Storage. This version is a complete rewrite with an extra focus on quality.
+
+The mod is over 5 years old at this point and the code is starting to show its age. I don't think that there is any original code remaining from 2015 as it has been refactored constantly over the years, but now feels like a good moment to start over.
+
+The biggest problem with the current version of the mod is that while it works, the code quality isn't that good. There are no tests and the structure/architecture isn't that sane. That makes it hard to keep adding features and to support the mod on the long term, due to regressions and bugs.
+
+I've learned a lot the past few years. I started Refined Storage when I was a kid in high school, now I'm a software engineer by trade. I want the code to be as good as possible so that I can keep enjoying working on it.
+
+Rewriting a mod the size of Refined Storage can be a huge trap and could very well fail due to the effort required, but I feel like this is required to secure the future of the mod.
+
+The mod is being rewritten with an enhanced focus on quality (that's why it is taking so long!) and to be modloader independent.
+
+In terms of features the mod will largely stay the same. There will be some subtle differences here and there, but nothing too huge. See it as a new coat of paint.
+
+Because I'm working full-time, I have to divide my time better. Time is the most precious thing in life and in my free time I want to work on things that I enjoy the most. Working on Refined Storage 2 gives me the most enjoyment, so most time will be going to that.

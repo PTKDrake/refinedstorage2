@@ -1,0 +1,59 @@
+= Refined Storage 2 status update - March 2024
+:type: article
+:description: A status update on the development of Refined Storage 2.
+:date: 2024-03-19
+
+I'm starting a regular series of Refined Storage 2 status updates.
+
+link:https://github.com/refinedmods/refinedstorage2/wiki/FAQ[If you don't know what Refined Storage 2 is, please read the FAQ first.]
+
+As you might know, Refined Storage 2 development is very intensive:
+
+* Refined Storage is being completely rewritten;
+* Support for the Fabric modloader is being added;
+* Every feature that is re-added is thought out again and changes are being made at every step of the way;
+* Next to being a rewrite, Refined Storage 2 also contains a bunch of new features!
+
+*... and while all this work is in progress, Refined Storage 1.x still needs maintenance and regular Minecraft ports!*
+
+[.underline.bold]#What has been going on with Refined Storage 2 since milestone 2?#
+
+Refined Storage 2 is now in the final stages of milestone 3:
+
+* The mod got ported to Minecraft 1.20.4 and the NeoForge modloader.
+* Support for Forge has been dropped.
+* The Portable Grid has been added.
+* Custom disk models have been added.
+* Fluid disks have a different in-world model now.
+* The Configuration Card has been added.
+* A new item, copies configuration to other devices.
+* Network Receiver / Network Transmitter / Network Card has been added.
+* The Storage Monitor has been added.
+* Wireless Grid / Wireless Transmitter / Range Upgrade has been added.
+* Creative Range Upgrade has been added: infinite range upgrade (not craftable).
+* Curios and Trinkets integration for the wireless items.
+* "Void excess" mode on the storages has been added.
+* An old, loved, removed feature from Refined Storage 1.x, now re-added for Refined Storage 2.
+* I've added Refined Storage 2 to link:https://crowdin.com/project/refined-storage-2[Crowdin] and integrated it with our code repository. Now everyone can contribute translations more easily!
+* Thanks to all the early testers, link:https://github.com/refinedmods/refinedstorage2/issues?q=is%3Aissue+label%3Abug+milestone%3Av2.0.0-milestone.3+is%3Aclosed[a lot of bugs have been fixed].
+* Code quality improvements:
+* Test hardening (increasing mutation test coverage)
+* SonarQube fixes
+* Major refactoring to the storage API:
+* Simplifying and improving the API
+* Mixed storages are now possible (for example: a single disk that stores both items and fluids)
+
+[.underline.bold]#What is planned in the coming weeks?#
+
+* link:https://github.com/orgs/refinedmods/projects/6/views/8[Milestone 3 is in the process of being completed.]
+* The Security Card and Security Manager are being implemented.
+* Other remaining features to be implemented are:
+* Disk Manipulator
+* Relay
+* Covers
+
+[.underline.bold]#Want to try out Refined Storage 2 yourself?#
+
+* link:https://github.com/refinedmods/refinedstorage2/releases/tag/v2.0.0-milestone.3.4[Find the latest version for milestone 3 here.]
+* link:https://github.com/refinedmods/refinedstorage2/wiki/Getting-started[Find the getting started guide here.]
+* link:https://discordapp.com/invite/VYzsydb[Join our Discord and let me know what your findings are!]

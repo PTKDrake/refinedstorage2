@@ -1,0 +1,14 @@
+= A big milestone for Refined Storage 2
+:type: article
+:description: The first milestone for Refined Storage 2 has been completed.
+:date: 2022-07-04
+
+After almost 2 years of development, link:https://github.com/refinedmods/refinedstorage2/milestone/1?closed=1[the first milestone for Refined Storage 2 has been completed].
+
+Finishing the first milestone is a big deal. Important architectural decisions have been made to lay a solid foundation for further milestones and content.
+
+You can track the progress in the following locations:
+
+* link:https://github.com/orgs/refinedmods/projects/6[The project board]
+* link:https://github.com/refinedmods/refinedstorage2/milestones[The list of milestones]
+* link:https://github.com/refinedmods/refinedstorage2[The GitHub repository]

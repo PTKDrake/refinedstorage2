@@ -1,0 +1,22 @@
+= A week of modding
+:type: article
+:description: A week of modding for Refined Storage 1.x, Refined Storage Addons, and Ranged Pumps.
+:date: 2023-07-07
+
+This week was an important one for Refined Storage 1.x, Refined Storage Addons, and Ranged Pumps:
+
+* They got ported to Minecraft 1.20.1
+* link:https://modrinth.com/user/raoulvdberge[They are now available on Modrinth as well]
+* After a successful trial run on Refined Storage 2, link:https://github.com/refinedmods/refinedarchitect[the Refined Architect build infrastructure] is used instead of the custom solution per mod (yay, unification!)
+* link:https://github.com/refinedmods/refinedstorage/blob/develop/CHANGELOG.md[The historical changelogs got updated to the Keep A Changelog format]
+* link:https://github.com/refinedmods/refinedstorage/tags[The historical versions all got a tag on Git] and a link:https://github.com/refinedmods/refinedstorage/releases[corresponding release on GitHub]
+
+Actually using Refined Architect on our projects only took a week, but the planning, pre-work, and testing with Refined Storage 2 took many weeks.
+
+Along with that, link:https://github.com/refinedmods/refinedstorage2/releases/tag/v2.0.0-milestone.2.11[Refined Storage 2 has also been ported to Minecraft 1.20.1].
+
+The next plans are:
+
+* Release a Fabric port of Ranged Pumps
+* Potentially port Refined Pipes to Minecraft 1.20.1
+* Keep on working on Refined Storage 2, link:https://github.com/orgs/refinedmods/projects/6/views/7[in which Milestone 2 is nearing completion]

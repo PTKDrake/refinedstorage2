@@ -111,7 +111,7 @@ if there are no style violations.
 
 ### Architecture Decision Records
 
-The ADRs of this project can be found under [doc/architecture/decision](../doc/architecture/decision).
+The ADRs of this project can be found under [docs/architecture/decision](../docs/architecture/decision).
 
 ## Testing
 

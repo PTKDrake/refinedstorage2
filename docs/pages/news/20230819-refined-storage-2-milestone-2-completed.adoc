@@ -1,0 +1,48 @@
+= Refined Storage 2 - milestone 2 completed!
+:type: article
+:description: Milestone 2 for Refined Storage 2 has been completed.
+:date: 2023-08-19
+
+Today, *milestone 2* for Refined Storage 2 has been completed!
+
+image::../../assets/news/20230819-refined-storage-2-milestone-2-completed.png[Screenshot showing how milestone 2 is completed on GitHub]
+
+link:https://github.com/refinedmods/refinedstorage2/wiki/FAQ[_If you don't know what Refined Storage 2 is, please read the FAQ first._]
+
+[.underline.bold]#Milestone 2 brings a lot of essential features:#
+
+* Importer
+* Exporter
+* Upgrades
+* Interface
+* External Storage
+* Support for multiple resource types in a single Grid
+* Colored cables
+* Crafting Grid
+* Detector
+* Constructor
+* Destructor
+* Additional JEI/REI integrations
+
+Additionally, some features have been reworked or improved in comparison with Refined Storage 1.x.
+
+Some statistics:
+
+* Milestone 2 was in development from June 22nd, 2022 to August 19th, 2023.
++ That is little over a year! _(milestone 1 was in development from October 24th, 2020 to June 22nd, 2022 - almost 2 years)_
+* Milestone 2 had 63 closed issues _(milestone 1 had 61 closed issues)_
+* Milestone 2 had 15 releases _(milestone 1 had 5 releases)_
+
+[.underline.bold]#What's next?#
+
+Now that milestone 2 is completed, I can focus on *milestone 3*.
+
+link:https://github.com/refinedmods/refinedstorage2/milestone/3[Milestone 3 brings more networking and wireless access tools.]
+
+After that, the last milestone, link:https://github.com/refinedmods/refinedstorage2/milestone/4[milestone 4] is on the horizon, which will bring autocrafting.
+
+[.underline.bold]#Want to try out Refined Storage 2 yourself?#
+
+* link:https://github.com/refinedmods/refinedstorage2/releases/tag/v2.0.0-milestone.2.14[Find the latest version for milestone 2 here.]
+* link:https://github.com/refinedmods/refinedstorage2/wiki/Getting-started[Find the getting started guide here.]
+* link:https://discordapp.com/invite/VYzsydb[Join our Discord and let me know what your findings are!]
