@@ -12,6 +12,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed cables broken with a Wrench not stacking with newly crafted cables.
 -   Fixed slow performance in the Grid when searching.
 -   Fixed storages failing to load after removing an addon that adds more storage types.
+-   Fixed crash when trying to open block in spectator mode.
+-   Fixed crash when trying to open Grid with EnderIO autocrafting pattern in network.
 
 ## [2.0.0-milestone.4.14] - 2025-02-23
 

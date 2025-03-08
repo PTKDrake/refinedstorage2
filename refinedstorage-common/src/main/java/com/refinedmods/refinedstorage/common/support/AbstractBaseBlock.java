@@ -89,10 +89,10 @@ public abstract class AbstractBaseBlock extends Block {
                 return Optional.empty();
             }
         }
-        final MenuProvider menuProvider = state.getMenuProvider(level, pos);
-        if (menuProvider != null) {
+        final BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof MenuProvider provider) {
             if (player instanceof ServerPlayer serverPlayer) {
-                tryOpenScreen(serverPlayer, menuProvider);
+                tryOpenScreen(serverPlayer, provider);
             }
             return Optional.of(InteractionResult.SUCCESS);
         }
@@ -106,12 +106,6 @@ public abstract class AbstractBaseBlock extends Block {
             return;
         }
         Platform.INSTANCE.getMenuOpener().openMenu(player, menuProvider);
-    }
-
-    @Override
-    public MenuProvider getMenuProvider(final BlockState state, final Level level, final BlockPos pos) {
-        final BlockEntity blockEntity = level.getBlockEntity(pos);
-        return blockEntity instanceof MenuProvider provider ? provider : null;
     }
 
     @Override
