@@ -21,7 +21,6 @@ import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.content.MenuTypeFactory;
 import com.refinedmods.refinedstorage.common.content.RegistryCallback;
 import com.refinedmods.refinedstorage.common.grid.WirelessGridItem;
-import com.refinedmods.refinedstorage.common.iface.InterfacePlatformExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.security.FallbackSecurityCardItem;
 import com.refinedmods.refinedstorage.common.security.SecurityCardItem;
 import com.refinedmods.refinedstorage.common.storage.FluidStorageVariant;
@@ -108,7 +107,7 @@ import com.refinedmods.refinedstorage.neoforge.importer.ItemHandlerImporterTrans
 import com.refinedmods.refinedstorage.neoforge.networking.ForgeCableBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.storage.diskdrive.ForgeDiskDriveBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.storage.diskinterface.ForgeDiskInterfaceBlockEntity;
-import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.FluidHandlerPlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.FluidHandlerExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.ForgeExternalStorageBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.ItemHandlerPlatformExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.neoforge.storage.portablegrid.ForgePortableGridBlockEntity;
@@ -300,11 +299,9 @@ public class ModInitializer extends AbstractModInitializer {
 
     private void registerExternalStorageProviderFactories() {
         RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new InterfacePlatformExternalStorageProviderFactory());
-        RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
             new ItemHandlerPlatformExternalStorageProviderFactory());
         RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new FluidHandlerPlatformExternalStorageProviderFactory()
+            new FluidHandlerExternalStorageProviderFactory()
         );
     }
 

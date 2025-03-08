@@ -8,6 +8,8 @@ import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.ContentNames;
+import com.refinedmods.refinedstorage.common.iface.InterfaceBlock;
+import com.refinedmods.refinedstorage.common.iface.InterfaceProxyExternalStorageProvider;
 import com.refinedmods.refinedstorage.common.storage.StorageConfigurationContainerImpl;
 import com.refinedmods.refinedstorage.common.support.AbstractCableLikeBlockEntity;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
@@ -96,15 +98,17 @@ public abstract class AbstractExternalStorageBlockEntity
         if (direction == null) {
             return;
         }
-        mainNetworkNode.initialize(() -> {
-            final Direction incomingDirection = direction.getOpposite();
-            final BlockPos sourcePosition = worldPosition.relative(direction);
-            return RefinedStorageApi.INSTANCE
+        final Direction incomingDirection = direction.getOpposite();
+        final BlockPos sourcePosition = worldPosition.relative(direction);
+        if (serverLevel.getBlockState(sourcePosition).getBlock() instanceof InterfaceBlock) {
+            mainNetworkNode.initialize(new InterfaceProxyExternalStorageProvider(serverLevel, sourcePosition));
+        } else {
+            mainNetworkNode.initialize(new CompositeExternalStorageProvider(RefinedStorageApi.INSTANCE
                 .getExternalStorageProviderFactories()
                 .stream()
-                .flatMap(factory -> factory.create(serverLevel, sourcePosition, incomingDirection).stream())
-                .findFirst();
-        });
+                .map(factory -> factory.create(serverLevel, sourcePosition, incomingDirection))
+                .toList()));
+        }
     }
 
     @Override
@@ -119,6 +123,10 @@ public abstract class AbstractExternalStorageBlockEntity
                 workRate.slower();
             }
         }
+    }
+
+    public void neighborChanged() {
+        workRate.faster();
     }
 
     @Override

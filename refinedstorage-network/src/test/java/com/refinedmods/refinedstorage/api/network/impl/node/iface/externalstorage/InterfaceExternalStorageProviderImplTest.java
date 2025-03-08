@@ -2,7 +2,6 @@ package com.refinedmods.refinedstorage.api.network.impl.node.iface.externalstora
 
 import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExternalStorageNetworkNode;
-import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExternalStorageProviderFactoryImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceExportStateImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceNetworkNode;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
@@ -48,9 +47,7 @@ class InterfaceExternalStorageProviderImplTest {
         exportState.setCurrentlyExported(0, A, 100);
         exportState.setCurrentlyExported(8, A, 1);
 
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNode
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNode));
 
         // Act
         externalStorage.detectChanges();
@@ -66,9 +63,7 @@ class InterfaceExternalStorageProviderImplTest {
         @InjectNetworkStorageComponent final StorageNetworkComponent storage
     ) {
         // Arrange
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNodeWithoutExportState
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNodeWithoutExportState));
 
         // Act
         externalStorage.detectChanges();
@@ -84,9 +79,7 @@ class InterfaceExternalStorageProviderImplTest {
         @InjectNetworkStorageComponent final StorageNetworkComponent storage
     ) {
         // Arrange
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNode
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNode));
 
         // Act
         final long inserted = storage.insert(A, 10, action, Actor.EMPTY);
@@ -113,9 +106,7 @@ class InterfaceExternalStorageProviderImplTest {
         @InjectNetworkStorageComponent final StorageNetworkComponent storage
     ) {
         // Arrange
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNodeWithoutExportState
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNodeWithoutExportState));
         externalStorage.detectChanges();
 
         // Act
@@ -135,9 +126,7 @@ class InterfaceExternalStorageProviderImplTest {
         // Arrange
         exportState.setCurrentlyExported(0, A, 50);
         exportState.setCurrentlyExported(1, A, 50);
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNode
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNode));
         externalStorage.detectChanges();
 
         // Act
@@ -171,9 +160,7 @@ class InterfaceExternalStorageProviderImplTest {
         // Arrange
         exportState.setCurrentlyExported(0, A, 50);
         exportState.setCurrentlyExported(1, A, 50);
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNode
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNode));
         externalStorage.detectChanges();
 
         // Act
@@ -208,9 +195,7 @@ class InterfaceExternalStorageProviderImplTest {
     ) {
         // Arrange
         exportState.setCurrentlyExported(0, A, 50);
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNode
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNode));
         externalStorage.detectChanges();
 
         // Act
@@ -232,9 +217,7 @@ class InterfaceExternalStorageProviderImplTest {
         @InjectNetworkStorageComponent final StorageNetworkComponent storage
     ) {
         // Arrange
-        externalStorage.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(
-            interfaceNetworkNodeWithoutExportState
-        )));
+        externalStorage.initialize(new InterfaceExternalStorageProviderImpl(interfaceNetworkNodeWithoutExportState));
         externalStorage.detectChanges();
 
         // Act

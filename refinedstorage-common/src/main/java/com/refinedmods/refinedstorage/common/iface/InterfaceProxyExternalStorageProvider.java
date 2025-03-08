@@ -15,11 +15,11 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-class InterfaceProxyExternalStorageProvider implements InterfaceExternalStorageProvider {
+public class InterfaceProxyExternalStorageProvider implements InterfaceExternalStorageProvider {
     private final Level level;
     private final BlockPos pos;
 
-    InterfaceProxyExternalStorageProvider(final Level level, final BlockPos pos) {
+    public InterfaceProxyExternalStorageProvider(final Level level, final BlockPos pos) {
         this.level = level;
         this.pos = pos;
     }

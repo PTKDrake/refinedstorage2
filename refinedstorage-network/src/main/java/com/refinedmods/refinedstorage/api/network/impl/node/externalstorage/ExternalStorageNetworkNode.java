@@ -3,10 +3,10 @@ package com.refinedmods.refinedstorage.api.network.impl.node.externalstorage;
 import com.refinedmods.refinedstorage.api.network.impl.node.AbstractNetworkNode;
 import com.refinedmods.refinedstorage.api.network.impl.storage.NetworkNodeStorageConfiguration;
 import com.refinedmods.refinedstorage.api.network.impl.storage.StorageConfiguration;
-import com.refinedmods.refinedstorage.api.network.node.externalstorage.ExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.api.network.storage.StorageProvider;
 import com.refinedmods.refinedstorage.api.storage.Storage;
 import com.refinedmods.refinedstorage.api.storage.external.ExternalStorage;
+import com.refinedmods.refinedstorage.api.storage.external.ExternalStorageProvider;
 import com.refinedmods.refinedstorage.api.storage.tracked.TrackedStorageRepository;
 
 import java.util.function.LongSupplier;
@@ -33,14 +33,12 @@ public class ExternalStorageNetworkNode extends AbstractNetworkNode implements S
         storage.setTrackingRepository(trackingRepository);
     }
 
-    public void initialize(final ExternalStorageProviderFactory factory) {
+    public void initialize(final ExternalStorageProvider provider) {
         storage.tryClearDelegate();
-        factory.create().ifPresent(provider -> {
-            this.externalStorage = new ExternalStorage(provider, storage);
-            if (isActive()) {
-                setVisible(true);
-            }
-        });
+        externalStorage = new ExternalStorage(provider, storage);
+        if (isActive()) {
+            setVisible(true);
+        }
     }
 
     @Override

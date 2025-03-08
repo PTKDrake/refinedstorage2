@@ -9,12 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 
-public class ItemHandlerPlatformExternalStorageProviderFactory implements ExternalStorageProviderFactory {
+public class FluidHandlerExternalStorageProviderFactory implements ExternalStorageProviderFactory {
     @Override
-    public ExternalStorageProvider create(final ServerLevel level,
-                                          final BlockPos pos,
-                                          final Direction direction) {
+    public ExternalStorageProvider create(final ServerLevel level, final BlockPos pos, final Direction direction) {
         final CapabilityCache capabilityCache = new CapabilityCacheImpl(level, pos, direction);
-        return new ItemHandlerExternalStorageProvider(capabilityCache);
+        return new FluidHandlerExternalStorageProvider(capabilityCache);
     }
 }

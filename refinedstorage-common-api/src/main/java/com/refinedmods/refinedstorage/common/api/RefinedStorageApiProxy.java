@@ -29,7 +29,7 @@ import com.refinedmods.refinedstorage.common.api.storage.StorageBlockProvider;
 import com.refinedmods.refinedstorage.common.api.storage.StorageContainerItemHelper;
 import com.refinedmods.refinedstorage.common.api.storage.StorageRepository;
 import com.refinedmods.refinedstorage.common.api.storage.StorageType;
-import com.refinedmods.refinedstorage.common.api.storage.externalstorage.PlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.common.api.storage.externalstorage.ExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorInsertionStrategy;
 import com.refinedmods.refinedstorage.common.api.support.energy.EnergyItemHelper;
@@ -119,12 +119,12 @@ public class RefinedStorageApiProxy implements RefinedStorageApi {
     }
 
     @Override
-    public void addExternalStorageProviderFactory(final PlatformExternalStorageProviderFactory factory) {
+    public void addExternalStorageProviderFactory(final ExternalStorageProviderFactory factory) {
         ensureLoaded().addExternalStorageProviderFactory(factory);
     }
 
     @Override
-    public Collection<PlatformExternalStorageProviderFactory> getExternalStorageProviderFactories() {
+    public Collection<ExternalStorageProviderFactory> getExternalStorageProviderFactories() {
         return ensureLoaded().getExternalStorageProviderFactories();
     }
 
