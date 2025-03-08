@@ -1,6 +1,7 @@
 package com.refinedmods.refinedstorage.common.storage;
 
 import com.refinedmods.refinedstorage.api.core.CoreValidations;
+import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.storage.SerializableStorage;
 import com.refinedmods.refinedstorage.common.api.storage.StorageInfo;
 import com.refinedmods.refinedstorage.common.api.storage.StorageRepository;
@@ -20,21 +21,25 @@ import net.minecraft.nbt.NbtOps;
 public class StorageRepositoryImpl extends AbstractPlatformSavedData implements StorageRepository {
     public static final String NAME = "refinedstorage_storages";
 
-    private final Codec<Map<UUID, SerializableStorage>> codec = Codec.unboundedMap(
-        UUIDUtil.STRING_CODEC,
-        SerializableStorage.getCodec(this::markAsChanged)
-    );
+    private final Codec<Map<UUID, SerializableStorage>> codec;
     private final Map<UUID, SerializableStorage> entries;
 
     public StorageRepositoryImpl(final CompoundTag tag, final HolderLookup.Provider provider) {
-        this.entries = new HashMap<>(codec.decode(
-            provider.createSerializationContext(NbtOps.INSTANCE),
-            tag
-        ).getOrThrow().getFirst());
+        this.codec = createCodec(this::markAsChanged);
+        this.entries = new HashMap<>(codec.decode(provider.createSerializationContext(NbtOps.INSTANCE), tag)
+            .getOrThrow().getFirst());
     }
 
     public StorageRepositoryImpl() {
+        this.codec = createCodec(this::markAsChanged);
         this.entries = new HashMap<>();
+    }
+
+    private static Codec<Map<UUID, SerializableStorage>> createCodec(final Runnable listener) {
+        final Codec<SerializableStorage> storageCodec = RefinedStorageApi.INSTANCE.getStorageTypeRegistry()
+            .codec()
+            .dispatch(SerializableStorage::getType, storage -> storage.getMapCodec(listener));
+        return new ErrorHandlingMapCodec<>(UUIDUtil.STRING_CODEC, storageCodec);
     }
 
     @Override
