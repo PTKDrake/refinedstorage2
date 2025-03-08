@@ -85,7 +85,23 @@ This project uses [Gitflow](https://www.atlassian.com/git/tutorials/comparing-wo
 
 ## Documentation
 
-Documentation must be kept up to date when adding or changing functionality.
+Keeping documentation up to date is essential when adding or modifying functionality.
+
+### End-user documentation on [refinedmods.com](https://refinedmods.com)
+
+The documentation is stored in the `docs/` directory and is written in Asciidoc format. It
+uses [Refined Sites](https://github.com/refinedmods/refinedsites) as a static site generator.
+
+#### Hosting
+
+Documentation from all Refined Mods projects is aggregated in
+a [separate repository](https://github.com/refinedmods/refinedmods.github.io). This repository is then used to host the
+documentation on [refinedmods.com](https://refinedmods.com).
+
+#### Building locally
+
+You can build the documentation standalone by running the `docs/build-docs.ps1` script. The generated output will be
+available in the `docs/output/` directory.
 
 ### Javadoc
 

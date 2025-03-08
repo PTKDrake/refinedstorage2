@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script th:src="@{'./assets/color-modes.js'}"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex" th:if="${!currentComponent.latest}">
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Docs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{'./assets/styles.css'}">
+    <script th:src="@{'./assets/main.js'}" defer></script>
+</head>
+<body>
+<div class="d-flex flex-column vh-100">
+    <div class="row g-0 h-100 overflow-auto">
+        <div class="col-xl-3 shadow bg-light-subtle p-3 scrollbar-col" th:if="${!currentComponent.root}">
+            <div class="d-flex border-bottom pb-2 mb-2 justify-content-between">
+                <a th:href="@{'./' + ${currentComponent.slug} + '/' + ${currentComponent.latest ? '' : currentComponent.version.friendlyName() + '/'} + 'index.html'}"
+                   class="link-body-emphasis d-flex d-flex gap-2 align-items-center text-decoration-none">
+                    <span class="fs-5 fw-semibold" th:text="${currentComponent.name}"></span>
+                </a>
+                <div class="d-flex">
+                    <button class="btn btn-outline btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <span th:text="${currentComponent.version.friendlyName()}"
+                              th:if="${!currentComponent.latest}"></span>
+                        <span class="badge rounded-pill text-bg-primary"
+                              th:if="${currentComponent.latest}">Latest</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li th:each="component : ${otherComponents}">
+                            <a class="dropdown-item"
+                               th:classappend="${component.version == currentComponent.version ? 'active' : ''}"
+                               th:href="@{'./' + ${component.slug} + '/' + ${component.latest ? '' : component.version.friendlyName() + '/'} + 'index.html'}">
+                                <span th:text="${component.version.friendlyName()}"></span>
+                                <span class="badge rounded-pill text-bg-primary"
+                                      th:if="${component.latest}">Latest</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <button class="btn btn-outline btn-sm" id="nav-expand-button" role="button" aria-label="Expand all">
+                        <i class="bi bi-arrows-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <ul class="list-unstyled ps-0">
+                <li class="mb-1" th:each="item : ${navigationItems}">
+                    <a class="btn btn-toggle-no-children d-inline-flex align-items-center rounded border-0 gap-2"
+                       th:if="${item.children == null}"
+                       th:classappend="${item.active ? 'active' : ''}"
+                       th:href="@{'./' + ${currentComponent.slug} + '/' + ${currentComponent.latest ? '' : currentComponent.version.friendlyName() + '/'} + ${item.url}}">
+                        <i class="bi"
+                           th:if="${item.icon != null && #strings.contains(item.icon, 'bi-')}"
+                           th:classappend="${item.icon}"></i>
+                        <img th:src="@{'./assets/' + ${currentComponent.slug} + '.' + ${currentComponent.version.friendlyName()} + '/' + ${item.icon}}"
+                             th:if="${item.icon != null && !#strings.contains(item.icon, 'bi-')}"
+                             width="32"
+                             height="32">
+                        <span th:utext="${item.name}"></span>
+                    </a>
+                    <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0"
+                            th:if="${item.children != null}"
+                            th:classappend="${item.active ? 'collapsed' : ''}"
+                            data-bs-toggle="collapse"
+                            th:attr="data-bs-target='#collapse-' + ${item.key}, aria-expanded=${item.active} ? 'true' : 'false'"
+                            th:utext="${item.name}">
+                    </button>
+                    <div class="nav-collapse collapse"
+                         th:if="${item.children != null}"
+                         th:classappend="${item.active ? 'show' : ''}"
+                         th:id="'collapse-' + ${item.key}">
+                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                            <li th:each="subItem : ${item.children}">
+                                <a th:href="@{'./' + ${currentComponent.slug} + '/' + ${currentComponent.latest ? '' : currentComponent.version.friendlyName() + '/'} + ${subItem.url} + '#nav-' + ${subItem.nameSlug}}"
+                                   th:classappend="${subItem.active ? 'active' : ''}"
+                                   th:id="'nav-' + ${subItem.nameSlug}"
+                                   class="link-body-emphasis d-inline-flex text-decoration-none rounded align-items-center gap-2">
+                                    <img th:if="${subItem.icon != null}"
+                                         th:src="@{'./assets/' + ${currentComponent.slug} + '.' + ${currentComponent.version.friendlyName()} + '/' + ${subItem.icon}}"
+                                         width="32"
+                                         height="32">
+                                    <span th:utext="${subItem.name}"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col scrollbar-col">
+            <div class="container mt-3">
+                <h1 class="mb-2">
+                    <img th:if="${icon != null}"
+                         th:src="@{'./assets/' + ${currentComponent.slug} + '.' + ${currentComponent.version.friendlyName()} + '/' + ${icon}}"
+                         width="32"
+                         height="32">
+                    <span th:utext="${title}" th:remove="tag"></span>
+                </h1>
+                <nav aria-label="breadcrumb" th:if="${#lists.size(breadcrumbs) > 0}">
+                    <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+                        <li class="breadcrumb-item" th:each="breadcrumb : ${breadcrumbs}"
+                            th:classappend="${breadcrumb.active ? 'active' : ''}">
+                            <a class="link-body-emphasis fw-semibold text-decoration-none"
+                               th:if="${!breadcrumb.active}"
+                               th:href="@{'./' + ${currentComponent.slug} + '/' + ${currentComponent.latest ? '' : currentComponent.version.friendlyName() + '/'} + ${breadcrumb.url}}">
+                                <i th:if="${breadcrumb.icon != null}" class="bi"
+                                   th:classappend="${breadcrumb.icon}"></i>
+                                <span th:utext="${breadcrumb.name}"></span>
+                            </a>
+                            <div th:if="${breadcrumb.active}" th:remove="tag">
+                                <i th:if="${breadcrumb.icon != null}" class="bi"
+                                   th:classappend="${breadcrumb.icon}"></i>
+                                <span th:utext="${breadcrumb.name}"></span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                <div layout:fragment="content"></div>
+            </div>
+            <div class="container">
+                <footer class="py-3 my-4">
+                    <p class="text-center text-body-secondary">&copy; <span
+                            th:text="${#dates.year(#dates.createNow())}"></span> Refined Mods</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+    <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
+            id="bd-theme"
+            type="button"
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
+            aria-label="Toggle theme (auto)">
+        <i class="bi bi-circle-half theme-icon-active"></i>
+        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+        <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
+                    aria-pressed="false">
+                <i class="bi bi-sun-fill me-2 theme-icon"></i>
+                Light
+                <i class="bi bi-check2 ms-auto theme-check"></i>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
+                    aria-pressed="false">
+                <i class="bi bi-moon-stars-fill me-2 theme-icon"></i>
+                Dark
+                <i class="bi bi-check2 ms-auto theme-check"></i>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
+                    aria-pressed="true">
+                <i class="bi bi-circle-half me-2 theme-icon"></i>
+                Auto
+                <i class="bi bi-check2 ms-auto theme-check"></i>
+            </button>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

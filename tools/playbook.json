@@ -1,0 +1,11 @@
+{
+  "name": "Refined Mods",
+  "url": "https://refinedmods.com",
+  "components": [
+    {
+      "name": "Refined Storage",
+      "path": "../",
+      "version": "snapshot"
+    }
+  ]
+}
