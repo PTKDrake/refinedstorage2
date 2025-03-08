@@ -1,0 +1,6 @@
+= What's new in Refined Storage 2
+:type: article
+:description: The first beta of Refined Storage v2.0.0 has been released. What's new?
+:date: 2025-03-08
+
+tbd
