@@ -1,7 +1,6 @@
 package com.refinedmods.refinedstorage.api.network.impl.node.iface.externalstorage;
 
 import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExternalStorageNetworkNode;
-import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExternalStorageProviderFactoryImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceExportStateImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceNetworkNode;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
@@ -31,7 +30,7 @@ class SelfIoInterfaceExternalStorageProviderImplTest {
         exportState = new InterfaceExportStateImpl(2);
         iface.setExportState(exportState);
         iface.setTransferQuotaProvider(resource -> 100);
-        connection.initialize(new ExternalStorageProviderFactoryImpl(new InterfaceExternalStorageProviderImpl(iface)));
+        connection.initialize(new InterfaceExternalStorageProviderImpl(iface));
     }
 
     // We don't allow self-insertions and self-extractions for the same reasons mentioned in

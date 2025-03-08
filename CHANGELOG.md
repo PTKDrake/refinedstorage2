@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+-   The External Storage now supports multiple resource types on a single connected inventory.
+
 ### Fixed
 
 -   Fixed cables broken with a Wrench not stacking with newly crafted cables.
@@ -14,6 +18,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -   Fixed storages failing to load after removing an addon that adds more storage types.
 -   Fixed crash when trying to open block in spectator mode.
 -   Fixed crash when trying to open Grid with EnderIO autocrafting pattern in network.
+-   Fixed External Storage making resources flicker when the connected inventory is causing neighbor updates.
 
 ## [2.0.0-milestone.4.14] - 2025-02-23
 

@@ -29,7 +29,7 @@ import com.refinedmods.refinedstorage.common.api.storage.StorageBlockProvider;
 import com.refinedmods.refinedstorage.common.api.storage.StorageContainerItemHelper;
 import com.refinedmods.refinedstorage.common.api.storage.StorageRepository;
 import com.refinedmods.refinedstorage.common.api.storage.StorageType;
-import com.refinedmods.refinedstorage.common.api.storage.externalstorage.PlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.common.api.storage.externalstorage.ExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorInsertionStrategy;
 import com.refinedmods.refinedstorage.common.api.support.energy.EnergyItemHelper;
@@ -91,9 +91,9 @@ public interface RefinedStorageApi {
 
     PlatformRegistry<ExporterTransferStrategyFactory> getExporterTransferStrategyRegistry();
 
-    void addExternalStorageProviderFactory(PlatformExternalStorageProviderFactory factory);
+    void addExternalStorageProviderFactory(ExternalStorageProviderFactory factory);
 
-    Collection<PlatformExternalStorageProviderFactory> getExternalStorageProviderFactories();
+    Collection<ExternalStorageProviderFactory> getExternalStorageProviderFactories();
 
     Collection<DestructorStrategyFactory> getDestructorStrategyFactories();
 

@@ -3,7 +3,6 @@ package com.refinedmods.refinedstorage.api.network.impl.node.iface.externalstora
 import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExternalStorageNetworkNode;
-import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.ExternalStorageProviderFactoryImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.externalstorage.StorageExternalStorageProvider;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceExportStateImpl;
 import com.refinedmods.refinedstorage.api.network.impl.node.iface.InterfaceNetworkNode;
@@ -59,17 +58,17 @@ class IoLoopInterfaceExternalStorageProviderImplTest {
         interfaceWithExternalStorageState.setRequestedResource(1, A, 10);
         interfaceWithExternalStorage.setExportState(interfaceWithExternalStorageState);
         interfaceWithExternalStorage.setTransferQuotaProvider(resource -> 100);
-        externalStorageConnectionToInterface.initialize(new ExternalStorageProviderFactoryImpl(
+        externalStorageConnectionToInterface.initialize(
             new InterfaceExternalStorageProviderImpl(interfaceWithExternalStorage)
-        ));
+        );
 
         interfaceWithExternalStorageState2 = new InterfaceExportStateImpl(2);
         interfaceWithExternalStorageState2.setRequestedResource(1, A, 10);
         interfaceWithExternalStorage2.setExportState(interfaceWithExternalStorageState2);
         interfaceWithExternalStorage2.setTransferQuotaProvider(resource -> 100);
-        externalStorageConnectionToInterface2.initialize(new ExternalStorageProviderFactoryImpl(
+        externalStorageConnectionToInterface2.initialize(
             new InterfaceExternalStorageProviderImpl(interfaceWithExternalStorage2)
-        ));
+        );
 
         regularInterfaceState = new InterfaceExportStateImpl(2);
         regularInterfaceState.setRequestedResource(1, A, 10);
@@ -80,9 +79,7 @@ class IoLoopInterfaceExternalStorageProviderImplTest {
         regularStorageInNetwork.insert(A, 10, Action.EXECUTE, Actor.EMPTY);
         networkStorage.addSource(regularStorageInNetwork);
 
-        externalStorageWithNonInterfaceConnection.initialize(new ExternalStorageProviderFactoryImpl(
-            new StorageExternalStorageProvider(new StorageImpl())
-        ));
+        externalStorageWithNonInterfaceConnection.initialize(new StorageExternalStorageProvider(new StorageImpl()));
     }
 
     // Insertions
