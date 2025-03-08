@@ -330,6 +330,7 @@ public final class PlatformImpl extends AbstractPlatform {
     }
 
     @Override
+    @Nullable
     public NetworkNodeContainerProvider getContainerProvider(final Level level,
                                                              final BlockPos pos,
                                                              @Nullable final Direction direction) {
