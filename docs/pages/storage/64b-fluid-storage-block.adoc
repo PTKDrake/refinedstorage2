@@ -1,5 +1,5 @@
-= 64k Fluid Storage Block
-:icon: 64k-storage-block.png
+= 64B Fluid Storage Block
+:icon: 64b-fluid-storage-block.png
 :from: v0.9.0-beta
 
 include::../../partials/fluid-storage-block.adoc[]

@@ -57,18 +57,47 @@ However, the search is more powerful than that, supporting an entire query langu
 * Search in tags with `$`
 * `>`, `<`, `>=`, `<=` for amount comparisons
 
+=== Autoselected mode
+
+The {doctitle} can be configured to automatically select the search bar when opening it.
+
+> The autoselected mode applies to all {doctitle}s and is stored on the client for each player.
+
+=== Recipe viewer synchronization
+
+The search box can be configured to synchronize with the recipe viewer search box, one-way (from the {doctitle} to the recipe viewer) or two-way synchronization.
+
+Read more:
+
+- xref:../integrations/just-enough-items.adoc[]
+- xref:../integrations/roughly-enough-items.adoc[]
+- xref:../integrations/emi.adoc[]
+
+=== Remember search query
+
+The {doctitle} can be configured to remember the search query when closing and re-opening the {doctitle}.
+You can do this by modifying the `rememberSearchQuery` config option.
+
 == Sorting
 
-The resources in a {doctitle} can be sorted in ascending or descending manner in various ways:
+The resources in a {doctitle} can be sorted in a ascending or descending manner in various ways:
 
 - By name
 - By quantity
 - By ID
 - Last modified
 
-include::../../partials/search-box.adoc[]
+> The sorting type applies to all {doctitle}s and is stored on the client for each player.
 
-== Sizes
+== Display
+
+=== View type
+
+The {doctitle} can be configured to only show autocraftable resources or only show non-autocraftable resources.
+
+> The view type applies to all {doctitle}s and is stored on the client for each player.
+
+=== Size
 
 The size of any {doctitle} can be configured as well:
 
@@ -79,29 +108,26 @@ The size of any {doctitle} can be configured as well:
 | Stretched | The {doctitle} will take up all the vertical screen space.
 | Small | 3 rows
 | Medium | 5 rows
-| Large | 8 rows2.0.0-milestone.1.1
+| Large | 8 rows
 | Extra large | 12 rows
 |===
 
 When choosing the stretched size, the {doctitle} will take up all the vertical screen space.
 This can be limited through the `maxRowsStretch` config option.
 
-== Display
+> The size applies to all {doctitle}s and is stored on the client for each player.
 
-The {doctitle} can be configured to only show autocraftable items or only non-autocraftable items.
+=== Detailed tooltips
 
 By default, the tooltips for resources in a {doctitle} are a little bit bigger to display the total amount and the last modified information.
 This can be turned off by using the `detailedTooltip` config option.
+
+=== Other configuration
 
 By default, the {doctitle} uses a small font size to display resource amounts.
 Use the `largeFont` config option to change this.
 
 The scrollbar uses __smooth-scrolling__, if you prefer regular scrolling you can use the `smoothScrolling` config option.
-
-== Remember search query
-
-The {doctitle} can be configured to remember the search query when closing and re-opening the {doctitle}.
-You can do this by modifying the `rememberSearchQuery` config option.
 
 == Prevent sorting while shift is down
 

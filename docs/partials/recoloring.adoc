@@ -2,5 +2,5 @@
 
 You can recolor the {doctitle} in 2 ways:
 
-- Using SHIFT + a dye on the {doctitle}
+- While crouching, using a dye on the {doctitle}
 - Combining the block with a dye as a crafting recipe

@@ -18,9 +18,12 @@
                 manipulate items and blocks in the world and from within the system, such as importers, exporters,
                 constructors, destructors, and more! There are also devices in this mod that allow the player to
                 setup auto-crafting, allowing the crafting of complex recipes in a few simple clicks.</p>
-            <a class="btn btn-primary btn-lg"
-               th:href="@{'./' + ${currentComponent.slug} + '/' + ${currentComponent.latest ? '' : currentComponent.version.friendlyName() + '/'} + 'getting-started.html'}"
-               role="button">Get started</a>
+            <div class="d-flex gap-3 align-items-center">
+                <a class="btn btn-primary btn-lg"
+                   th:href="@{'./' + ${currentComponent.slug} + '/' + ${currentComponent.latest ? '' : currentComponent.version.friendlyName() + '/'} + 'getting-started.html'}"
+                   role="button">Get started</a>
+                <span class="text-muted">Available for NeoForge and Fabric</span>
+            </div>
         </div>
     </main>
 

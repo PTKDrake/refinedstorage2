@@ -6,4 +6,4 @@ include::../../partials/storage-disk.adoc[]
 
 == Storage capacity
 
-The {doctitle} can store 4.000 items.
+The {doctitle} can store 4096 items.

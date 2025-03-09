@@ -112,43 +112,43 @@
         "ref": "storage/creative-storage-block.adoc"
       },
       {
-        "ref": "storage/64k-fluid-storage-part.adoc"
+        "ref": "storage/64b-fluid-storage-part.adoc"
       },
       {
-        "ref": "storage/256k-fluid-storage-part.adoc"
+        "ref": "storage/256b-fluid-storage-part.adoc"
       },
       {
-        "ref": "storage/1024k-fluid-storage-part.adoc"
+        "ref": "storage/1024b-fluid-storage-part.adoc"
       },
       {
-        "ref": "storage/4096k-fluid-storage-part.adoc"
+        "ref": "storage/4096b-fluid-storage-part.adoc"
       },
       {
-        "ref": "storage/64k-fluid-storage-disk.adoc"
+        "ref": "storage/64b-fluid-storage-disk.adoc"
       },
       {
-        "ref": "storage/256k-fluid-storage-disk.adoc"
+        "ref": "storage/256b-fluid-storage-disk.adoc"
       },
       {
-        "ref": "storage/1024k-fluid-storage-disk.adoc"
+        "ref": "storage/1024b-fluid-storage-disk.adoc"
       },
       {
-        "ref": "storage/4096k-fluid-storage-disk.adoc"
+        "ref": "storage/4096b-fluid-storage-disk.adoc"
       },
       {
         "ref": "storage/creative-fluid-storage-disk.adoc"
       },
       {
-        "ref": "storage/64k-fluid-storage-block.adoc"
+        "ref": "storage/64b-fluid-storage-block.adoc"
       },
       {
-        "ref": "storage/256k-fluid-storage-block.adoc"
+        "ref": "storage/256b-fluid-storage-block.adoc"
       },
       {
-        "ref": "storage/1024k-fluid-storage-block.adoc"
+        "ref": "storage/1024b-fluid-storage-block.adoc"
       },
       {
-        "ref": "storage/4096k-fluid-storage-block.adoc"
+        "ref": "storage/4096b-fluid-storage-block.adoc"
       },
       {
         "ref": "storage/creative-fluid-storage-block.adoc"

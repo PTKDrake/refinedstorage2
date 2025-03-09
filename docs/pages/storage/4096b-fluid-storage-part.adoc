@@ -1,0 +1,5 @@
+= 4096B Fluid Storage Part
+:icon: 4096b-fluid-storage-part.png
+:from: v0.9.0-beta
+
+The {doctitle} is used to craft the xref:4096b-fluid-storage-disk.adoc[] and xref:4096b-fluid-storage-block.adoc[].

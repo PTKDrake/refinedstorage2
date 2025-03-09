@@ -1,5 +1,5 @@
-= 64k Fluid Storage Disk
-:icon: 64k-fluid-storage-disk.png
+= 64B Fluid Storage Disk
+:icon: 64b-fluid-storage-disk.png
 :from: v0.9.0-beta
 
 include::../../partials/fluid-storage-disk.adoc[]
