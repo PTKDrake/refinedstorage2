@@ -13,7 +13,8 @@ Those disks will provide your storage network with storage.
 If you insert or extract an item, it will use the data on your disks.
 - You'll craft a xref:viewing-resources/grid.adoc[].
 Through that block, you can modify your storage (which will modify the data on your disks).
-- Before crafting any of these devices, you'll first craft a xref:networking/controller.adoc[], which ties the entire network together.
+- The xref:storage/disk-drive.adoc[] and xref:viewing-resources/grid.adoc[] form the __storage network__.
+- The storage network requires energy. We will be using one or more xref:networking/controller.adoc[controllers] to provide the storage network with energy. Indeed, the xref:networking/controller.adoc[] is also part of your storage network.
 
 == A minimal setup
 
@@ -29,18 +30,15 @@ It might also be helpful to know that Refined Storage xref:how-to-install.adoc#_
 === Step 1: The Controller
 
 Craft the xref:networking/controller.adoc[].
-The xref:networking/controller.adoc[] is the "core" of your storage network.
-You'll be connecting all the Refined Storage devices to this block.
+The xref:networking/controller.adoc[] is the block that provides the storage network with energy.
 
-The xref:networking/controller.adoc[] needs energy.
-More specifically, Forge Energy or RF.
-Lots of mods that generate energy support this.
+Place the block and feed it with energy.
 
 === Step 2: Storage and accessing your items
 
 Craft a xref:storage/disk-drive.adoc[] and a xref:storage/1k-storage-disk.adoc[] to store your items.
 
-You can craft a higher tier of xref:storage/index.adoc#_storage_disks[storage disk], but for simplicity sake we're going for a 1k, which can store 1.000 items.
+You can craft a higher tier of xref:storage/index.adoc#_storage_disks[storage disk], but for simplicity’s sake we're going for a 1K, which can store 1.000 items.
 
 Put the xref:storage/1k-storage-disk.adoc[] in the xref:storage/disk-drive.adoc[] and craft a xref:viewing-resources/grid.adoc[] to access your items.
 

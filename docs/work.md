@@ -789,13 +789,3 @@
 ### Removed
 
 - Removed the Patchouli integration.
-
-## [2.0.0-milestone.1.3] - 2022-02-12
-
-### Added
-
-- Forge support.
-
-### Fixed
-
-- Any block can be rotated now if the item tag matches `c:wrenches`.

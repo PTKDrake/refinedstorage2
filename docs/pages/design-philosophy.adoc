@@ -1,0 +1,40 @@
+= Design philosophy
+
+== Consistency and simplicity
+Refined Storage aims to provide a consistent and simple user experience.
+
+- Features should work the same across all modpacks.
+- Avoid feature toggles and config options that alter fundamental behaviors.
+- Keep the experience predictable to reduce confusion, but still allow for complexity.
+
+== No feature flags or configurable behaviors
+Refined Storage does not support feature flags or config options for individual features.
+
+Why?
+
+- Configurable features create different user experiences across modpacks.
+- For the end-user, this may become confusing.
+- Debugging and support become harder when different configurations exist.
+- Hinders maintenance and increases code complexity.
+
+== Avoiding redundancy with other mods
+Refined Storage does not aim to replicate features from other mods but rather focuses on storage networks.
+
+== Addon-based expansion
+Refined Storage follows an addon model for additional functionality and integrations.
+
+- Core functionality remains stable and minimal.
+- New or experimental features are first introduced as addons.
+- Addons allow for independent evolution without bloating base Refined Storage.
+
+== Quality of life and balance
+Quality of Life (QoL) improvements should be carefully considered.
+
+- Over-optimization of actions can reduce the sense of mastery.
+- Balance between ease of use and gameplay depth is critical.
+- Maintaining a "peaceful" user experience is a core principle.
+
+== Conclusion
+
+Refined Storage is designed to be **simple, predictable, and modular**. The focus remains on storage networks while allowing addons to expand and innovate. The mod avoids feature flags, redundant functionality, and excessive QoL changes to maintain a balanced and cohesive experience.
+

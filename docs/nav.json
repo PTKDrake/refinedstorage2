@@ -20,9 +20,9 @@
     "icon": "bi-book"
   },
   {
-    "title": "FAQ",
-    "ref": "faq.adoc",
-    "icon": "bi-question-circle-fill"
+    "title": "Design philosophy",
+    "ref": "design-philosophy.adoc",
+    "icon": "bi-info-circle"
   },
   {
     "title": "Need help?",
