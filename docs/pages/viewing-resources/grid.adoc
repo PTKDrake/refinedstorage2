@@ -46,7 +46,6 @@ You can place the {doctitle} in any direction.
 Use the text box at the top of the {doctitle} to search.
 You can just type words to search for resources with that name in your storage network.
 
-
 However, the search is more powerful than that, supporting an entire query language with syntax highlighting.
 
 - You may use logical operators like `&&` (AND) and `||` (OR) .
@@ -73,10 +72,16 @@ include::../../partials/search-box.adoc[]
 
 The size of any {doctitle} can be configured as well:
 
-- Stretched (default)
-- Small
-- Medium
-- Large
+[cols="1,1"]
+|===
+| Type | Description
+
+| Stretched | The {doctitle} will take up all the vertical screen space.
+| Small | 3 rows
+| Medium | 5 rows
+| Large | 8 rows2.0.0-milestone.1.1
+| Extra large | 12 rows
+|===
 
 When choosing the stretched size, the {doctitle} will take up all the vertical screen space.
 This can be limited through the `maxRowsStretch` config option.

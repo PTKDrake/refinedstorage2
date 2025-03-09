@@ -843,20 +843,3 @@
 ### Removed
 
 - LibBlockAttributes is no longer used and thus no longer bundled with Refined Storage 2.
-
-## [2.0.0-milestone.1.1] - 2021-08-16
-
-### Added
-
-- New Grid size: "Extra large" (12 rows)
-
-### Fixed
-
-- Fix crash when transferring items in the Controller screen.
-- Fix Disk Drive leds not being stable.
-- Fix block variants not being present on Patchouli book entries.
-
-### Changed
-
-- Ported to Minecraft 1.17.1.
-- Implemented a new networking system.
