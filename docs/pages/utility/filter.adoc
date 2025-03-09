@@ -15,7 +15,7 @@ The Grid can filter fluids in the xref:../viewing-resources/fluid-grid.adoc[] an
 The player can choose to let the filter be damage or damage sensitive.
 It is also possible to use a mod filter.
 
-The {doctitle} can be set in a whitelist or blacklist mode, too.
+The {doctitle} can be set in a allowlist or blocklist mode, too.
 
 == Icon and name
 

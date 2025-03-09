@@ -8,11 +8,11 @@ The {doctitle} is a block that provides the storage network with storage of the 
 
 A (negative or positive) priority can be chosen (where a higher priority gets higher precedence to place items in).
 
-== Whitelist and blacklist
+== Allowlist and blocklist
 
-There is also a whitelist and blacklist option to only allow or forbid some items or fluids from entering the connected inventory.
+There is also a allowlist and blocklist option to only allow or forbid some items or fluids from entering the connected inventory.
 
-The whitelist or blacklist can be configured to be NBT or damage sensitive.
+The allowlist or blocklist can be configured to be NBT or damage sensitive.
 
 == Mode
 

@@ -30,7 +30,7 @@ Configure the filter slots of the xref:constructor.adoc[] to the block you want 
 
 To destroy and insert blocks from the world into your storage, use an xref:destructor.adoc[].
 
-You can configure a whitelist or blacklist of blocks to destroy.
+You can configure a allowlist or blocklist of blocks to destroy.
 
 == Disk Manipulator
 

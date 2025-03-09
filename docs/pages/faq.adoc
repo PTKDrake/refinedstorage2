@@ -57,7 +57,7 @@ Alternatively, you can increase the range in the Refined Storage config file to 
 == Is there a way to request autocrafting in the Grid if I already have the item or fluid?
 
 Yes!
-There are many helpful key and mouse bindings for the xref:viewing-resources/grid.adoc#_controls[grid].
+There are many helpful key and mouse bindings for the xref:viewing-resources/grid.adoc#_basic_controls[grid].
 
 == I found an issue/bug with Refined Storage!
 

@@ -414,6 +414,24 @@
     ]
   },
   {
+    "title": "Integrations",
+    "ref": "integrations/index.adoc",
+    "children": [
+      {
+        "ref": "integrations/just-enough-items.adoc"
+      },
+      {
+        "ref": "integrations/roughly-enough-items.adoc"
+      },
+      {
+        "ref": "integrations/emi.adoc"
+      },
+      {
+        "ref": "integrations/fabric-ecosystem.adoc"
+      }
+    ]
+  },
+  {
     "title": "Advanced usage",
     "ref": "advanced-usage/index.adoc",
     "children": [

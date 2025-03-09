@@ -9,11 +9,11 @@ The {doctitle} won't despawn when dropped in the world.
 
 A (negative or positive) priority can be chosen (where a higher priority gets higher precedence to place items in).
 
-== Whitelist and blacklist
+== Allowlist and blocklist
 
-There is also a whitelist and blacklist option to only allow or forbid some items from entering the {doctitle}.
+There is also a allowlist and blocklist option to only allow or forbid some items from entering the {doctitle}.
 
-The whitelist or blacklist can be configured to be NBT or damage sensitive.
+The allowlist or blocklist can be configured to be NBT or damage sensitive.
 
 == Mode
 

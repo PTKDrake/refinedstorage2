@@ -4,8 +4,8 @@
 
 The {doctitle} destroys blocks or fluids in front of it and puts the drops in the storage network.
 
-The {doctitle} has the ability to only break certain blocks or fluids, with the whitelist and blacklist option.
-Said whitelist and blacklist can be NBT or damage sensitive.
+The {doctitle} has the ability to only break certain blocks or fluids, with the allowlist and blocklist option.
+Said allowlist and blocklist can be NBT or damage sensitive.
 
 The {doctitle} can also pick up items in the world instead of destroying blocks.
 

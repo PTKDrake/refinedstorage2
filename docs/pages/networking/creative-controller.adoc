@@ -2,7 +2,7 @@
 :from: v0.3.0-alpha
 :icon: controller.png
 
-The {doctitle} is the same as a regular xref:controller.adoc[] but has infinite energy.
+The {doctitle} provides the storage network with an infinite amount of energy.
 
 It can only be obtained in creative mode.
 
