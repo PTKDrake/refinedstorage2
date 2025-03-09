@@ -6,4 +6,4 @@ include::../../partials/fluid-storage-block.adoc[]
 
 == Storage capacity
 
-The {doctitle} can store 4096.000 millibuckets or 4096 buckets of any fluid.
+The {doctitle} can store 4096 buckets of any fluid.

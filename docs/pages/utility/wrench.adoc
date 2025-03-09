@@ -2,9 +2,14 @@
 :icon: wrench.png
 :from: v1.2.0
 
-The {doctitle} is a tool that can do two things:
+The {doctitle} is a tool that can dismantle or rotate Refined Storage blocks.
 
-- Rotate blocks
-- Break Refined Storage xref:cover.adoc[covers]
+> Any tool that has the `c:tools/wrench` tag can be used as a wrench on Refined Storage blocks.
 
-Simply sneak and right click when using the {doctitle}.
+== Dismantling
+
+When using the {doctitle} on a Refined Storage block while crouching, the block will drop as-is with all configuration intact.
+
+== Rotating
+
+When using the {doctitle} on a Refined Storage block while **not** crouching, the {doctitle} will rotate the block.

@@ -6,4 +6,4 @@ include::../../partials/fluid-storage-disk.adoc[]
 
 == Storage capacity
 
-The {doctitle} can store 1024.000 millibuckets or 1024 buckets of any fluid.
+The {doctitle} can store 1024 buckets of any fluid.

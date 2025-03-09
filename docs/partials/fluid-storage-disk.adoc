@@ -1,4 +1,4 @@
-A {doctitle} is an item where items from the storage system are stored on.
+A {doctitle} is an item where fluids from the storage system are stored on.
 It has to be put in a xref:../pages/storage/disk-drive.adoc[].
 
 The {doctitle} won't despawn when dropped in the world.
