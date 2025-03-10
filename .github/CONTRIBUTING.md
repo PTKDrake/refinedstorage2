@@ -100,7 +100,7 @@ documentation on [refinedmods.com](https://refinedmods.com).
 
 #### Building locally
 
-You can build the documentation standalone by running the `docs/build-docs.ps1` script. The generated output will be
+You can build the documentation standalone by running the `docs/build-docs.sh` script. The generated output will be
 available in the `docs/output/` directory.
 
 ### Javadoc
