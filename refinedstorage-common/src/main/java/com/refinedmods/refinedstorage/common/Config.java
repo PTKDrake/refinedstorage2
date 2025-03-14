@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
+import com.refinedmods.refinedstorage.api.resource.repository.SortingDirection;
 import com.refinedmods.refinedstorage.common.autocrafting.autocraftermanager.AutocrafterManagerSearchMode;
 import com.refinedmods.refinedstorage.common.autocrafting.autocraftermanager.AutocrafterManagerViewType;
 import com.refinedmods.refinedstorage.common.grid.CraftingGridMatrixCloseBehavior;
@@ -110,9 +110,9 @@ public interface Config {
 
         void clearSynchronizer();
 
-        GridSortingDirection getSortingDirection();
+        SortingDirection getSortingDirection();
 
-        void setSortingDirection(GridSortingDirection sortingDirection);
+        void setSortingDirection(SortingDirection sortingDirection);
 
         GridSortingTypes getSortingType();
 

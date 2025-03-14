@@ -1,8 +1,8 @@
 package com.refinedmods.refinedstorage.neoforge.grid.strategy;
 
-import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridExtractMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridInsertMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
 import com.refinedmods.refinedstorage.common.api.grid.Grid;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;

@@ -1,8 +1,8 @@
 package com.refinedmods.refinedstorage.common.support.packet.c2s;
 
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
-import com.refinedmods.refinedstorage.api.grid.operations.GridExtractMode;
-import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridExtractMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridInsertMode;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.Platform;
 import com.refinedmods.refinedstorage.common.api.grid.GridScrollMode;

@@ -285,7 +285,6 @@ class CompositeStorageImplTest {
         assertThat(storage2.getStored()).isEqualTo(9);
     }
 
-    @SuppressWarnings("AssertBetweenInconvertibleTypes") // intellij bug
     @Test
     void shouldFindMostRecentChange() {
         // Arrange

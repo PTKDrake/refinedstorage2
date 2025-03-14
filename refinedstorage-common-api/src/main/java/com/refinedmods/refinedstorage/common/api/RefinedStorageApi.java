@@ -7,6 +7,8 @@ import com.refinedmods.refinedstorage.api.network.NetworkComponent;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.api.network.security.SecurityPolicy;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.api.autocrafting.PatternProviderExternalPatternSinkFactory;
 import com.refinedmods.refinedstorage.common.api.constructordestructor.ConstructorStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.constructordestructor.DestructorStrategyFactory;
@@ -19,6 +21,7 @@ import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStra
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategyFactory;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.importer.ImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.security.PlatformPermission;
 import com.refinedmods.refinedstorage.common.api.storage.StorageBlockData;
@@ -26,7 +29,7 @@ import com.refinedmods.refinedstorage.common.api.storage.StorageBlockProvider;
 import com.refinedmods.refinedstorage.common.api.storage.StorageContainerItemHelper;
 import com.refinedmods.refinedstorage.common.api.storage.StorageRepository;
 import com.refinedmods.refinedstorage.common.api.storage.StorageType;
-import com.refinedmods.refinedstorage.common.api.storage.externalstorage.PlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.common.api.storage.externalstorage.ExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorInsertionStrategy;
 import com.refinedmods.refinedstorage.common.api.support.energy.EnergyItemHelper;
@@ -88,9 +91,9 @@ public interface RefinedStorageApi {
 
     PlatformRegistry<ExporterTransferStrategyFactory> getExporterTransferStrategyRegistry();
 
-    void addExternalStorageProviderFactory(PlatformExternalStorageProviderFactory factory);
+    void addExternalStorageProviderFactory(ExternalStorageProviderFactory factory);
 
-    Collection<PlatformExternalStorageProviderFactory> getExternalStorageProviderFactories();
+    Collection<ExternalStorageProviderFactory> getExternalStorageProviderFactories();
 
     Collection<DestructorStrategyFactory> getDestructorStrategyFactories();
 
@@ -115,6 +118,11 @@ public interface RefinedStorageApi {
     ComponentMapFactory<NetworkComponent, Network> getNetworkComponentMapFactory();
 
     PlatformRegistry<GridSynchronizer> getGridSynchronizerRegistry();
+
+    ResourceRepositoryMapper<GridResource> getGridResourceRepositoryMapper();
+
+    void addGridResourceRepositoryMapper(Class<? extends ResourceKey> resourceClass,
+                                         ResourceRepositoryMapper<GridResource> mapper);
 
     UpgradeRegistry getUpgradeRegistry();
 

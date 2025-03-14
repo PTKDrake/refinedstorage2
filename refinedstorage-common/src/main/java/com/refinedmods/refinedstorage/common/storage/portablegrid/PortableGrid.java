@@ -3,12 +3,12 @@ package com.refinedmods.refinedstorage.common.storage.portablegrid;
 import com.refinedmods.refinedstorage.api.autocrafting.preview.Preview;
 import com.refinedmods.refinedstorage.api.autocrafting.task.TaskId;
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.operations.GridOperations;
-import com.refinedmods.refinedstorage.api.grid.operations.NoopGridOperations;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcher;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcherManager;
-import com.refinedmods.refinedstorage.api.grid.watcher.GridWatcherManagerImpl;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
+import com.refinedmods.refinedstorage.api.network.impl.node.grid.GridWatcherManager;
+import com.refinedmods.refinedstorage.api.network.impl.node.grid.GridWatcherManagerImpl;
+import com.refinedmods.refinedstorage.api.network.node.grid.EmptyGridOperations;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridOperations;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridWatcher;
 import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.api.storage.NoopStorage;
@@ -125,7 +125,7 @@ class PortableGrid implements Grid {
     @Override
     public GridOperations createOperations(final ResourceType resourceType, final ServerPlayer player) {
         if (storage == null) {
-            return new NoopGridOperations();
+            return EmptyGridOperations.INSTANCE;
         }
         final RootStorage rootStorage = this.storage.getRootStorage();
         final GridOperations operations = resourceType.createGridOperations(rootStorage, new PlayerActor(player));

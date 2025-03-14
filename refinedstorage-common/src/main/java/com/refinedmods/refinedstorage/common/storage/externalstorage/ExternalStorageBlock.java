@@ -4,6 +4,7 @@ import com.refinedmods.refinedstorage.common.content.BlockColorMap;
 import com.refinedmods.refinedstorage.common.content.BlockEntities;
 import com.refinedmods.refinedstorage.common.content.BlockEntityProvider;
 import com.refinedmods.refinedstorage.common.content.Blocks;
+import com.refinedmods.refinedstorage.common.iface.InterfaceBlock;
 import com.refinedmods.refinedstorage.common.support.AbstractBlockEntityTicker;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalCableBlock;
 import com.refinedmods.refinedstorage.common.support.BaseBlockItem;
@@ -23,6 +24,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -85,8 +87,13 @@ public class ExternalStorageBlock extends AbstractDirectionalCableBlock
         super.neighborChanged(state, level, pos, block, fromPos, moving);
         if (level instanceof ServerLevel serverLevel
             && level.getBlockEntity(pos) instanceof AbstractExternalStorageBlockEntity blockEntity) {
-            LOGGER.debug("External storage neighbor has changed, reloading {}", pos);
-            blockEntity.loadStorage(serverLevel);
+            final boolean didBreakInterfaceBlock = block instanceof InterfaceBlock;
+            final boolean didPlacePotentialInterfaceBlock = block instanceof AirBlock;
+            if (didBreakInterfaceBlock || didPlacePotentialInterfaceBlock) {
+                blockEntity.loadStorage(serverLevel);
+            } else {
+                blockEntity.neighborChanged();
+            }
         }
     }
 

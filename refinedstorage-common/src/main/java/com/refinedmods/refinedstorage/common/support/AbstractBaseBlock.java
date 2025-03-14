@@ -5,6 +5,7 @@ import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.support.network.NetworkNodeContainerProvider;
 import com.refinedmods.refinedstorage.common.content.BlockColorMap;
 import com.refinedmods.refinedstorage.common.content.Sounds;
+import com.refinedmods.refinedstorage.common.networking.AbstractCableBlockEntity;
 import com.refinedmods.refinedstorage.common.networking.CableConnections;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeMenuProvider;
 
@@ -88,10 +89,10 @@ public abstract class AbstractBaseBlock extends Block {
                 return Optional.empty();
             }
         }
-        final MenuProvider menuProvider = state.getMenuProvider(level, pos);
-        if (menuProvider != null) {
+        final BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof MenuProvider provider) {
             if (player instanceof ServerPlayer serverPlayer) {
-                tryOpenScreen(serverPlayer, menuProvider);
+                tryOpenScreen(serverPlayer, provider);
             }
             return Optional.of(InteractionResult.SUCCESS);
         }
@@ -105,12 +106,6 @@ public abstract class AbstractBaseBlock extends Block {
             return;
         }
         Platform.INSTANCE.getMenuOpener().openMenu(player, menuProvider);
-    }
-
-    @Override
-    public MenuProvider getMenuProvider(final BlockState state, final Level level, final BlockPos pos) {
-        final BlockEntity blockEntity = level.getBlockEntity(pos);
-        return blockEntity instanceof MenuProvider provider ? provider : null;
     }
 
     @Override
@@ -233,8 +228,10 @@ public abstract class AbstractBaseBlock extends Block {
         final BlockEntity blockEntity = level.getBlockEntity(hitResult.getBlockPos());
         final ItemStack stack = Platform.INSTANCE.getCloneItemStack(state, level, hitResult, player);
         if (blockEntity != null) {
-            blockEntity.saveToItem(stack, level.registryAccess());
-            CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, CableConnections::stripTag);
+            if (!(blockEntity instanceof AbstractCableBlockEntity)) {
+                blockEntity.saveToItem(stack, level.registryAccess());
+                CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, CableConnections::stripTag);
+            }
             // Ensure that we don't drop items
             level.removeBlockEntity(hitResult.getBlockPos());
         }

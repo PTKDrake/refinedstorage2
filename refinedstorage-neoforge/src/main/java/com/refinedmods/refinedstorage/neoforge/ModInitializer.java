@@ -21,7 +21,6 @@ import com.refinedmods.refinedstorage.common.content.Items;
 import com.refinedmods.refinedstorage.common.content.MenuTypeFactory;
 import com.refinedmods.refinedstorage.common.content.RegistryCallback;
 import com.refinedmods.refinedstorage.common.grid.WirelessGridItem;
-import com.refinedmods.refinedstorage.common.iface.InterfacePlatformExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.security.FallbackSecurityCardItem;
 import com.refinedmods.refinedstorage.common.security.SecurityCardItem;
 import com.refinedmods.refinedstorage.common.storage.FluidStorageVariant;
@@ -82,6 +81,8 @@ import com.refinedmods.refinedstorage.common.support.packet.s2c.PatternGridAllow
 import com.refinedmods.refinedstorage.common.support.packet.s2c.ResourceSlotUpdatePacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.StorageInfoResponsePacket;
 import com.refinedmods.refinedstorage.common.support.packet.s2c.WirelessTransmitterDataPacket;
+import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
+import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import com.refinedmods.refinedstorage.common.upgrade.RegulatorUpgradeItem;
 import com.refinedmods.refinedstorage.common.util.IdentifierUtil;
 import com.refinedmods.refinedstorage.common.util.ServerListener;
@@ -98,13 +99,15 @@ import com.refinedmods.refinedstorage.neoforge.grid.strategy.FluidGridExtraction
 import com.refinedmods.refinedstorage.neoforge.grid.strategy.FluidGridInsertionStrategy;
 import com.refinedmods.refinedstorage.neoforge.grid.strategy.ItemGridExtractionStrategy;
 import com.refinedmods.refinedstorage.neoforge.grid.strategy.ItemGridScrollingStrategy;
+import com.refinedmods.refinedstorage.neoforge.grid.view.ForgeFluidResourceRepositoryMapper;
+import com.refinedmods.refinedstorage.neoforge.grid.view.ForgeItemResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.neoforge.importer.FluidHandlerImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.neoforge.importer.ForgeImporterBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.importer.ItemHandlerImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.neoforge.networking.ForgeCableBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.storage.diskdrive.ForgeDiskDriveBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.storage.diskinterface.ForgeDiskInterfaceBlockEntity;
-import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.FluidHandlerPlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.FluidHandlerExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.ForgeExternalStorageBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.storage.externalstorage.ItemHandlerPlatformExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.neoforge.storage.portablegrid.ForgePortableGridBlockEntity;
@@ -214,6 +217,7 @@ public class ModInitializer extends AbstractModInitializer {
         ((RefinedStorageNeoForgeApiProxy) RefinedStorageNeoForgeApi.INSTANCE).setDelegate(
             new RefinedStorageNeoForgeApiImpl()
         );
+        registerGridResourceRepositoryMappers();
         registerAdditionalGridInsertionStrategyFactories();
         registerGridExtractionStrategyFactories();
         registerGridScrollingStrategyFactories();
@@ -245,6 +249,17 @@ public class ModInitializer extends AbstractModInitializer {
 
         NeoForge.EVENT_BUS.addListener(this::registerWrenchingEvent);
         NeoForge.EVENT_BUS.addListener(this::registerSecurityBlockBreakEvent);
+    }
+
+    private void registerGridResourceRepositoryMappers() {
+        RefinedStorageApi.INSTANCE.addGridResourceRepositoryMapper(
+            ItemResource.class,
+            new ForgeItemResourceRepositoryMapper()
+        );
+        RefinedStorageApi.INSTANCE.addGridResourceRepositoryMapper(
+            FluidResource.class,
+            new ForgeFluidResourceRepositoryMapper()
+        );
     }
 
     private void registerAdditionalGridInsertionStrategyFactories() {
@@ -284,11 +299,9 @@ public class ModInitializer extends AbstractModInitializer {
 
     private void registerExternalStorageProviderFactories() {
         RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new InterfacePlatformExternalStorageProviderFactory());
-        RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
             new ItemHandlerPlatformExternalStorageProviderFactory());
         RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new FluidHandlerPlatformExternalStorageProviderFactory()
+            new FluidHandlerExternalStorageProviderFactory()
         );
     }
 

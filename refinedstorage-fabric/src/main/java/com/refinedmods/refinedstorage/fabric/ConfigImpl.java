@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.fabric;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
+import com.refinedmods.refinedstorage.api.resource.repository.SortingDirection;
 import com.refinedmods.refinedstorage.common.autocrafting.autocraftermanager.AutocrafterManagerSearchMode;
 import com.refinedmods.refinedstorage.common.autocrafting.autocraftermanager.AutocrafterManagerViewType;
 import com.refinedmods.refinedstorage.common.content.DefaultEnergyUsage;
@@ -357,7 +357,7 @@ public class ConfigImpl implements ConfigData, com.refinedmods.refinedstorage.co
 
         private String resourceType = "";
 
-        private GridSortingDirection sortingDirection = GridSortingDirection.ASCENDING;
+        private SortingDirection sortingDirection = SortingDirection.ASCENDING;
 
         private GridSortingTypes sortingType = GridSortingTypes.QUANTITY;
 
@@ -409,12 +409,12 @@ public class ConfigImpl implements ConfigData, com.refinedmods.refinedstorage.co
         }
 
         @Override
-        public GridSortingDirection getSortingDirection() {
+        public SortingDirection getSortingDirection() {
             return sortingDirection;
         }
 
         @Override
-        public void setSortingDirection(final GridSortingDirection sortingDirection) {
+        public void setSortingDirection(final SortingDirection sortingDirection) {
             this.sortingDirection = sortingDirection;
             save();
         }

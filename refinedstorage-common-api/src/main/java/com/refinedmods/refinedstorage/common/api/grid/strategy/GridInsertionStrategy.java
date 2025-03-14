@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.api.grid.strategy;
 
-import com.refinedmods.refinedstorage.api.grid.operations.GridInsertMode;
+import com.refinedmods.refinedstorage.api.network.node.grid.GridInsertMode;
 
 import org.apiguardian.api.API;
 

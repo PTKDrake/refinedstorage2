@@ -18,7 +18,10 @@ base {
 dependencies {
     api(libs.apiguardian)
     api(project(":refinedstorage-core-api"))
+    implementation(libs.slf4j.api)
     testImplementation(libs.junit.api)
+    testImplementation(libs.junit.params)
     testImplementation(libs.assertj)
+    testImplementation(libs.mockito)
     testRuntimeOnly(libs.junit.engine)
 }

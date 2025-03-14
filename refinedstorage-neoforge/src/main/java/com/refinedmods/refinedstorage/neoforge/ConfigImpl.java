@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.neoforge;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridSortingDirection;
+import com.refinedmods.refinedstorage.api.resource.repository.SortingDirection;
 import com.refinedmods.refinedstorage.common.Config;
 import com.refinedmods.refinedstorage.common.autocrafting.autocraftermanager.AutocrafterManagerSearchMode;
 import com.refinedmods.refinedstorage.common.autocrafting.autocraftermanager.AutocrafterManagerViewType;
@@ -428,7 +428,7 @@ public class ConfigImpl implements Config {
         private final ModConfigSpec.LongValue energyUsage;
         private final ModConfigSpec.ConfigValue<String> synchronizer;
         private final ModConfigSpec.ConfigValue<String> resourceType;
-        private final ModConfigSpec.EnumValue<GridSortingDirection> sortingDirection;
+        private final ModConfigSpec.EnumValue<SortingDirection> sortingDirection;
         private final ModConfigSpec.EnumValue<GridSortingTypes> sortingType;
         private final ModConfigSpec.EnumValue<GridViewType> viewType;
 
@@ -457,7 +457,7 @@ public class ConfigImpl implements Config {
                 .define("resourceType", "");
             sortingDirection = builder
                 .translation(translationKey("grid.sortingDirection"))
-                .defineEnum("sortingDirection", GridSortingDirection.ASCENDING);
+                .defineEnum("sortingDirection", SortingDirection.ASCENDING);
             sortingType = builder
                 .translation(translationKey("grid.sortingType"))
                 .defineEnum("sortingType", GridSortingTypes.QUANTITY);
@@ -517,12 +517,12 @@ public class ConfigImpl implements Config {
         }
 
         @Override
-        public GridSortingDirection getSortingDirection() {
+        public SortingDirection getSortingDirection() {
             return sortingDirection.get();
         }
 
         @Override
-        public void setSortingDirection(final GridSortingDirection sortingDirection) {
+        public void setSortingDirection(final SortingDirection sortingDirection) {
             if (sortingDirection != this.sortingDirection.get()) {
                 this.sortingDirection.set(sortingDirection);
                 ConfigImpl.this.spec.save();

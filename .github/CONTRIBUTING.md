@@ -268,7 +268,6 @@ Minecraft.
 | Name                              | Use in addons | Description                                                                                              |
 |-----------------------------------|---------------|----------------------------------------------------------------------------------------------------------|
 | `refinedstorage-core-api`         | ✔️            | Contains some utility classes and enums.                                                                 |
-| `refinedstorage-grid-api`         | ✔️            | Contains Grid related functionality.                                                                     |
 | `refinedstorage-autocrafting-api` | ✔️            | Contains autocrafting related functionality.                                                             |
 | `refinedstorage-network-api`      | ✔️            | Contains storage network related functionality.                                                          |
 | `refinedstorage-network`          | ❌             | Contains implementations of `refinedstorage-network-api`.                                                |

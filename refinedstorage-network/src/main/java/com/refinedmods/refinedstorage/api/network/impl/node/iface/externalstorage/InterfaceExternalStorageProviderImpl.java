@@ -63,13 +63,9 @@ public class InterfaceExternalStorageProviderImpl implements InterfaceExternalSt
             if (resource == null) {
                 continue;
             }
-            slots.add(getResourceAmount(resource, exportState.getExportedAmount(i)));
+            slots.add(new ResourceAmount(resource, exportState.getExportedAmount(i)));
         }
         return slots.iterator();
-    }
-
-    private ResourceAmount getResourceAmount(final ResourceKey resource, final long amount) {
-        return new ResourceAmount(resource, amount);
     }
 
     @Override

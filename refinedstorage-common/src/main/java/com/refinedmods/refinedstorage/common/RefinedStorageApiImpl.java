@@ -10,6 +10,8 @@ import com.refinedmods.refinedstorage.api.network.impl.NetworkBuilderImpl;
 import com.refinedmods.refinedstorage.api.network.impl.NetworkFactory;
 import com.refinedmods.refinedstorage.api.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.api.network.security.SecurityPolicy;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.resource.repository.ResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.autocrafting.PatternProviderExternalPatternSinkFactory;
 import com.refinedmods.refinedstorage.common.api.autocrafting.PatternProviderItem;
@@ -24,6 +26,7 @@ import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStra
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategy;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridScrollingStrategyFactory;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResource;
 import com.refinedmods.refinedstorage.common.api.importer.ImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.common.api.security.PlatformPermission;
 import com.refinedmods.refinedstorage.common.api.storage.StorageBlockData;
@@ -31,7 +34,7 @@ import com.refinedmods.refinedstorage.common.api.storage.StorageBlockProvider;
 import com.refinedmods.refinedstorage.common.api.storage.StorageContainerItemHelper;
 import com.refinedmods.refinedstorage.common.api.storage.StorageRepository;
 import com.refinedmods.refinedstorage.common.api.storage.StorageType;
-import com.refinedmods.refinedstorage.common.api.storage.externalstorage.PlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.common.api.storage.externalstorage.ExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorExtractionStrategy;
 import com.refinedmods.refinedstorage.common.api.storagemonitor.StorageMonitorInsertionStrategy;
 import com.refinedmods.refinedstorage.common.api.support.energy.EnergyItemHelper;
@@ -55,6 +58,7 @@ import com.refinedmods.refinedstorage.common.grid.NoopGridSynchronizer;
 import com.refinedmods.refinedstorage.common.grid.strategy.CompositeGridExtractionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.CompositeGridInsertionStrategy;
 import com.refinedmods.refinedstorage.common.grid.strategy.CompositeGridScrollingStrategy;
+import com.refinedmods.refinedstorage.common.grid.view.GridResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.common.networking.CompositeWirelessTransmitterRangeModifier;
 import com.refinedmods.refinedstorage.common.storage.ClientStorageRepository;
 import com.refinedmods.refinedstorage.common.storage.StorageContainerItemHelperImpl;
@@ -138,14 +142,13 @@ public class RefinedStorageApiImpl implements RefinedStorageApi {
     private final PlatformRegistry<StorageType> storageTypeRegistry = new PlatformRegistryImpl<>();
     private final PlatformRegistry<ResourceType> resourceTypeRegistry = new PlatformRegistryImpl<>();
     private final PlatformRegistry<GridSynchronizer> gridSynchronizerRegistry = new PlatformRegistryImpl<>();
+    private final GridResourceRepositoryMapper gridResourceRepositoryMapper = new GridResourceRepositoryMapper();
     private final PlatformRegistry<ImporterTransferStrategyFactory> importerTransferStrategyRegistry =
         new PlatformRegistryImpl<>();
     private final PlatformRegistry<ExporterTransferStrategyFactory> exporterTransferStrategyRegistry =
         new PlatformRegistryImpl<>();
     private final UpgradeRegistry upgradeRegistry = new UpgradeRegistryImpl();
-    private final Queue<PlatformExternalStorageProviderFactory> externalStorageProviderFactories = new PriorityQueue<>(
-        Comparator.comparingInt(PlatformExternalStorageProviderFactory::getPriority)
-    );
+    private final List<ExternalStorageProviderFactory> externalStorageProviderFactories = new ArrayList<>();
     private final Queue<DestructorStrategyFactory> destructorStrategyFactories = new PriorityQueue<>(
         Comparator.comparingInt(DestructorStrategyFactory::getPriority)
     );
@@ -223,12 +226,12 @@ public class RefinedStorageApiImpl implements RefinedStorageApi {
     }
 
     @Override
-    public void addExternalStorageProviderFactory(final PlatformExternalStorageProviderFactory factory) {
+    public void addExternalStorageProviderFactory(final ExternalStorageProviderFactory factory) {
         externalStorageProviderFactories.add(factory);
     }
 
     @Override
-    public Collection<PlatformExternalStorageProviderFactory> getExternalStorageProviderFactories() {
+    public Collection<ExternalStorageProviderFactory> getExternalStorageProviderFactories() {
         return externalStorageProviderFactories;
     }
 
@@ -291,6 +294,17 @@ public class RefinedStorageApiImpl implements RefinedStorageApi {
     @Override
     public PlatformRegistry<GridSynchronizer> getGridSynchronizerRegistry() {
         return gridSynchronizerRegistry;
+    }
+
+    @Override
+    public ResourceRepositoryMapper<GridResource> getGridResourceRepositoryMapper() {
+        return gridResourceRepositoryMapper;
+    }
+
+    @Override
+    public void addGridResourceRepositoryMapper(final Class<? extends ResourceKey> resourceClass,
+                                                final ResourceRepositoryMapper<GridResource> mapper) {
+        gridResourceRepositoryMapper.addFactory(resourceClass, mapper);
     }
 
     @Override

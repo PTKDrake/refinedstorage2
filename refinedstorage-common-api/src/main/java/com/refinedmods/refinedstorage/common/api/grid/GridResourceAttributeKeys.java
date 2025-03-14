@@ -1,6 +1,6 @@
 package com.refinedmods.refinedstorage.common.api.grid;
 
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceAttributeKey;
+import com.refinedmods.refinedstorage.common.api.grid.view.GridResourceAttributeKey;
 
 import org.apiguardian.api.API;
 

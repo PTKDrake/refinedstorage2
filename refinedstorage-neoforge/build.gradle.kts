@@ -29,7 +29,6 @@ dependencies {
     compileOnly(project(":refinedstorage-storage-api"))
     compileOnly(project(":refinedstorage-network-api"))
     compileOnly(project(":refinedstorage-network"))
-    compileOnly(project(":refinedstorage-grid-api"))
     compileOnly(project(":refinedstorage-autocrafting-api"))
     compileOnly(project(":refinedstorage-query-parser"))
     commonJava(project(path = ":refinedstorage-common", configuration = "commonJava"))
@@ -41,7 +40,6 @@ dependencies {
     commonJava(project(path = ":refinedstorage-storage-api", configuration = "commonJava"))
     commonJava(project(path = ":refinedstorage-network-api", configuration = "commonJava"))
     commonJava(project(path = ":refinedstorage-network", configuration = "commonJava"))
-    commonJava(project(path = ":refinedstorage-grid-api", configuration = "commonJava"))
     commonJava(project(path = ":refinedstorage-autocrafting-api", configuration = "commonJava"))
     commonJava(project(path = ":refinedstorage-query-parser", configuration = "commonJava"))
 }

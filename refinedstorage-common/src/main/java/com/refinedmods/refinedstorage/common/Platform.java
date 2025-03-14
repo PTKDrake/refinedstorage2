@@ -1,7 +1,6 @@
 package com.refinedmods.refinedstorage.common;
 
 import com.refinedmods.refinedstorage.api.core.Action;
-import com.refinedmods.refinedstorage.api.grid.view.GridResourceFactory;
 import com.refinedmods.refinedstorage.api.network.energy.EnergyStorage;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.api.grid.strategy.GridInsertionStrategyFactory;
@@ -63,10 +62,6 @@ public interface Platform {
     boolean canEditBoxLoseFocus(EditBox editBox);
 
     boolean isKeyDown(KeyMapping keyMapping);
-
-    GridResourceFactory getItemGridResourceFactory();
-
-    GridResourceFactory getFluidGridResourceFactory();
 
     GridInsertionStrategyFactory getDefaultGridInsertionStrategyFactory();
 

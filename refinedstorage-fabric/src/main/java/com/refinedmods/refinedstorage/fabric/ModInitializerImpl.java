@@ -20,7 +20,6 @@ import com.refinedmods.refinedstorage.common.content.MenuTypeFactory;
 import com.refinedmods.refinedstorage.common.content.RegistryCallback;
 import com.refinedmods.refinedstorage.common.grid.WirelessGridItem;
 import com.refinedmods.refinedstorage.common.iface.InterfaceBlockEntity;
-import com.refinedmods.refinedstorage.common.iface.InterfacePlatformExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.common.security.FallbackSecurityCardItem;
 import com.refinedmods.refinedstorage.common.security.SecurityCardItem;
 import com.refinedmods.refinedstorage.common.storage.FluidStorageVariant;
@@ -98,6 +97,8 @@ import com.refinedmods.refinedstorage.fabric.grid.strategy.FluidGridExtractionSt
 import com.refinedmods.refinedstorage.fabric.grid.strategy.FluidGridInsertionStrategy;
 import com.refinedmods.refinedstorage.fabric.grid.strategy.ItemGridExtractionStrategy;
 import com.refinedmods.refinedstorage.fabric.grid.strategy.ItemGridScrollingStrategy;
+import com.refinedmods.refinedstorage.fabric.grid.view.FabricFluidGridResourceRepositoryMapper;
+import com.refinedmods.refinedstorage.fabric.grid.view.FabricItemGridResourceRepositoryMapper;
 import com.refinedmods.refinedstorage.fabric.importer.FabricImporterBlockEntity;
 import com.refinedmods.refinedstorage.fabric.importer.FabricStorageImporterTransferStrategyFactory;
 import com.refinedmods.refinedstorage.fabric.networking.FabricCableBlockEntity;
@@ -105,7 +106,7 @@ import com.refinedmods.refinedstorage.fabric.security.NetworkNodeBreakSecurityEv
 import com.refinedmods.refinedstorage.fabric.storage.diskdrive.FabricDiskDriveBlockEntity;
 import com.refinedmods.refinedstorage.fabric.storage.diskinterface.FabricDiskInterfaceBlockEntity;
 import com.refinedmods.refinedstorage.fabric.storage.externalstorage.FabricExternalStorageBlockEntity;
-import com.refinedmods.refinedstorage.fabric.storage.externalstorage.FabricStoragePlatformExternalStorageProviderFactory;
+import com.refinedmods.refinedstorage.fabric.storage.externalstorage.FabricStorageExternalStorageProviderFactory;
 import com.refinedmods.refinedstorage.fabric.storage.portablegrid.FabricPortableGridBlockEntity;
 import com.refinedmods.refinedstorage.fabric.support.energy.EnergyStorageAdapter;
 import com.refinedmods.refinedstorage.fabric.support.resource.ResourceContainerFluidStorageAdapter;
@@ -198,6 +199,7 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
         ((RefinedStorageFabricApiProxy) RefinedStorageFabricApi.INSTANCE).setDelegate(
             new RefinedStorageFabricApiImpl(RefinedStorageApi.INSTANCE)
         );
+        registerGridResourceRepositoryMappers();
         registerAdditionalGridInsertionStrategyFactories();
         registerGridExtractionStrategyFactories();
         registerGridScrollingStrategyFactories();
@@ -221,6 +223,17 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
         pluginEntrypoints.forEach(plugin -> plugin.onApiAvailable(RefinedStorageApi.INSTANCE));
 
         LOGGER.debug("Refined Storage has loaded.");
+    }
+
+    private void registerGridResourceRepositoryMappers() {
+        RefinedStorageApi.INSTANCE.addGridResourceRepositoryMapper(
+            ItemResource.class,
+            new FabricItemGridResourceRepositoryMapper()
+        );
+        RefinedStorageApi.INSTANCE.addGridResourceRepositoryMapper(
+            FluidResource.class,
+            new FabricFluidGridResourceRepositoryMapper()
+        );
     }
 
     private void registerAdditionalGridInsertionStrategyFactories() {
@@ -284,24 +297,19 @@ public class ModInitializerImpl extends AbstractModInitializer implements ModIni
 
     private void registerExternalStorageProviderFactories() {
         RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new InterfacePlatformExternalStorageProviderFactory()
-        );
-        RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new FabricStoragePlatformExternalStorageProviderFactory<>(
+            new FabricStorageExternalStorageProviderFactory<>(
                 ItemStorage.SIDED,
                 VariantUtil::ofItemVariant,
                 resource -> resource instanceof ItemResource itemResource
-                    ? toItemVariant(itemResource) : null,
-                0
+                    ? toItemVariant(itemResource) : null
             )
         );
         RefinedStorageApi.INSTANCE.addExternalStorageProviderFactory(
-            new FabricStoragePlatformExternalStorageProviderFactory<>(
+            new FabricStorageExternalStorageProviderFactory<>(
                 FluidStorage.SIDED,
                 VariantUtil::ofFluidVariant,
                 resource -> resource instanceof FluidResource fluidResource
-                    ? toFluidVariant(fluidResource) : null,
-                -1
+                    ? toFluidVariant(fluidResource) : null
             )
         );
     }
