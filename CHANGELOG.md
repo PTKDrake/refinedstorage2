@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0-milestone.4.141] - 2025-03-14
+
 ### Changed
 
 -   The External Storage now supports multiple resource types on a single connected inventory.
